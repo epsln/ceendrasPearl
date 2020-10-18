@@ -4,6 +4,11 @@
 
 #include "include/arraysOps.h"
 
+double map(double n,double  start1,double  stop1,double  start2,double  stop2){//map a real from one range to another
+	return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
+}
+
+
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
 }

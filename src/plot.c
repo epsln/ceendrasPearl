@@ -76,7 +76,9 @@ void line(int x0,int y0, int x1,int y1, float*** imgArr, int LINE, int w, int h 
 	}
 }
 
-void saveArrayAsBMP(float*** imgArr, char* filename, int w, int h){
+void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
+	int w = PARAMS[3];
+	int h = PARAMS[4];
 
 	FILE *f;
 	unsigned char *img = NULL;
