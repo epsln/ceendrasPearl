@@ -45,15 +45,9 @@ void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][
 	double complex c = ta * ta + tb * tb;
 	double complex delta = b*b - 4 * a * c; 
 	double complex tab = (- b - csqrt(delta))/(2 * a); 
-	//double complex tab = ((-ta * tb) - sqrt((-ta * tb)*(-ta * tb)- 4 *  (ta * ta + tb * tb)))/(2 );
 	double complex z0 = ((tab - 2) * tb)/(tb * tab - 2 * ta + 2 * I * tab);
-	printf("tab = %lf + i %lf\n", creal(tab), cimag(tab));
-	printf("z0 = %lf + i %lf\n", creal(z0), cimag(z0));
-
 	double complex num = (ta*tab - 2 * tb + 4 * I);
 	double complex denum = ((2 * tab + 4)*z0) ;
-	printf("num = %lf + i %lf\n", creal(num), cimag(num));
-	printf("denum = %lf + i %lf\n", creal(denum), cimag(denum));
 
 	gens[0][0][0] = ta/2;
 	gens[0][1][0] =  (ta*tab - 2 * tb + 4 * I)/(z0*(2 * tab + 4)); 

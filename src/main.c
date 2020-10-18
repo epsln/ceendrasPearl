@@ -23,12 +23,7 @@ int LEVMAX = 8;
 
 #define DEBUG 0
 
-struct circle{
-	complex c;
-	double r;
-} circle;
-
-void main(){
+int main(){
 	double complex ta = 2.2;
 	double complex tb = 2.2;
 	int numIm = 0;
@@ -37,7 +32,7 @@ void main(){
 	srand(time(NULL));
 
 	double PARAMS[10];
-	PARAMS[0] = 10; 
+	PARAMS[0] = 10;
 	PARAMS[1] = 0.01; 
 	PARAMS[2] = 1; 
 	PARAMS[3] = 1000; 
@@ -45,13 +40,18 @@ void main(){
 	PARAMS[5] = 1; 
 	PARAMS[6] = 0; 
 
-	float *** imgArr = (float***)malloc(WIDTH*sizeof(float**));
+	float *** imgArr = NULL;
+	imgArr = (float***)malloc(WIDTH*sizeof(float**));
 	for (int i = 0; i< WIDTH; i++) {
 		imgArr[i] = (float **) malloc(HEIGHT*sizeof(float *));
 		for (int j = 0; j < HEIGHT; j++) 
 			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
 	}
 
+	if (imgArr == NULL){
+		printf("Could not allocate memory for the image array !\nExiting...\n");
+		exit(-1);
+	}
 	while(1){
 
 		for (int i = 0; i< WIDTH; i++) {
@@ -61,8 +61,6 @@ void main(){
 				imgArr[i][j][2] = 0;
 			}
 		}
-
-
 
 		//ta = 2 + 2 * I * -sin(theta);
 		//tb = 2*sin(theta) + I * cos(theta);
@@ -78,4 +76,5 @@ void main(){
 		theta += 0.05;
 		if (theta > 3.1415928) exit(1);
 	}
+	return 0;
 }

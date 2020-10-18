@@ -86,19 +86,16 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 	//if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
 	if (lev == LEVMAX || cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI ){
 		//showMatrix(buffWord);
-		//int x0 = (int) map(creal(*oldPoint), -BOUNDS, BOUNDS, 0, WIDTH);
-		//int y0 = (int) map(cimag(*oldPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
-		//int x1 = (int) map(creal(newPoint), -BOUNDS, BOUNDS, 0, WIDTH);
-		//int y1 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x1 = (int) map(creal(z1), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
+		printf("z0 = %lf + i %lf, x0 = %d, y0 = %d\n",creal(z0), cimag(z0), x0, y0);
+		printf("z1 = %lf + i %lf, x1 = %d, y1 = %d\n",creal(z1), cimag(z1), x1, y1);
+		printf("z2 = %lf + i %lf, x2 = %d, y2 = %d\n",creal(z2), cimag(z2), x2, y2);
 		if (*oldPoint != -1000){
-
-		//	if (LINE == 1) line(x0, y0, x1, y1, imgArr);	
 			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
 			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
 			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
@@ -136,7 +133,6 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	double complex endpt[4];
 	double complex fixRep[4][3];
 	double complex word[1000][2][2];
-	double complex group[1000][2][2];
 	int tag[1000];
 	int *plev;
 	plev = &lev;
@@ -145,27 +141,13 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	for (int i = 0; i < 1000; i++){
 		tag[i] = 0;
 	}
-	/*
-	   double complex*** word;
-	   double complex*** group;
-	   tag   = malloc(sizeof(int) * SIZEARR); 
-	   word  = malloc(sizeof(double complex**) * SIZEARR); 
-	   group = malloc(sizeof(double complex**) * SIZEARR); 
-	   for (int i = 0; i < SIZEARR; i++){
-	   word[i]  = (double complex**) malloc( 2 * sizeof(double complex*));
-	   group[i] = (double complex**) malloc( 2 * sizeof(double complex*));
-	   for (int j = 0; j < 2; j++){
-	   word[i][j] = (double complex*) malloc( 2 * sizeof(double complex));
-	   group[i][j] = (double complex*) malloc( 2 * sizeof(double complex));
-	   }
-	   }
-	   */
 
 	grandmaRecipe(ta, tb, gens);
 	printf("a = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[0][0][0]),cimag(gens[0][0][0]), creal(gens[0][1][0]), cimag(gens[0][1][0]), creal(gens[0][0][1]),cimag(gens[0][0][1]), creal(gens[0][1][1]),cimag(gens[0][1][1]));
 	printf("b = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[1][0][0]),cimag(gens[1][0][0]), creal(gens[1][1][0]), cimag(gens[1][1][0]), creal(gens[1][0][1]),cimag(gens[1][0][1]), creal(gens[1][1][1]),cimag(gens[1][1][1]));
 	printf("A = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[2][0][0]),cimag(gens[2][0][0]), creal(gens[2][1][0]), cimag(gens[2][1][0]), creal(gens[2][0][1]),cimag(gens[2][0][1]), creal(gens[2][1][1]),cimag(gens[2][1][1]));
 	printf("B = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[3][0][0]),cimag(gens[3][0][0]), creal(gens[3][1][0]), cimag(gens[3][1][0]), creal(gens[3][0][1]),cimag(gens[3][0][1]), creal(gens[3][1][1]),cimag(gens[3][1][1]));
+
 	double complex buff_gen0[2][2];
 	double complex buff_gen1[2][2];
 	double complex buff_gen2[2][2];
