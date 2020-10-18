@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <complex.h>
 
+#include "include/arraysOps.h"
+
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
 }
@@ -68,4 +70,80 @@ void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][
 	gens[3][0][1] = -gens[1][0][1];
 	gens[3][1][1] = gens[1][0][0];
 }
+
+void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3]){//See pp.218
+	double complex buff_gen_a[2][2];
+	double complex buff_gen_b[2][2];
+	double complex buff_gen_A[2][2];
+	double complex buff_gen_B[2][2];
+	double complex buff_out0[2][2];
+	double complex buff_out1[2][2];
+	//Copy gens to buffers (since I couldn't find a clean way to matmul)
+	matrix3dto2D(gens, buff_gen_a, 0);
+	matrix3dto2D(gens, buff_gen_b, 1);
+	matrix3dto2D(gens, buff_gen_A, 2);
+	matrix3dto2D(gens, buff_gen_B, 3);
+
+	//bAba
+	matmul(buff_gen_b, buff_gen_A, buff_out0);
+	matmul(buff_out0, buff_gen_b, buff_out1);
+	matmul(buff_out1, buff_gen_a, buff_out0);
+	fixRep[0][0] = fix(buff_out0);
+
+	//a
+	fixRep[0][1] = fix(buff_gen_a);
+
+	//BAba
+	matmul(buff_gen_B, buff_gen_A, buff_out0);
+	matmul(buff_out0, buff_gen_b, buff_out1);
+	matmul(buff_out1, buff_gen_a, buff_out0);
+	fixRep[0][2] = fix(buff_out0);
+
+	//ABab
+	matmul(buff_gen_A, buff_gen_B, buff_out0);
+	matmul(buff_out0, buff_gen_a, buff_out1);
+	matmul(buff_out1, buff_gen_b, buff_out0);
+	fixRep[1][0] = fix(buff_out0);
+
+	//b
+	fixRep[1][1] = fix(buff_gen_b);
+
+	//aBAb
+	matmul(buff_gen_a, buff_gen_B, buff_out0);
+	matmul(buff_out0, buff_gen_A, buff_out1);
+	matmul(buff_out1, buff_gen_b, buff_out0);
+	fixRep[1][2] = fix(buff_out0);
+
+	//BabA
+	matmul(buff_gen_B, buff_gen_a, buff_out0);
+	matmul(buff_out0, buff_gen_b, buff_out1);
+	matmul(buff_out1, buff_gen_A, buff_out0);
+	fixRep[2][0] = fix(buff_out0);
+
+	//A
+	fixRep[2][1] = fix(buff_gen_A);
+
+	//baBA
+	matmul(buff_gen_b, buff_gen_a, buff_out0);
+	matmul(buff_out0, buff_gen_B, buff_out1);
+	matmul(buff_out1, buff_gen_A, buff_out0);
+	fixRep[2][2] = fix(buff_out0);
+
+	//abAB
+	matmul(buff_gen_a, buff_gen_b, buff_out0);
+	matmul(buff_out0, buff_gen_A, buff_out1);
+	matmul(buff_out1, buff_gen_B, buff_out0);
+	fixRep[3][0] = fix(buff_out0);
+
+	//B
+	fixRep[3][1] = fix(buff_gen_B);
+
+	//AbaB
+	matmul(buff_gen_A, buff_gen_b, buff_out0);
+	matmul(buff_out0, buff_gen_a, buff_out1);
+	matmul(buff_out1, buff_gen_B, buff_out0);
+	fixRep[3][2] = fix(buff_out0);
+}
+
+
 
