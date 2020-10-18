@@ -5,6 +5,7 @@ CFLAGS := -g -Og -Ofast -Wall -lm
 OBJS := $(patsubst src/%.c,src/%.o,$(wildcard src/*.c))
 
 build: $(OBJS)
+		mkdir -p out/
 		gcc $(OBJS) -o $(EXEC) $(CFLAGS)
 
 # pull in dependency info for *existing* .o files
@@ -17,6 +18,6 @@ build: $(OBJS)
 
 # remove compilation products
 clean:
-	rm -f $(EXEC) *.o *.dep
+	rm -f $(EXEC) src/*.o src/*.dep
 run: build
 	$(EXEC)
