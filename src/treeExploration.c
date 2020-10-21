@@ -92,9 +92,9 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
-		printf("z0 = %lf + i %lf, x0 = %d, y0 = %d\n",creal(z0), cimag(z0), x0, y0);
-		printf("z1 = %lf + i %lf, x1 = %d, y1 = %d\n",creal(z1), cimag(z1), x1, y1);
-		printf("z2 = %lf + i %lf, x2 = %d, y2 = %d\n",creal(z2), cimag(z2), x2, y2);
+		//printf("z0 = %lf + i %lf, x0 = %d, y0 = %d\n",creal(z0), cimag(z0), x0, y0);
+		//printf("z1 = %lf + i %lf, x1 = %d, y1 = %d\n",creal(z1), cimag(z1), x1, y1);
+		//printf("z2 = %lf + i %lf, x2 = %d, y2 = %d\n",creal(z2), cimag(z2), x2, y2);
 		if (*oldPoint != -1000){
 			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
 			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	

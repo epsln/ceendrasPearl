@@ -37,7 +37,7 @@ int main(){
 	PARAMS[2] = 1; 
 	PARAMS[3] = 1000; 
 	PARAMS[4] = 1000; 
-	PARAMS[5] = 1; 
+	PARAMS[5] = 0; 
 	PARAMS[6] = 0; 
 
 	float *** imgArr = NULL;
