@@ -2,4 +2,5 @@
 *.swp
 *.dep
 *.o
+out/
 ceendra
