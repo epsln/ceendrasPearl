@@ -32,13 +32,13 @@ int main(){
 	srand(time(NULL));
 
 	double PARAMS[10];
-	PARAMS[0] = 10;
-	PARAMS[1] = 0.01; 
-	PARAMS[2] = 1; 
-	PARAMS[3] = 1000; 
-	PARAMS[4] = 1000; 
-	PARAMS[5] = 0; 
-	PARAMS[6] = 0; 
+	PARAMS[0] = 10; //levmax
+	PARAMS[1] = 0.01; //epsilon
+	PARAMS[2] = 1; //bounds
+	PARAMS[3] = 1000; //x resolution
+	PARAMS[4] = 1000; //y resolution
+	PARAMS[5] = 1; //Draw line (1 = yes)
+	PARAMS[6] = 0; //Debug mode (1 = yes)
 
 	float *** imgArr = NULL;
 	imgArr = (float***)malloc(WIDTH*sizeof(float**));
@@ -70,6 +70,8 @@ int main(){
 		tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
 		//ta = 2 + cos(theta) + 2*I + I*sin(theta);
 		//tb = 2 + cos(theta) + 2*I + I*sin(theta);
+		ta = 2.2;
+		tb = 2.2;
 		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
