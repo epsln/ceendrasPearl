@@ -1,6 +1,7 @@
 #include <complex.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "include/arraysOps.h"
 #include "include/complexMath.h"
@@ -67,25 +68,37 @@ void turnForward(int *lev, int tag[1000], double complex word[1000][2][2], doubl
 
 
 int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex fixRep[4][3], double complex word[1000][2][2], float*** imgArr){
+	//TODO: Find better way to pass parameters between functions
 	int LEVMAX    = (int) PARAMS[0];
 	double EPSI   = PARAMS[1];
 	double BOUNDS = PARAMS[2];
 	int WIDTH     = (int) PARAMS[3];
 	int HEIGHT    = (int) PARAMS[4];
-	int LINE = (int) PARAMS[5];
+	int LINE      = (int) PARAMS[5];
+	int DEBUG     = (int) PARAMS[5];
 
 
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
-	
+
 	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
 	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
 	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
 
-	//if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
-	if (lev == LEVMAX || cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI ){
-		//showMatrix(buffWord);
+	showMatrix(buffWord, PARAMS);
+	printf("\nfixRep[%d][0] = %lf + i %lf\n", tag[lev], creal(fixRep[tag[lev]][0]),cimag(fixRep[tag[lev]][0]));
+	printf("fixRep[%d][1] = %lf + i %lf\n", tag[lev], creal(fixRep[tag[lev]][1]),cimag(fixRep[tag[lev]][1]));
+	printf("fixRep[%d][2] = %lf + i %lf\n", tag[lev], creal(fixRep[tag[lev]][2]),cimag(fixRep[tag[lev]][2]));
+	printf("z0 = %lf + i %lf\n", creal(z0), cimag(z0));
+	printf("z1 = %lf + i %lf\n", creal(z1), cimag(z1));
+	printf("z2 = %lf + i %lf\n", creal(z2), cimag(z2));
+	printf("z0 - z1 = %lf\n", cabs(z0 - z1));
+	printf("z1 - z2 = %lf\n", cabs(z1 - z2));
+
+	usleep(100);
+	printWord(lev, tag, PARAMS);
+	if (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI ){
 		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x1 = (int) map(creal(z1), -BOUNDS, BOUNDS, 0, WIDTH);
@@ -98,16 +111,56 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 		if (*oldPoint != -1000){
 			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
 			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
-			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
-			imgArr[x0][y0][0] = 255;
-			imgArr[x0][y0][1] = 255;
-			imgArr[x0][y0][2] = 255;
-			imgArr[x1][y1][0] = 255;
-			imgArr[x1][y1][1] = 255;
-			imgArr[x1][y1][2] = 255;
-			imgArr[x2][y2][0] = 255;
-			imgArr[x2][y2][1] = 255;
-			imgArr[x2][y2][2] = 255;
+			//if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
+			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 &&  checkBoundaries(x2, y2, WIDTH, HEIGHT)){
+				imgArr[x0][y0][0] = 255;
+				imgArr[x0][y0][1] = 255;
+				imgArr[x0][y0][2] = 255;
+				imgArr[x1][y1][0] = 255;
+				imgArr[x1][y1][1] = 255;
+				imgArr[x1][y1][2] = 255;
+				imgArr[x2][y2][0] = 255;
+				imgArr[x2][y2][1] = 255;
+				imgArr[x2][y2][2] = 255;
+			}
+		}
+		*oldPoint = newPoint;
+		return 1;
+		}
+		else return 0;
+}
+
+
+int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex fixRep[4][3], double complex word[1000][2][2], float*** imgArr){
+	//Basic branch term using only the distance between an older point and a new point
+	//See pp. 185
+	//TODO: Find better way to pass parameters between functions
+	int LEVMAX    = (int) PARAMS[0];
+	double EPSI   = PARAMS[1];
+	double BOUNDS = PARAMS[2];
+	int WIDTH     = (int) PARAMS[3];
+	int HEIGHT    = (int) PARAMS[4];
+	int LINE      = (int) PARAMS[5];
+	int DEBUG     = (int) PARAMS[5];
+
+
+	double complex buffWord[2][2];
+	matrix3dto2D(word, buffWord, lev);
+	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
+
+	showMatrix(buffWord, PARAMS);
+	printWord(lev, tag, PARAMS);
+	if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
+		int x0 = (int) map(creal(newPoint), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y0 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
+		int x1 = (int) map(creal(*oldPoint), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y1 = (int) map(cimag(*oldPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
+		if (*oldPoint != -1000){
+			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1){
+				line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
+				imgArr[x0][y0][0] = 255;
+				imgArr[x0][y0][1] = 255;
+				imgArr[x0][y0][2] = 255;
 			}
 		}
 		*oldPoint = newPoint;
@@ -192,7 +245,7 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	int i = 0;
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
 
-		while(branchTerm(PARAMS, poldP, lev, tag, endpt, fixRep, word, imgArr) == 0){
+		while(branchTermEpsi(PARAMS, poldP, lev, tag, endpt, fixRep, word, imgArr) == 0){
 			goForward(plev, tag, word, gens);	
 			printWord(lev, tag, PARAMS);
 		}

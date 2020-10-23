@@ -33,14 +33,7 @@ void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][
 double complex fix(double complex T[2][2]){//See pp.76
 	// a = A[0][0] b = A[1][0] c = A[0][1] d = A[1][1]
 	double complex z0 = (T[0][0] - T[1][1] - csqrt(cpow(T[1][1] - T[0][0], 2) + 4*T[1][0]*T[0][1]))/(2*T[0][1]);
-	double complex z1 = (T[0][0] - T[1][1] + csqrt(cpow(T[1][1] - T[0][0], 2) + 4*T[1][0]*T[0][1]))/(2*T[0][1]);
-	printf("MAT\n[[%lf + i %lf, %lf + i%lf],\n[%lf + i %lf, %lf + i %lf ]]\n", creal(T[0][0]),cimag(T[0][0]), creal(T[1][0]), cimag(T[1][0]), creal(T[0][1]),cimag(T[0][1]), creal(T[1][1]),cimag(T[1][1]));
-	double complex num = (-T[0][0] - T[1][1] - csqrt(cpow(T[1][1] - T[0][0], 2) + 4*T[1][0]*T[0][1]))/(2*T[0][1]);
-	double complex denum = (2*T[0][1]);
 
-	printf("num = %lf + i %lf\n", creal(num), cimag(num));
-	printf("denum = %lf + i %lf\n", creal(denum), cimag(denum) );
-	printf("\nz0 = %lf + i %lf\n\n", creal(z0), cimag(z0));
 	return z0;
 }
 
@@ -51,14 +44,7 @@ void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][
 	double complex b = (-ta * tb);
 	double complex c = ta * ta + tb * tb; double complex delta = b*b - 4 * a * c; 
 	double complex tab = (- b - csqrt(delta))/(2 * a); 
-	double complex z0_u = ((tab - 2) * tb);
-	double complex z0_d = (tb * tab - 2 * ta + 2 * I * tab);
-	double complex z0_d1 = (tb * tab);
-	double complex z0_d2 = - 2 * ta;
-	double complex z0_d3 = 2 * I * tab;
 	double complex z0 = ((tab - 2) * tb)/(tb * tab - 2 * ta + 2 * I * tab);
-	double complex num = (ta*tab - 2 * tb + 4 * I);
-	double complex denum = ((2 * tab + 4)*z0) ;
 
 	gens[0][0][0] = ta/2;
 	gens[0][1][0] =  (ta*tab - 2 * tb + 4 * I)/(z0*(2 * tab + 4)); 

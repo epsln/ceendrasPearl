@@ -33,11 +33,11 @@ int main(){
 
 	double PARAMS[10];
 	PARAMS[0] = 10; //levmax
-	PARAMS[1] = 0.01; //epsilon
+	PARAMS[1] = 0.0001; //epsilon
 	PARAMS[2] = 1; //bounds
 	PARAMS[3] = 1000; //x resolution
 	PARAMS[4] = 1000; //y resolution
-	PARAMS[5] = 1; //Draw line (1 = yes)
+	PARAMS[5] = 0; //Draw line (1 = yes)
 	PARAMS[6] = 0; //Debug mode (1 = yes)
 
 	float *** imgArr = NULL;
@@ -66,17 +66,17 @@ int main(){
 		//tb = 2*sin(theta) + I * cos(theta);
 		//ta = 1.91 + cos(theta)*I;
 		//tb = 1.91 + sin(theta)*I;
-		ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
-		tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
-		//ta = 2 + cos(theta) + 2*I + I*sin(theta);
-		//tb = 2 + cos(theta) + 2*I + I*sin(theta);
-		ta = 2.2;
-		tb = 2.2;
+		//ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
+		//tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
+		ta = 2*cos(theta) + I*sin(theta);
+		tb = 2*I*sin(theta);
+		//ta = 2.2;
+		//tb = 2.2;
 		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
 		theta += 0.05;
-		if (theta > 3.1415928) exit(1);
+		if (theta > 2*3.1415928) exit(1);
 	}
 	return 0;
 }
