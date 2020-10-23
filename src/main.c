@@ -34,6 +34,9 @@ int main(){
 	double PARAMS[10];
 	PARAMS[0] = 10; //levmax
 	PARAMS[1] = 0.0001; //epsilon
+	//TODO: Use a config file for this ;)
+	PARAMS[0] = 20; //levmax
+	PARAMS[1] = 0.01; //epsilon
 	PARAMS[2] = 1; //bounds
 	PARAMS[3] = 1000; //x resolution
 	PARAMS[4] = 1000; //y resolution
@@ -72,6 +75,10 @@ int main(){
 		tb = 2*I*sin(theta);
 		//ta = 2.2;
 		//tb = 2.2;
+		//ta = 2 + cos(theta) + 2*I + I*sin(theta);
+		//tb = 2 + cos(theta) + 2*I + I*sin(theta);
+		ta = 2.2;
+		tb = 2.2;
 		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
