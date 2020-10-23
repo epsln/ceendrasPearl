@@ -66,7 +66,7 @@ void turnForward(int *lev, int tag[1000], double complex word[1000][2][2], doubl
 
 
 
-int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex fixRep[4][3], double complex word[1000][2][2], float*** imgArr){
+int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex fixRep[4][4], double complex word[1000][2][2], float*** imgArr){
 	int LEVMAX    = (int) PARAMS[0];
 	double EPSI   = PARAMS[1];
 	double BOUNDS = PARAMS[2];
@@ -74,17 +74,21 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 	int HEIGHT    = (int) PARAMS[4];
 	int LINE = (int) PARAMS[5];
 
+	int x3, y3;
 
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
-	
 	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
 	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
 	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
+	double complex z3 = z2;
+	if (tag[lev] == 0 || tag[lev] == 2){	
+		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
+	}
 
 	//if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
-	if (lev == LEVMAX || cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI ){
+	if (lev == LEVMAX || cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI && cabs(z2 - z3) < EPSI  ){
 		//showMatrix(buffWord);
 		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
@@ -92,6 +96,10 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
+		if(tag[lev] == 0 || tag[lev] == 2){
+			int x3 = (int) map(creal(z3), -BOUNDS, BOUNDS, 0, WIDTH);
+			int y3 = (int) map(cimag(z3), -BOUNDS, BOUNDS, HEIGHT, 0);
+		}
 		//printf("z0 = %lf + i %lf, x0 = %d, y0 = %d\n",creal(z0), cimag(z0), x0, y0);
 		//printf("z1 = %lf + i %lf, x1 = %d, y1 = %d\n",creal(z1), cimag(z1), x1, y1);
 		//printf("z2 = %lf + i %lf, x2 = %d, y2 = %d\n",creal(z2), cimag(z2), x2, y2);
@@ -108,6 +116,12 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 			imgArr[x2][y2][0] = 255;
 			imgArr[x2][y2][1] = 255;
 			imgArr[x2][y2][2] = 255;
+			}
+			if(tag[lev] == 0 || tag[lev] == 2 && checkBoundaries(x3, y3, WIDTH, HEIGHT) == 1){
+				imgArr[x3][y3][0] = 255;
+				imgArr[x3][y3][1] = 255;
+				imgArr[x3][y3][2] = 255;
+
 			}
 		}
 		*oldPoint = newPoint;
@@ -131,7 +145,7 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 
 	double complex gens[4][2][2];
 	double complex endpt[4];
-	double complex fixRep[4][3];
+	double complex fixRep[4][4];
 	double complex word[1000][2][2];
 	int tag[1000];
 	int *plev;
@@ -185,7 +199,8 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 		printf("endpt[%d] = %lf + i %lf)\n",i,  creal(endpt[i]), cimag(endpt[i]));
 	}
 
-	computeRepetends(gens, fixRep);
+	//computeRepetends(gens, fixRep);
+	computeRepetendsv2(gens, fixRep);
 
 	matrix3dto3D(gens, word, 0, 0);
 	printf("word[0] = [[%lf + i %lf, %lf + i%lf],\n[%lf + i %lf, %lf + i %lf ]]\n", creal(word[0][0][0]),cimag(word[0][0][0]), creal(word[0][1][0]), cimag(word[0][1][0]), creal(word[0][0][1]),cimag(word[0][0][1]), creal(word[0][1][1]),cimag(word[0][1][1]));
