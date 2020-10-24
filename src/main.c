@@ -24,8 +24,8 @@ int LEVMAX = 8;
 #define DEBUG 0
 
 int main(){
-	double complex ta = 2.2;
-	double complex tb = 2.2;
+	double complex ta = 0.;
+	double complex tb = 0.;
 	int numIm = 0;
 	float theta = 0;
 
@@ -34,7 +34,7 @@ int main(){
 	double PARAMS[10];
 	//TODO: Use a config file for this ;)
 	PARAMS[0] = 10; //levmax
-	PARAMS[1] = 0.01; //epsilon
+	PARAMS[1] = 0.0001; //epsilon
 	PARAMS[2] = 1; //bounds
 	PARAMS[3] = 1000; //x resolution
 	PARAMS[4] = 1000; //y resolution
@@ -69,12 +69,10 @@ int main(){
 		//tb = 1.91 + sin(theta)*I;
 		//ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
 		//tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
-		ta = 2*cos(theta) + I*sin(theta);
-		tb = 2*I*sin(theta);
-		//ta = 2.2;
-		//tb = 2.2;
-		//ta = 2 + cos(theta) + 2*I + I*sin(theta);
-		//tb = 2 + cos(theta) + 2*I + I*sin(theta);
+		//ta = 2*cos(theta) + I*sin(theta);
+		//tb = 2*I*sin(theta);
+		ta = cos(theta) + I*sin(theta);
+		tb = cos(theta) + I*sin(theta);
 		ta = 2.2;
 		tb = 2.2;
 		printf("%lf\n", PARAMS[0]);

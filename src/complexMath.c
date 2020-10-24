@@ -234,5 +234,61 @@ void computeRepetendsv2(double complex gens[4][2][2], double complex fixRep[4][4
 	fixRep[3][2] = fix(buff_out0);
 }
 
+void computeCycles(double complex begpt[4], double complex endpt[4], double complex gens[4][2][2]){
 
+	double complex buff_gen0[2][2];
+	double complex buff_gen1[2][2];
+	double complex buff_gen2[2][2];
+	double complex buff_gen3[2][2];
+	double complex buff_out0[2][2];
+	double complex buff_out1[2][2];
+	//Copy gens to buffers (since I couldn't find a clean way to matmul)
+	matrix3dto2D(gens, buff_gen0, 0);
+	matrix3dto2D(gens, buff_gen1, 1);
+	matrix3dto2D(gens, buff_gen2, 2);
+	matrix3dto2D(gens, buff_gen3, 3);
+
+	//Compute the fix points of all right most turns 
+	matmul(buff_gen3, buff_gen2, buff_out0); 
+	matmul(buff_out0, buff_gen1, buff_out1); 
+	matmul(buff_out1, buff_gen0, buff_out0); 
+	endpt[0] = fix(buff_out0);
+
+	matmul(buff_gen0, buff_gen3, buff_out0); 
+	matmul(buff_out0, buff_gen2, buff_out1); 
+	matmul(buff_out1, buff_gen1, buff_out0); 
+	endpt[1] = fix(buff_out0);
+
+	matmul(buff_gen1, buff_gen0, buff_out0); 
+	matmul(buff_out0, buff_gen3, buff_out1); 
+	matmul(buff_out1, buff_gen2, buff_out0); 
+	endpt[2] = fix(buff_out0);
+
+	matmul(buff_gen2, buff_gen1, buff_out0); 
+	matmul(buff_out0, buff_gen0, buff_out1); 
+	matmul(buff_out1, buff_gen3, buff_out0); 
+	endpt[3] = fix(buff_out0);
+
+	//Compute the fix points of all right most turns 
+	matmul(buff_gen1, buff_gen2, buff_out0); 
+	matmul(buff_out0, buff_gen3, buff_out1); 
+	matmul(buff_out1, buff_gen0, buff_out0); 
+	begpt[0] = fix(buff_out0);
+
+	matmul(buff_gen2, buff_gen3, buff_out0); 
+	matmul(buff_out0, buff_gen0, buff_out1); 
+	matmul(buff_out1, buff_gen1, buff_out0); 
+	begpt[1] = fix(buff_out0);
+
+	matmul(buff_gen3, buff_gen0, buff_out0); 
+	matmul(buff_out0, buff_gen1, buff_out1); 
+	matmul(buff_out1, buff_gen2, buff_out0); 
+	begpt[2] = fix(buff_out0);
+
+	matmul(buff_gen0, buff_gen1, buff_out0); 
+	matmul(buff_out0, buff_gen2, buff_out1); 
+	matmul(buff_out1, buff_gen3, buff_out0); 
+	begpt[3] = fix(buff_out0);
+
+}
 

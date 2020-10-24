@@ -27,9 +27,6 @@ void goForward(int *lev, int* tag, double complex word[1000][2][2], double compl
 
 	matrix3dto2D(word, buffWord, *lev - 1);
 	matrix3dto2D(gens, buffGen, tag[*lev]);
-	//printf("lev %d, tag[%d] = %d\nbuffWord:\n", *lev, *lev, tag[*lev]);
-	//showMatrix(buffWord);
-	//showMatrix(buffGen);
 	matmul(buffWord, buffGen, buffOut);
 
 	matrix2dto3D(buffOut, word, *lev);
@@ -116,10 +113,11 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	printf("%s\n", filename);
 
 
-	double complex oldPoint = -1000;
+	double complex oldPoint = 0.;
 
-	double complex gens[4][2][2];
 	double complex endpt[4];
+	double complex begpt[4];
+	double complex gens[4][2][2];
 	double complex fixRep[4][4];
 	double complex word[1000][2][2];
 	int tag[1000];
@@ -137,51 +135,14 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	printf("A = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[2][0][0]),cimag(gens[2][0][0]), creal(gens[2][1][0]), cimag(gens[2][1][0]), creal(gens[2][0][1]),cimag(gens[2][0][1]), creal(gens[2][1][1]),cimag(gens[2][1][1]));
 	printf("B = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[3][0][0]),cimag(gens[3][0][0]), creal(gens[3][1][0]), cimag(gens[3][1][0]), creal(gens[3][0][1]),cimag(gens[3][0][1]), creal(gens[3][1][1]),cimag(gens[3][1][1]));
 
-	double complex buff_gen0[2][2];
-	double complex buff_gen1[2][2];
-	double complex buff_gen2[2][2];
-	double complex buff_gen3[2][2];
-	double complex buff_out0[2][2];
-	double complex buff_out1[2][2];
-	//Copy gens to buffers (since I couldn't find a clean way to matmul)
-	matrix3dto2D(gens, buff_gen0, 0);
-	matrix3dto2D(gens, buff_gen1, 1);
-	matrix3dto2D(gens, buff_gen2, 2);
-	matrix3dto2D(gens, buff_gen3, 3);
-
-	//Compute the fix points of all right most turns 
-	matmul(buff_gen3, buff_gen2, buff_out0); 
-	matmul(buff_out0, buff_gen1, buff_out1); 
-	matmul(buff_out1, buff_gen0, buff_out0); 
-	endpt[0] = fix(buff_out0);
-
-	matmul(buff_gen0, buff_gen3, buff_out0); 
-	matmul(buff_out0, buff_gen2, buff_out1); 
-	matmul(buff_out1, buff_gen1, buff_out0); 
-	endpt[1] = fix(buff_out0);
-
-	matmul(buff_gen1, buff_gen0, buff_out0); 
-	matmul(buff_out0, buff_gen3, buff_out1); 
-	matmul(buff_out1, buff_gen2, buff_out0); 
-	endpt[2] = fix(buff_out0);
-
-	matmul(buff_gen2, buff_gen1, buff_out0); 
-	matmul(buff_out0, buff_gen0, buff_out1); 
-	matmul(buff_out1, buff_gen3, buff_out0); 
-	endpt[3] = fix(buff_out0);
-
-	for (int i = 0; i < 4; i++){
-		printf("endpt[%d] = %lf + i %lf)\n",i,  creal(endpt[i]), cimag(endpt[i]));
-	}
-
-	//computeRepetends(gens, fixRep);
+	computeCycles(begpt, endpt, gens);
 	computeRepetendsv2(gens, fixRep);
 
 	matrix3dto3D(gens, word, 0, 0);
 	printf("word[0] = [[%lf + i %lf, %lf + i%lf],\n[%lf + i %lf, %lf + i %lf ]]\n", creal(word[0][0][0]),cimag(word[0][0][0]), creal(word[0][1][0]), cimag(word[0][1][0]), creal(word[0][0][1]),cimag(word[0][0][1]), creal(word[0][1][1]),cimag(word[0][1][1]));
 
+	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
-
 		while(branchTermEpsi(PARAMS, poldP, lev, tag, endpt, word, imgArr) == 0){
 			goForward(plev, tag, word, gens);	
 			printWord(lev, tag, PARAMS);
