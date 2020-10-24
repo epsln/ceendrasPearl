@@ -32,15 +32,13 @@ int main(){
 	srand(time(NULL));
 
 	double PARAMS[10];
-	PARAMS[0] = 10; //levmax
-	PARAMS[1] = 0.0001; //epsilon
 	//TODO: Use a config file for this ;)
-	PARAMS[0] = 20; //levmax
+	PARAMS[0] = 10; //levmax
 	PARAMS[1] = 0.01; //epsilon
 	PARAMS[2] = 1; //bounds
 	PARAMS[3] = 1000; //x resolution
 	PARAMS[4] = 1000; //y resolution
-	PARAMS[5] = 0; //Draw line (1 = yes)
+	PARAMS[5] = 1; //Draw line (1 = yes)
 	PARAMS[6] = 0; //Debug mode (1 = yes)
 
 	float *** imgArr = NULL;
@@ -79,6 +77,7 @@ int main(){
 		//tb = 2 + cos(theta) + 2*I + I*sin(theta);
 		ta = 2.2;
 		tb = 2.2;
+		printf("%lf\n", PARAMS[0]);
 		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
