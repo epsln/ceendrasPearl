@@ -87,13 +87,8 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 		if (*oldPoint != -1000){
 			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1){
 				line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
-				imgArr[x0][y0][0] = 255;
-				imgArr[x0][y0][1] = 255;
-				imgArr[x0][y0][2] = 255;
-				imgArr[x1][y1][0] = 255;
-				imgArr[x1][y1][1] = 255;
-				imgArr[x1][y1][2] = 255;
-
+				point(x0, y0, imgArr, WIDTH, HEIGHT);
+				point(x1, y1, imgArr, WIDTH, HEIGHT);
 			}
 		}
 		*oldPoint = newPoint;
