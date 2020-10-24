@@ -79,7 +79,7 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 	matrix3dto2D(word, buffWord, lev);
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
 	showMatrix(buffWord, PARAMS);
-	if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
+	if (cabs(newPoint - *oldPoint) < EPSI){
 		int x0 = (int) map(creal(newPoint), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x1 = (int) map(creal(*oldPoint), -BOUNDS, BOUNDS, 0, WIDTH);
@@ -119,13 +119,13 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	double complex begpt[4];
 	double complex gens[4][2][2];
 	double complex fixRep[4][4];
-	double complex word[1000][2][2];
-	int tag[1000];
+	double complex word[100000][2][2];
+	int tag[100000];
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;
 
-	for (int i = 0; i < 1000; i++){
+	for (int i = 0; i < 100000; i++){
 		tag[i] = 0;
 	}
 

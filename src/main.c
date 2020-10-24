@@ -13,14 +13,11 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 10000
-#define HEIGHT 1000 
-#define WIDTH  1000 
-#define BOUNDS 2 
-#define EPSI  0.001 
-#define LINE 0 
-
-int LEVMAX = 8;  
-
+#define HEIGHT 4000 
+#define WIDTH  4000 
+#define BOUNDS 1 
+#define EPSI  0.005 
+#define LINE 1 
 #define DEBUG 0
 
 int main(){
@@ -33,13 +30,12 @@ int main(){
 
 	double PARAMS[10];
 	//TODO: Use a config file for this ;)
-	PARAMS[0] = 10; //levmax
-	PARAMS[1] = 0.0001; //epsilon
-	PARAMS[2] = 1; //bounds
-	PARAMS[3] = 1000; //x resolution
-	PARAMS[4] = 1000; //y resolution
-	PARAMS[5] = 1; //Draw line (1 = yes)
-	PARAMS[6] = 0; //Debug mode (1 = yes)
+	PARAMS[1] = EPSI; //epsilon
+	PARAMS[2] = BOUNDS; //bounds
+	PARAMS[3] = WIDTH; //x resolution
+	PARAMS[4] = HEIGHT; //y resolution
+	PARAMS[5] = LINE; //Draw line (1 = yes)
+	PARAMS[6] = DEBUG; //Debug mode (1 = yes)
 
 	float *** imgArr = NULL;
 	imgArr = (float***)malloc(WIDTH*sizeof(float**));
