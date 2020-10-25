@@ -12,12 +12,12 @@
 #include "include/treeExploration.h"
 #include "include/debugTools.h"
 
-#define SIZEARR 10000
+#define SIZEARR 1000
 #define HEIGHT 4000 
 #define WIDTH  4000 
 #define BOUNDS 1 
-#define EPSI  0.005 
-#define LINE 1 
+#define EPSI  0.05 
+#define LINE 0 
 #define DEBUG 0
 
 int main(){
@@ -30,6 +30,7 @@ int main(){
 
 	double PARAMS[10];
 	//TODO: Use a config file for this ;)
+	PARAMS[0] = 15; //epsilon
 	PARAMS[1] = EPSI; //epsilon
 	PARAMS[2] = BOUNDS; //bounds
 	PARAMS[3] = WIDTH; //x resolution
@@ -63,15 +64,14 @@ int main(){
 		//tb = 2*sin(theta) + I * cos(theta);
 		//ta = 1.91 + cos(theta)*I;
 		//tb = 1.91 + sin(theta)*I;
-		//ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
-		//tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
+		ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
+		tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
 		//ta = 2*cos(theta) + I*sin(theta);
 		//tb = 2*I*sin(theta);
-		ta = cos(theta) + I*sin(theta);
-		tb = cos(theta) + I*sin(theta);
-		ta = 2.2;
-		tb = 2.2;
-		printf("%lf\n", PARAMS[0]);
+		//ta = cos(theta) + I*sin(theta);
+		//tb = cos(theta) + I*sin(theta);
+		//ta = 2.2;
+		//tb = 2.2;
 		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;

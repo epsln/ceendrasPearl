@@ -21,9 +21,9 @@ void plotLineLow(int x0,int y0, int x1,int y1, float*** imgArr){
 	int y = y0;
 
 	for (int x = x0; x < x1; x++){
-		imgArr[x][y][0] = 255;
-		imgArr[x][y][1] = 255;
-		imgArr[x][y][2] = 255;
+		imgArr[x][y][0] = 1;
+		imgArr[x][y][1] = 1;
+		imgArr[x][y][2] = 1;
 		if (D > 0){
 			y = y + yi;
 			D = D + (2 * (dy - dx));
@@ -45,9 +45,9 @@ void plotLineHigh(int x0,int y0, int x1,int y1, float*** imgArr){
 	int x = x0;
 
 	for (int y = y0; y < y1; y++){	
-		imgArr[x][y][0] = 255;
-		imgArr[x][y][1] = 255;
-		imgArr[x][y][2] = 255;
+		imgArr[x][y][0] = 1.;
+		imgArr[x][y][1] = 1.;
+		imgArr[x][y][2] = 1.;
 		if (D > 0){
 			x = x + xi;
 			D = D + (2 * (dx - dy));
@@ -60,9 +60,9 @@ void plotLineHigh(int x0,int y0, int x1,int y1, float*** imgArr){
 void point(int x, int y, float*** imgArr, int w, int h){
 	if (checkBoundaries(x, y, w, h) == 0) return;
 	else{
-		imgArr[x][y][0] = 255;
-		imgArr[x][y][1] = 255;
-		imgArr[x][y][2] = 255;
+		imgArr[x][y][0] = 1;
+		imgArr[x][y][1] = 1;
+		imgArr[x][y][2] = 1;
 	}
 }
 
@@ -85,13 +85,61 @@ void line(int x0,int y0, int x1,int y1, float*** imgArr, int LINE, int w, int h 
 	}
 }
 
-void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
-	int w = PARAMS[3];
-	int h = PARAMS[4];
+void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
+	int w0 = PARAMS[3];
+	int h0 = PARAMS[4];
+
+	
+	for (int i = 0; i < w0; i++){
+		for (int j = 0; j < h0; j++){
+			output[i/power][j/power][0] += imgArr[i][j][0]; 	
+			output[i/power][j/power][1] += imgArr[i][j][1]; 	
+			output[i/power][j/power][2] += imgArr[i][j][2]; 	
+		}
+	}
+	for (int i = 0; i < w0/power; i++){
+		for (int j = 0; j < h0/power; j++){
+			
+			output[i][j][0] /= 4.0;
+			output[i][j][1] /= 4.0;
+			output[i][j][2] /= 4.0;
+		}
+	}
+}
+
+void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
+	int downsamplePower = 4; //Downsampling 4 times
+	int w = PARAMS[3]/downsamplePower;
+	int h = PARAMS[4]/downsamplePower;
 
 	FILE *f;
 	unsigned char *img = NULL;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
+
+	//Allocate image array
+	float *** imgArr = NULL;
+	imgArr = (float***)malloc(w*sizeof(float**));
+	for (int i = 0; i< w; i++) {
+		imgArr[i] = (float **) malloc(h*sizeof(float *));
+		for (int j = 0; j < h; j++) 
+			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
+	}
+
+	//Zero all elements
+	for (int i = 0; i< w; i++) {
+		for (int j = 0; j < h; j++){
+			imgArr[i][j][0] = 0;
+			imgArr[i][j][1] = 0;
+			imgArr[i][j][2] = 0;
+		}
+	}
+
+	if (imgArr == NULL){
+		printf("Could not allocate memory for the image array !\nExiting...\n");
+		exit(-1);
+	}
+
+	antialiasing(input, PARAMS, imgArr, downsamplePower);	
 
 	img = (unsigned char *)malloc(3*w*h);
 	memset(img,0,3*w*h);

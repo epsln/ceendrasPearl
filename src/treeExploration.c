@@ -46,7 +46,7 @@ int availableTurn(int *lev, int* tag){
 	}
 }	
 
-void turnForward(int *lev, int tag[1000], double complex word[1000][2][2], double complex gens[4][2][2]){
+void turnForward(int *lev, int tag[100000], double complex word[100000][2][2], double complex gens[4][2][2]){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
@@ -74,12 +74,12 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 	int WIDTH     = (int) PARAMS[3];
 	int HEIGHT    = (int) PARAMS[4];
 	int LINE      = (int) PARAMS[5];
-	
+
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
 	showMatrix(buffWord, PARAMS);
-	if (cabs(newPoint - *oldPoint) < EPSI){
+	if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
 		int x0 = (int) map(creal(newPoint), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x1 = (int) map(creal(*oldPoint), -BOUNDS, BOUNDS, 0, WIDTH);
@@ -96,6 +96,43 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 	}
 	return 0;
 }
+
+int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], float*** imgArr){
+	int LEVMAX    = (int) PARAMS[0];
+	double EPSI   = PARAMS[1];
+	double BOUNDS = PARAMS[2];
+	int WIDTH     = (int) PARAMS[3];
+	int HEIGHT    = (int) PARAMS[4];
+	int LINE      = (int) PARAMS[5];
+	int DEBUG     = (int) PARAMS[5];
+	double complex buffWord[2][2];
+	matrix3dto2D(word, buffWord, lev);
+
+	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
+	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
+	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
+	if (lev == LEVMAX || (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI) ){
+		//showMatrix(buffWord);
+		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
+		int x1 = (int) map(creal(z1), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
+		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
+		if (*oldPoint != -1000){
+			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
+			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
+			//if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
+			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 &&  checkBoundaries(x2, y2, WIDTH, HEIGHT)){
+				point(x0, y0, imgArr, WIDTH, HEIGHT);
+				point(x1, y1, imgArr, WIDTH, HEIGHT);
+			}
+		}
+		*oldPoint = z2;
+		return 1;
+		}
+		return 0;
+	}
 
 
 void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, float*** imgArr, int numIm){
@@ -114,13 +151,13 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 	double complex begpt[4];
 	double complex gens[4][2][2];
 	double complex fixRep[4][4];
-	double complex word[100000][2][2];
-	int tag[100000];
+	double complex word[1000][2][2];
+	int tag[1000];
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;
 
-	for (int i = 0; i < 100000; i++){
+	for (int i = 0; i < 1000; i++){
 		tag[i] = 0;
 	}
 
@@ -156,44 +193,4 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 
 }
 
-int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex fixRep[4][3], double complex word[1000][2][2], float*** imgArr){
-	int LEVMAX    = (int) PARAMS[0];
-	double EPSI   = PARAMS[1];
-	double BOUNDS = PARAMS[2];
-	int WIDTH     = (int) PARAMS[3];
-	int HEIGHT    = (int) PARAMS[4];
-	int LINE      = (int) PARAMS[5];
-	int DEBUG     = (int) PARAMS[5];
-	double complex buffWord[2][2];
-	matrix3dto2D(word, buffWord, lev);
-
-	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
-	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
-	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
-	if (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI ){
-		//showMatrix(buffWord);
-		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
-		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x1 = (int) map(creal(z1), -BOUNDS, BOUNDS, 0, WIDTH);
-		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
-		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
-		if (*oldPoint != -1000){
-			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
-			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
-			//if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
-			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 &&  checkBoundaries(x2, y2, WIDTH, HEIGHT)){
-				imgArr[x0][y0][0] = 255;
-				imgArr[x0][y0][1] = 255;
-				imgArr[x0][y0][2] = 255;
-				imgArr[x1][y1][0] = 255;
-				imgArr[x1][y1][1] = 255;
-				imgArr[x1][y1][2] = 255;
-			}
-		}
-		*oldPoint = z2;
-		return 1;
-		}
-		return 0;
-	}
 
