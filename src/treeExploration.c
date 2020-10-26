@@ -1,6 +1,7 @@
 #include <complex.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "include/arraysOps.h"
@@ -143,7 +144,7 @@ int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* 
 }
 
 
-void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, float*** imgArr, int numIm){
+void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, double complex tab, float*** imgArr, int numIm){
 	int lev = 0;
 	char filename[100] = "out/img_";
 	char imageNum[5];  
@@ -169,7 +170,8 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 		tag[i] = 0;
 	}
 
-	grandmaRecipe(ta, tb, gens);
+//	grandmaRecipe(ta, tb, gens);
+	grandmaSpecialRecipe(ta, tb, tab, gens);
 	printf("a = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[0][0][0]),cimag(gens[0][0][0]), creal(gens[0][1][0]), cimag(gens[0][1][0]), creal(gens[0][0][1]),cimag(gens[0][0][1]), creal(gens[0][1][1]),cimag(gens[0][1][1]));
 	printf("b = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[1][0][0]),cimag(gens[1][0][0]), creal(gens[1][1][0]), cimag(gens[1][1][0]), creal(gens[1][0][1]),cimag(gens[1][0][1]), creal(gens[1][1][1]),cimag(gens[1][1][1]));
 	printf("A = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[2][0][0]),cimag(gens[2][0][0]), creal(gens[2][1][0]), cimag(gens[2][1][0]), creal(gens[2][0][1]),cimag(gens[2][0][1]), creal(gens[2][1][1]),cimag(gens[2][1][1]));

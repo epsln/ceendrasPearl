@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 int checkBoundaries(int x, int y, int maxW, int maxH){
 	if (x >= 0 && y >= 0 && x < maxW && y < maxH)
@@ -100,15 +101,15 @@ void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
 	for (int i = 0; i < w0/power; i++){
 		for (int j = 0; j < h0/power; j++){
 			
-			output[i][j][0] /= 4.0;
-			output[i][j][1] /= 4.0;
-			output[i][j][2] /= 4.0;
+			output[i][j][0] /= pow(2, power);
+			output[i][j][1] /= pow(2, power);
+			output[i][j][2] /= pow(2, power);
 		}
 	}
 }
 
 void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
-	int downsamplePower = 4; //Downsampling 4 times
+	int downsamplePower = 2; //Downsampling 4 times
 	int w = PARAMS[3]/downsamplePower;
 	int h = PARAMS[4]/downsamplePower;
 
@@ -198,6 +199,7 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	}
 
 	free(img);
+	free(imgArr);
 	fclose(f);
 }
 

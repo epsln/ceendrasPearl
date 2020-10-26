@@ -16,13 +16,14 @@
 #define HEIGHT 4000 
 #define WIDTH  4000 
 #define BOUNDS 1 
-#define EPSI  0.05 
+#define EPSI  0.005 
 #define LINE 0 
 #define DEBUG 0
 
 int main(){
 	double complex ta = 0.;
 	double complex tb = 0.;
+	double complex tab = 0.;
 	int numIm = 0;
 	float theta = 0;
 
@@ -66,13 +67,14 @@ int main(){
 		//tb = 1.91 + sin(theta)*I;
 		ta  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
 		tb  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
+		tab  = (float)rand()/(float)(RAND_MAX/2) +  -I +(float)rand()/(float)(RAND_MAX/2)*I;
 		//ta = 2*cos(theta) + I*sin(theta);
 		//tb = 2*I*sin(theta);
 		//ta = cos(theta) + I*sin(theta);
 		//tb = cos(theta) + I*sin(theta);
-		//ta = 2.2;
-		//tb = 2.2;
-		computeDepthFirst(PARAMS, ta, tb, imgArr, numIm);
+		ta = 2.2;
+		tb = 2.2;
+		computeDepthFirst(PARAMS, ta, tb, tab, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
 		theta += 0.05;
