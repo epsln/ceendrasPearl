@@ -97,7 +97,8 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 	return 0;
 }
 
-int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], float*** imgArr){
+int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], float*** imgArr){
+	//Branch termination check based on the repetends methods
 	int LEVMAX    = (int) PARAMS[0];
 	double EPSI   = PARAMS[1];
 	double BOUNDS = PARAMS[2];
@@ -111,7 +112,13 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
 	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
 	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
-	if (lev == LEVMAX || (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI) ){
+	double complex z3 = z2;
+
+	if (tag[lev] % 2 == 0){
+		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
+	}
+
+	if (lev == LEVMAX || (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI  && cabs(z2 - z3) )){
 		//showMatrix(buffWord);
 		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
@@ -119,20 +126,21 @@ int branchTerm(double* PARAMS, double complex* oldPoint, int lev, int* tag, doub
 		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
 		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
 		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
-		if (*oldPoint != -1000){
-			line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
-			line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
-			//if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 && checkBoundaries(x2, y2, WIDTH, HEIGHT) == 1){
-			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1 &&  checkBoundaries(x2, y2, WIDTH, HEIGHT)){
-				point(x0, y0, imgArr, WIDTH, HEIGHT);
-				point(x1, y1, imgArr, WIDTH, HEIGHT);
-			}
+		int x3 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
+		int y3 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
+		line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
+		line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
+		point(x0, y0, imgArr, WIDTH, HEIGHT);
+		point(x1, y1, imgArr, WIDTH, HEIGHT);
+		if (tag[lev] % 2 == 0){
+			line(x2, y2, x3, y3, imgArr, LINE, WIDTH, HEIGHT);	
+			point(x0, y0, imgArr, WIDTH, HEIGHT);
 		}
 		*oldPoint = z2;
 		return 1;
-		}
-		return 0;
 	}
+	return 0;
+}
 
 
 void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, float*** imgArr, int numIm){
@@ -175,7 +183,7 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, flo
 
 	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
-		while(branchTermEpsi(PARAMS, poldP, lev, tag, endpt, word, imgArr) == 0){
+		while(branchTermRepetends(PARAMS, poldP, lev, tag, fixRep, word, imgArr) == 0){
 			goForward(plev, tag, word, gens);	
 			printWord(lev, tag, PARAMS);
 		}
