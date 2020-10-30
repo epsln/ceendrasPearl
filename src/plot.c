@@ -108,8 +108,8 @@ void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
 	}
 }
 
-void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
-	int downsamplePower = 2; //Downsampling 4 times
+void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
+	int downsamplePower = 1; //Downsampling 4 times
 	int w = PARAMS[3]/downsamplePower;
 	int h = PARAMS[4]/downsamplePower;
 
@@ -117,31 +117,31 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	unsigned char *img = NULL;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 
-	//Allocate image array
-	float *** imgArr = NULL;
-	imgArr = (float***)malloc(w*sizeof(float**));
-	for (int i = 0; i< w; i++) {
-		imgArr[i] = (float **) malloc(h*sizeof(float *));
-		for (int j = 0; j < h; j++) 
-			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
-	}
-
-	//Zero all elements
-	for (int i = 0; i< w; i++) {
-		for (int j = 0; j < h; j++){
-			imgArr[i][j][0] = 0;
-			imgArr[i][j][1] = 0;
-			imgArr[i][j][2] = 0;
-		}
-	}
-
-	if (imgArr == NULL){
-		printf("Could not allocate memory for the image array !\nExiting...\n");
-		exit(-1);
-	}
-
-	antialiasing(input, PARAMS, imgArr, downsamplePower);	
-
+//	//Allocate image array
+//	float *** imgArr = NULL;
+//	imgArr = (float***)malloc(w*sizeof(float**));
+//	for (int i = 0; i< w; i++) {
+//		imgArr[i] = (float **) malloc(h*sizeof(float *));
+//		for (int j = 0; j < h; j++) 
+//			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
+//	}
+//
+//	//Zero all elements
+//	for (int i = 0; i< w; i++) {
+//		for (int j = 0; j < h; j++){
+//			imgArr[i][j][0] = 0;
+//			imgArr[i][j][1] = 0;
+//			imgArr[i][j][2] = 0;
+//		}
+//	}
+//
+//	if (imgArr == NULL){
+//		printf("Could not allocate memory for the image array !\nExiting...\n");
+//		exit(-1);
+//	}
+//
+//	antialiasing(input, PARAMS, imgArr, downsamplePower);	
+//
 	img = (unsigned char *)malloc(3*w*h);
 	memset(img,0,3*w*h);
 	if (img == NULL){
@@ -199,7 +199,6 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	}
 
 	free(img);
-	free(imgArr);
 	fclose(f);
 }
 
