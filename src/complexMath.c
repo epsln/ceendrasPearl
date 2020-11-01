@@ -36,6 +36,24 @@ double complex fix(double complex T[2][2]){//See pp.76
 	return z0;
 }
 
+
+//double easeInOutQuad (double t, double b, double c, int d) { // Page 211
+//    if ((t/=d/2) < 1) return c/2*t*t + b;
+//    return -c/2 * ((t - 1)*(t-2) - 1) + b;
+//};
+
+
+ double easeInOutQuad(double t, double b, double c, double d) {
+	t /= d/2;
+	if (t < 1) return c/2*t*t + b;
+	t--;
+	return -c/2 * (t*(t-2) - 1) + b;
+};
+
+double complex InOutQuadComplex(double t, double complex beg, double complex end, int nsteps){
+	return easeInOutQuad(t, creal(beg), creal(end), nsteps) + I * easeInOutQuad(t, cimag(beg), cimag(end), nsteps);
+}
+
 void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]){
 	printf("ta: %lf + i %lf\n", creal(ta), cimag(ta));
 	printf("tb: %lf + i %lf\n", creal(tb), cimag(tb));
