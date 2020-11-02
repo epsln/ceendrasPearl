@@ -2,5 +2,7 @@
 *.swp
 *.dep
 *.o
+*.bmp
+*.mp4
 out/
 ceendra
