@@ -76,14 +76,16 @@ int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, 
 	int HEIGHT    = (int) PARAMS[4];
 	int LINE      = (int) PARAMS[5];
 
+	float aspectRatio = WIDTH/(float)HEIGHT;
+
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
 	showMatrix(buffWord, PARAMS);
 	if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
-		int x0 = (int) map(creal(newPoint), -BOUNDS, BOUNDS, 0, WIDTH);
+		int x0 = (int) map(creal(newPoint), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x1 = (int) map(creal(*oldPoint), -BOUNDS, BOUNDS, 0, WIDTH);
+		int x1 = (int) map(creal(*oldPoint), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
 		int y1 = (int) map(cimag(*oldPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
 		if (*oldPoint != -1000){
 			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1){
@@ -107,6 +109,7 @@ int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* 
 	int HEIGHT    = (int) PARAMS[4];
 	int LINE      = (int) PARAMS[5];
 	int DEBUG     = (int) PARAMS[5];
+	float aspectRatio = WIDTH/(float)HEIGHT;
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 
@@ -121,21 +124,22 @@ int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* 
 
 	if (lev == LEVMAX || (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI  && cabs(z2 - z3) )){
 		//showMatrix(buffWord);
-		int x0 = (int) map(creal(z0), -BOUNDS, BOUNDS, 0, WIDTH);
+		int x0 = (int) map(creal(z0), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
 		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x1 = (int) map(creal(z1), -BOUNDS, BOUNDS, 0, WIDTH);
+		int x1 = (int) map(creal(z1), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
 		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x2 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
+		int x2 = (int) map(creal(z2), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
 		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x3 = (int) map(creal(z2), -BOUNDS, BOUNDS, 0, WIDTH);
-		int y3 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
+		int x3 = (int) map(creal(z3), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
+		int y3 = (int) map(cimag(z3), -BOUNDS, BOUNDS, HEIGHT, 0);
 		line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
 		line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
 		point(x0, y0, imgArr, WIDTH, HEIGHT);
 		point(x1, y1, imgArr, WIDTH, HEIGHT);
+		point(x2, y2, imgArr, WIDTH, HEIGHT);
 		if (tag[lev] % 2 == 0){
 			line(x2, y2, x3, y3, imgArr, LINE, WIDTH, HEIGHT);	
-			point(x0, y0, imgArr, WIDTH, HEIGHT);
+			point(x3, y3, imgArr, WIDTH, HEIGHT);
 		}
 		*oldPoint = z2;
 		return 1;
