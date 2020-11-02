@@ -14,7 +14,7 @@
 
 #define SIZEARR 1000
 #define HEIGHT 1080 * 4
-#define WIDTH  1920 * 4
+#define WIDTH  1920 * 4 
 #define BOUNDS 2 
 #define EPSI  0.01 
 #define LINE 0 
@@ -47,7 +47,7 @@ int main(){
 
 	double PARAMS[10];
 	//TODO: Use a config file for this ;)
-	PARAMS[0] = 10; //Maximum depth
+	PARAMS[0] = 15; //Maximum depth
 	PARAMS[1] = EPSI; //epsilon
 	PARAMS[2] = BOUNDS; //bounds
 	PARAMS[3] = WIDTH; //x resolution
@@ -77,13 +77,14 @@ int main(){
 			}
 		}
 
-		ta = InOutQuadComplex((float)numIm, taBeg, taEnd, 300); 
-		tb = InOutQuadComplex((float)numIm, tbBeg, tbEnd, 300);
+		ta = InOutQuadComplex((float)numIm, taBeg, taEnd, 600); 
+		tb = InOutQuadComplex((float)numIm, tbBeg, tbEnd, 600);
 		computeDepthFirst(PARAMS, ta, tb, tab, imgArr, numIm);
 		numIm++;
 		//	LEVMAX++;
-		if (numIm > 300 ) return(1);
-		if (theta > 3.1415928 + 3.1415928/(30*10) ) return(1);
+		if (numIm > 600 ) return(1);
+		//if (theta > 3.1415928 + 3.1415928/(60*10) ) return(1);
+
 		theta += 3.1415928/(30*10);
 	}
 	return 1;

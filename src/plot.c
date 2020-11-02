@@ -3,6 +3,16 @@
 #include <string.h>
 #include <math.h>
 
+
+typedef struct image{
+	int width;
+	int height;
+
+	int** hitArray; //array which will store where the iterated points end up 
+
+	float*** imgArray; //Actual image; can be downscaled for antialiasing
+}image;
+
 int checkBoundaries(int x, int y, int maxW, int maxH){
 	if (x >= 0 && y >= 0 && x < maxW && y < maxH)
 		return 1;
@@ -90,7 +100,7 @@ void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
 	int w0 = PARAMS[3];
 	int h0 = PARAMS[4];
 
-	
+
 	for (int i = 0; i < w0; i++){
 		for (int j = 0; j < h0; j++){
 			output[i/power][j/power][0] += imgArr[i][j][0]; 	
@@ -100,7 +110,7 @@ void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
 	}
 	for (int i = 0; i < w0/power; i++){
 		for (int j = 0; j < h0/power; j++){
-			
+
 			output[i][j][0] /= pow(2, power);
 			output[i][j][1] /= pow(2, power);
 			output[i][j][2] /= pow(2, power);
@@ -108,8 +118,8 @@ void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
 	}
 }
 
-void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
-	int downsamplePower = 1; //Downsampling 4 times
+void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
+	int downsamplePower = 4; //Downsampling 4 times
 	int w = PARAMS[3]/downsamplePower;
 	int h = PARAMS[4]/downsamplePower;
 
@@ -117,31 +127,31 @@ void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
 	unsigned char *img = NULL;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 
-//	//Allocate image array
-//	float *** imgArr = NULL;
-//	imgArr = (float***)malloc(w*sizeof(float**));
-//	for (int i = 0; i< w; i++) {
-//		imgArr[i] = (float **) malloc(h*sizeof(float *));
-//		for (int j = 0; j < h; j++) 
-//			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
-//	}
-//
-//	//Zero all elements
-//	for (int i = 0; i< w; i++) {
-//		for (int j = 0; j < h; j++){
-//			imgArr[i][j][0] = 0;
-//			imgArr[i][j][1] = 0;
-//			imgArr[i][j][2] = 0;
-//		}
-//	}
-//
-//	if (imgArr == NULL){
-//		printf("Could not allocate memory for the image array !\nExiting...\n");
-//		exit(-1);
-//	}
-//
-//	antialiasing(input, PARAMS, imgArr, downsamplePower);	
-//
+	//Allocate image array
+	float *** imgArr = NULL;
+	imgArr = (float***)malloc(w*sizeof(float**));
+	for (int i = 0; i< w; i++) {
+		imgArr[i] = (float **) malloc(h*sizeof(float *));
+		for (int j = 0; j < h; j++) 
+			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
+	}
+
+	//Zero all elements
+	for (int i = 0; i< w; i++) {
+		for (int j = 0; j < h; j++){
+			imgArr[i][j][0] = 0;
+			imgArr[i][j][1] = 0;
+			imgArr[i][j][2] = 0;
+		}
+	}
+
+	if (imgArr == NULL){
+		printf("Could not allocate memory for the image array !\nExiting...\n");
+		exit(-1);
+	}
+
+	antialiasing(input, PARAMS, imgArr, downsamplePower);	
+
 	img = (unsigned char *)malloc(3*w*h);
 	memset(img,0,3*w*h);
 	if (img == NULL){
@@ -197,6 +207,14 @@ void saveArrayAsBMP(float*** imgArr, char* filename, double* PARAMS){
 		fwrite(img+(w*(h-i-1)*3),3,w,f);
 		fwrite(bmppad,1,(4-(w*3)%4)%4,f);
 	}
+	//Free the memory 
+	for (int i = 0; i < w; i++) {
+		for (int j = 0; j < h; j++){
+			free(imgArr[i][j]);
+		}
+		free(imgArr[i]);
+	}
+	free(imgArr);
 
 	free(img);
 	fclose(f);
