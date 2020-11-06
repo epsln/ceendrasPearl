@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <complex.h>
 
 #include "include/arraysOps.h"
@@ -8,6 +9,12 @@ double map(double n,double  start1,double  stop1,double  start2,double  stop2){/
 	return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
 }
 
+double complex randomComplex(double complex min, double complex max){
+	    double realPart = (creal(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + creal(min) ;
+	    double imagPart = (cimag(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + cimag(min) ;
+	    
+	    return realPart + I * imagPart;
+}
 
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
@@ -19,7 +26,7 @@ int modulo(int a, int b){
 
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]){//Not implementing any higher dims lol
 
-	//(a e + b g | a f + b h
+		//(a e + b g | a f + b h
 	// c e + d g | c f + d h)
 	// a = A[0][0] b = A[1][0] c = A[0][1] d = A[1][1]
 	// e = B[0][0] f = B[1][0] g = B[0][1] h = B[1][1]
@@ -50,7 +57,7 @@ double complex fix(double complex T[2][2]){//See pp.76
 	return -c/2 * (t*(t-2) - 1) + b;
 };
 
-double complex InOutQuadComplex(double t, double complex beg, double complex end, int nsteps){
+double complex InOutQuadComplex(double t, double complex beg, double complex end, double nsteps){
 	return easeInOutQuad(t, creal(beg), creal(end), nsteps) + I * easeInOutQuad(t, cimag(beg), cimag(end), nsteps);
 }
 

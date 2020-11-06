@@ -4,8 +4,9 @@
 //General helper functions
 double map(double n,double  start1,double  stop1,double  start2,double  stop2);
 int modulo(int a, int b);
-double easeInOutQuad(double t, double b, double c, int d);
-double complex InOutQuadComplex(double t, double complex beg, double complex end, int nsteps);
+double complex randomComplex(double complex min, double complex max);
+double easeInOutQuad(double t, double b, double c, double d);
+double complex InOutQuadComplex(double t, double complex beg, double complex end, double nsteps);
 
 //Matrixes ops
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]);
