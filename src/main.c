@@ -76,14 +76,6 @@ int main(){
 	}
 	while(1){
 
-		for (int i = 0; i< WIDTH; i++) {
-			for (int j = 0; j < HEIGHT; j++) {
-				imgArr[i][j][0] = 0;
-				imgArr[i][j][1] = 0;
-				imgArr[i][j][2] = 0;
-			}
-		}
-
 		//Here, we interpolate between two values of ta,tb using an easing function
 		//The easing function takes a starting value and the value that needs to be added
 		//To get the value that needs to be added we extract the distance between the two traces using copysign

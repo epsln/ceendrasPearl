@@ -97,23 +97,18 @@ void line(int x0,int y0, int x1,int y1, float*** imgArr, int LINE, int w, int h 
 }
 
 void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
-	int w0 = PARAMS[3];
-	int h0 = PARAMS[4];
+	const int w0 = PARAMS[3];
+	const int h0 = PARAMS[4];
 
-
+	const int pow2 = pow(2, power);
 	for (int i = 0; i < w0; i++){
 		for (int j = 0; j < h0; j++){
 			output[i/power][j/power][0] += imgArr[i][j][0]; 	
 			output[i/power][j/power][1] += imgArr[i][j][1]; 	
 			output[i/power][j/power][2] += imgArr[i][j][2]; 	
-		}
-	}
-	for (int i = 0; i < w0/power; i++){
-		for (int j = 0; j < h0/power; j++){
-
-			output[i][j][0] /= pow(2, power);
-			output[i][j][1] /= pow(2, power);
-			output[i][j][2] /= pow(2, power);
+			output[i/power][j/power][0] /= pow2;
+			output[i/power][j/power][1] /= pow2;
+			output[i/power][j/power][2] /= pow2;
 		}
 	}
 }
@@ -132,13 +127,8 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	imgArr = (float***)malloc(w*sizeof(float**));
 	for (int i = 0; i< w; i++) {
 		imgArr[i] = (float **) malloc(h*sizeof(float *));
-		for (int j = 0; j < h; j++) 
-			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
-	}
-
-	//Zero all elements
-	for (int i = 0; i< w; i++) {
 		for (int j = 0; j < h; j++){
+			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
 			imgArr[i][j][0] = 0;
 			imgArr[i][j][1] = 0;
 			imgArr[i][j][2] = 0;
