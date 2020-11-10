@@ -14,7 +14,7 @@ typedef struct image{
 
 	char* filename;
 
-	int** pointArr;//2D array to store the endpoints of the exploration
+	int *pointArr;//2D array to store the endpoints of the exploration
 	
 
 }image_t;

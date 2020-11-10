@@ -79,9 +79,7 @@ int main(){
 	pImg->filename = calloc(256, sizeof(char));
 
 	pImg->pointArr = NULL;
-	pImg->pointArr = (int**)calloc(pImg->w, sizeof(int*));//TODO:Replace by calloc
-	for(int i = 0; i < pImg->w; i++)
-      		pImg->pointArr[i] = (int *) calloc(pImg->h, sizeof(int));
+	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));//TODO:Replace by calloc
 
 	if (pImg->pointArr == NULL){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
@@ -115,8 +113,8 @@ int main(){
 		ta = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
 		tb = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
+		saveArrayAsBMP(pImg);
 		numIm++;
-		exit(-1);
 		if (numIm % (fps * duration) == 0 ){
 			taBeg = taEnd;
 			tbBeg = tbEnd;

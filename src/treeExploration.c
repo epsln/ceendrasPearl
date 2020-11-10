@@ -155,6 +155,7 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 	double complex *poldP = &oldPoint;
 
 	grandmaRecipe(ta, tb, gens);
+
 //	grandmaSpecialRecipe(ta, tb, tab, gens);
 //	printf("a = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[0][0][0]),cimag(gens[0][0][0]), creal(gens[0][1][0]), cimag(gens[0][1][0]), creal(gens[0][0][1]),cimag(gens[0][0][1]), creal(gens[0][1][1]),cimag(gens[0][1][1]));
 //	printf("b = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[1][0][0]),cimag(gens[1][0][0]), creal(gens[1][1][0]), cimag(gens[1][1][0]), creal(gens[1][0][1]),cimag(gens[1][0][1]), creal(gens[1][1][1]),cimag(gens[1][1][1]));
@@ -184,7 +185,6 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 		turnForward(plev, tag, word, gens);
 		printWord(lev, tag, img);
 	}
-	saveArrayAsBMP(img);
 }
 
 

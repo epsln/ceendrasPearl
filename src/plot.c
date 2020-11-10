@@ -6,7 +6,7 @@
 #include "include/plot.h"
 
 int checkBoundaries(int x, int y, image_t *img){
-	if (x >= 0 && y >= 0 && x < img->w && y < img->h)
+	if (x >= 0 && y >= 0 && x*img->h + y < img->w * img->h &&  x*img->h + y > 0 ) //Careful, might overflow !
 		return 1;
 	else
 		return 0;
@@ -59,7 +59,8 @@ void plotLineHigh(int x0,int y0, int x1,int y1, image_t* img){
 void point(int x, int y, image_t* img){
 	if (checkBoundaries(x, y, img) == 0) return;
 	else{
-		img->pointArr[x][y] = 1;
+		//printf("x: %d || max: %d\n",x*img->w + y, img->w * img -> h); 
+		img->pointArr[x*img->h + y] = 1;
 	}
 }
 
@@ -89,13 +90,15 @@ void antialiasing(image_t* img, float*** output){
 	const int antPow = img->antialiasingPow;
 	for (int i = 0; i < w0; i++){
 		for (int j = 0; j < h0; j++){
-			output[i/antPow][j/antPow][0] += img->pointArr[i][j]; 	
-			output[i/antPow][j/antPow][1] += img->pointArr[i][j]; 	
-			output[i/antPow][j/antPow][2] += img->pointArr[i][j]; 	
+			output[i/antPow][j/antPow][0] += img->pointArr[i * img->h + j]; 	
+			output[i/antPow][j/antPow][1] += img->pointArr[i * img->h + j]; 	
+			output[i/antPow][j/antPow][2] += img->pointArr[i * img->h + j]; 	
 
 			output[i/antPow][j/antPow][0] /= 2;
 			output[i/antPow][j/antPow][1] /= 2;
 			output[i/antPow][j/antPow][2] /= 2;
+
+			img->pointArr[i * img->h + j] = 0;
 		}
 	}
 }
@@ -135,6 +138,7 @@ void saveArrayAsBMP(image_t *img){
 	}
 
 	memset(imgOut,0,3*w*h);
+	//memset(img->pointArr,0,img->w*img->h);
 
 	int r,g,b,x,y;
 	for(int i=0; i<w; i++)
