@@ -62,8 +62,6 @@ double complex InOutQuadComplex(double t, double complex beg, double complex end
 }
 
 void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]){
-	printf("ta: %lf + i %lf\n", creal(ta), cimag(ta));
-	printf("tb: %lf + i %lf\n", creal(tb), cimag(tb));
 	double complex a = 1;
 	double complex b = (-ta * tb);
 	double complex c = ta * ta + tb * tb; double complex delta = b*b - 4 * a * c; 

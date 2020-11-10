@@ -25,7 +25,7 @@ void plotLineLow(int x0,int y0, int x1,int y1, image_t* img);
 void plotLineHigh(int x0,int y0, int x1,int y1, image_t* img );
 void point(int x,int y, image_t* img);
 void line(int x0,int y0, int x1,int y1,  image_t* img );
-void antialiasing(image_t* img, float*** output);
+void antialiasing(image_t* img, float* output);
 void saveArrayAsBMP(image_t* img);
 
 #endif

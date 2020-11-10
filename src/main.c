@@ -99,7 +99,7 @@ int main(){
 		strcat(prefix, ".bmp");
 		strcpy(pImg->filename, prefix);
 		strcpy(prefix, "out/img_");
-		printf("Image:%s\n", pImg->filename);
+		printf("Image: %s\n\n", pImg->filename);
 
 		//Here, we interpolate between two values of ta,tb using an easing function
 		//The easing function takes a starting value and the value that needs to be added
@@ -107,8 +107,6 @@ int main(){
 		//And multiply by minus one to add. We need to do that for the real and complex part so we get this loooong line :)
 		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		printf("%lf + i %lf\n", creal(ta), cimag(ta));
-		printf("%lf + i %lf\n\n", creal(tb), cimag(tb));
 
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);

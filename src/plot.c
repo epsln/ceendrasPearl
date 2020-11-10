@@ -83,24 +83,24 @@ void line(int x0,int y0, int x1, int y1, image_t* img){
 	}
 }
 
-void antialiasing(image_t* img, float*** output){
+void antialiasing(image_t* img, float* output){
 	const int w0 = img->w;
 	const int h0 = img->h;
 
 	const int antPow = img->antialiasingPow;
 	for (int i = 0; i < w0; i++){
 		for (int j = 0; j < h0; j++){
-			output[i/antPow][j/antPow][0] += img->pointArr[i * img->h + j]; 	
-			output[i/antPow][j/antPow][1] += img->pointArr[i * img->h + j]; 	
-			output[i/antPow][j/antPow][2] += img->pointArr[i * img->h + j]; 	
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] += img->pointArr[i * img->h + j]; 	
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] += img->pointArr[i * img->h + j]; 	
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] += img->pointArr[i * img->h + j]; 	
+                                                              
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] /= 2;
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] /= 2;
+			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] /= 2;
 
-			output[i/antPow][j/antPow][0] /= 2;
-			output[i/antPow][j/antPow][1] /= 2;
-			output[i/antPow][j/antPow][2] /= 2;
-
-			img->pointArr[i * img->h + j] = 0;
 		}
 	}
+	memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
 }
 
 void saveArrayAsBMP(image_t *img){
@@ -111,33 +111,17 @@ void saveArrayAsBMP(image_t *img){
 	unsigned char *imgOut = NULL;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 	//Allocate image array
-	float *** imgArr = NULL;
-	imgArr = (float***)malloc(w*sizeof(float**));
-	for (int i = 0; i < w; i++) {
-		imgArr[i] = (float **) malloc(h*sizeof(float *));
-		for (int j = 0; j < h; j++){
-			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
-			imgArr[i][j][0] = 0;
-			imgArr[i][j][1] = 0;
-			imgArr[i][j][2] = 0;
-		}
-	}
+	float * imgArr = NULL;
+	imgArr = (float*)calloc(w * h * 3, sizeof(float));
+	imgOut = (unsigned char *)calloc(3*w*h, sizeof(unsigned char));
 
-	if (imgArr == NULL){
+	if (imgArr == NULL || imgOut == NULL){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
-		exit(-1);
+		exit(1);
 	}
 
 	antialiasing(img, imgArr);	
 
-	imgOut = (unsigned char *)malloc(3*w*h);
-
-	if (imgOut == NULL){
-		printf("ERROR: Failed to allocate memory for the image !!\nExiting...\n");
-		exit(1);
-	}
-
-	memset(imgOut,0,3*w*h);
 	//memset(img->pointArr,0,img->w*img->h);
 
 	int r,g,b,x,y;
@@ -146,9 +130,9 @@ void saveArrayAsBMP(image_t *img){
 		for(int j=0; j<h; j++)
 		{
 			x=i; y=(h-1)-j;
-			r = imgArr[i][j][0]*255;
-			g = imgArr[i][j][1]*255;
-			b = imgArr[i][j][2]*255;
+			r = imgArr[(i + j * w) * 3 + 0]*255;
+			g = imgArr[(i + j * w) * 3 + 1]*255;
+			b = imgArr[(i + j * w) * 3 + 2]*255;
 			if (r > 255) r=255;
 			if (g > 255) g=255;
 			if (b > 255) b=255;
@@ -191,12 +175,7 @@ void saveArrayAsBMP(image_t *img){
 	}
 
 	//Free the memory 
-	for (int i = 0; i < w; i++) {
-		for (int j = 0; j < h; j++){
-			free(imgArr[i][j]);
-		}
-		free(imgArr[i]);
-	}
+	
 	free(imgArr);
 
 	free(imgOut);

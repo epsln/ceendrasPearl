@@ -83,10 +83,10 @@ int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex e
 	int y0, y1;
 
 	if (lev == img->levmax || cabs(newPoint - *oldPoint) < img->epsi){
-		int x0 = (int) map(creal(newPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y0 = (int) map(cimag(newPoint), -img->bounds, img->bounds, img->h, 0);
-		int x1 = (int) map(creal(*oldPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y1 = (int) map(cimag(*oldPoint), -img->bounds, img->bounds, img->h, 0);
+		x0 = (int) map(creal(newPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y0 = (int) map(cimag(newPoint), -img->bounds, img->bounds, img->h, 0);
+		x1 = (int) map(creal(*oldPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y1 = (int) map(cimag(*oldPoint), -img->bounds, img->bounds, img->h, 0);
 
 		line(x0, y0, x1, y1, img);	
 		point(x0, y0, img);
@@ -153,7 +153,6 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 	double complex gens[4][2][2];
 	double complex fixRep[4][4];
 	double complex word[1000][2][2];
-	//TODO: zero that with {0} !
 	int tag[1000] = {0};
 	int *plev;
 	plev = &lev;
@@ -172,7 +171,6 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 
 	matrix3dto3D(gens, word, 0, 0);
 	
-	printf("numIm = %d, LEV%d LEVMAX =%d\n",numIm, lev, img->levmax);	
 
 	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
