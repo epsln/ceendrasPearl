@@ -79,6 +79,8 @@ int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex e
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
 
 	showMatrix(buffWord, img);
+	int x0, x1;
+	int y0, y1;
 
 	if (lev == img->levmax || cabs(newPoint - *oldPoint) < img->epsi){
 		int x0 = (int) map(creal(newPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -108,20 +110,23 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
 	double complex z3 = z2;
 
+	int x0, x1, x2, x3;
+	int y0, y1, y2, y3;
+
 	if (tag[lev] % 2 == 0){
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
 
 	if (lev == img->levmax || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) )){
 		showMatrix(buffWord, img);
-		int x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
-		int x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y1 = (int) map(cimag(z1), -img->bounds, img->bounds, img->h, 0);
-		int x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
-		int x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		int y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
+		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
+		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y1 = (int) map(cimag(z1), -img->bounds, img->bounds, img->h, 0);
+		x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
+		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
 		line(x0, y0, x1, y1, img);	
 		line(x1, y1, x2, y2, img);	
 		point(x0, y0, img);
