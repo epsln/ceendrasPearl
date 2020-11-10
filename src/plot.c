@@ -3,24 +3,16 @@
 #include <string.h>
 #include <math.h>
 
+#include "include/plot.h"
 
-typedef struct image{
-	int width;
-	int height;
-
-	int** hitArray; //array which will store where the iterated points end up 
-
-	float*** imgArray; //Actual image; can be downscaled for antialiasing
-}image;
-
-int checkBoundaries(int x, int y, int maxW, int maxH){
-	if (x >= 0 && y >= 0 && x < maxW && y < maxH)
+int checkBoundaries(int x, int y, image_t *img){
+	if (x >= 0 && y >= 0 && x < img->w && y < img->h)
 		return 1;
 	else
 		return 0;
 }
 
-void plotLineLow(int x0,int y0, int x1,int y1, float*** imgArr){
+void plotLineLow(int x0,int y0, int x1,int y1, image_t* img){
 	int dx = x1 - x0;
 	int dy = y1 - y0;
 	int yi = 1;
@@ -32,9 +24,7 @@ void plotLineLow(int x0,int y0, int x1,int y1, float*** imgArr){
 	int y = y0;
 
 	for (int x = x0; x < x1; x++){
-		imgArr[x][y][0] = 1;
-		imgArr[x][y][1] = 1;
-		imgArr[x][y][2] = 1;
+		point(x,y, img);
 		if (D > 0){
 			y = y + yi;
 			D = D + (2 * (dy - dx));
@@ -44,7 +34,7 @@ void plotLineLow(int x0,int y0, int x1,int y1, float*** imgArr){
 	}
 }
 
-void plotLineHigh(int x0,int y0, int x1,int y1, float*** imgArr){
+void plotLineHigh(int x0,int y0, int x1,int y1, image_t* img){
 	int dx = x1 - x0;
 	int dy = y1 - y0;
 	int xi = 1;
@@ -56,9 +46,7 @@ void plotLineHigh(int x0,int y0, int x1,int y1, float*** imgArr){
 	int x = x0;
 
 	for (int y = y0; y < y1; y++){	
-		imgArr[x][y][0] = 1.;
-		imgArr[x][y][1] = 1.;
-		imgArr[x][y][2] = 1.;
+		point(x,y, img);
 		if (D > 0){
 			x = x + xi;
 			D = D + (2 * (dx - dy));
@@ -68,64 +56,61 @@ void plotLineHigh(int x0,int y0, int x1,int y1, float*** imgArr){
 	}
 }
 
-void point(int x, int y, float*** imgArr, int w, int h){
-	if (checkBoundaries(x, y, w, h) == 0) return;
+void point(int x, int y, image_t* img){
+	if (checkBoundaries(x, y, img) == 0) return;
 	else{
-		imgArr[x][y][0] = 1;
-		imgArr[x][y][1] = 1;
-		imgArr[x][y][2] = 1;
+		img->pointArr[x][y] = 1;
 	}
 }
 
-void line(int x0,int y0, int x1,int y1, float*** imgArr, int LINE, int w, int h ){
-	if (LINE == 0) return;
+void line(int x0,int y0, int x1, int y1, image_t* img){
+	if (img->line == 0) return;
 
-	if (checkBoundaries(x0, y0, w, h) == 0 || checkBoundaries(x1, y1, w, h) == 0 ) return;
+	if (checkBoundaries(x0, y0, img) == 0 || checkBoundaries(x1, y1, img) == 0 ) return;
 
 	if (abs(y1 - y0) < abs(x1 - x0)){
 		if (x0 > x1)
-			plotLineLow(x1, y1, x0, y0, imgArr);
+			plotLineLow(x1, y1, x0, y0, img);
 		else
-			plotLineLow(x0, y0, x1, y1, imgArr);
+			plotLineLow(x0, y0, x1, y1, img);
 	}
 	else{
 		if (y0 > y1)
-			plotLineHigh(x1, y1, x0, y0, imgArr);
+			plotLineHigh(x1, y1, x0, y0, img);
 		else
-			plotLineHigh(x0, y0, x1, y1, imgArr);
+			plotLineHigh(x0, y0, x1, y1, img);
 	}
 }
 
-void antialiasing(float*** imgArr, double* PARAMS, float*** output, int power){
-	const int w0 = PARAMS[3];
-	const int h0 = PARAMS[4];
+void antialiasing(image_t* img, float*** output){
+	const int w0 = img->w;
+	const int h0 = img->h;
 
-	const int pow2 = pow(2, power);
+	const int antPow = img->antialiasingPow;
 	for (int i = 0; i < w0; i++){
 		for (int j = 0; j < h0; j++){
-			output[i/power][j/power][0] += imgArr[i][j][0]; 	
-			output[i/power][j/power][1] += imgArr[i][j][1]; 	
-			output[i/power][j/power][2] += imgArr[i][j][2]; 	
-			output[i/power][j/power][0] /= pow2;
-			output[i/power][j/power][1] /= pow2;
-			output[i/power][j/power][2] /= pow2;
+			output[i/antPow][j/antPow][0] += img->pointArr[i][j]; 	
+			output[i/antPow][j/antPow][1] += img->pointArr[i][j]; 	
+			output[i/antPow][j/antPow][2] += img->pointArr[i][j]; 	
+
+			output[i/antPow][j/antPow][0] /= 2;
+			output[i/antPow][j/antPow][1] /= 2;
+			output[i/antPow][j/antPow][2] /= 2;
 		}
 	}
 }
 
-void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
-	int downsamplePower = 4; //Downsampling 4 times
-	int w = PARAMS[3]/downsamplePower;
-	int h = PARAMS[4]/downsamplePower;
+void saveArrayAsBMP(image_t *img){
+	int w = img->w/img->antialiasingPow;
+	int h = img->h/img->antialiasingPow;
 
 	FILE *f;
-	unsigned char *img = NULL;
+	unsigned char *imgOut = NULL;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
-
 	//Allocate image array
 	float *** imgArr = NULL;
 	imgArr = (float***)malloc(w*sizeof(float**));
-	for (int i = 0; i< w; i++) {
+	for (int i = 0; i < w; i++) {
 		imgArr[i] = (float **) malloc(h*sizeof(float *));
 		for (int j = 0; j < h; j++){
 			imgArr[i][j] = (float *) malloc(3 *sizeof(float));
@@ -140,14 +125,17 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 		exit(-1);
 	}
 
-	antialiasing(input, PARAMS, imgArr, downsamplePower);	
+	antialiasing(img, imgArr);	
 
-	img = (unsigned char *)malloc(3*w*h);
-	memset(img,0,3*w*h);
-	if (img == NULL){
+	imgOut = (unsigned char *)malloc(3*w*h);
+
+	if (imgOut == NULL){
 		printf("ERROR: Failed to allocate memory for the image !!\nExiting...\n");
 		exit(1);
 	}
+
+	memset(imgOut,0,3*w*h);
+
 	int r,g,b,x,y;
 	for(int i=0; i<w; i++)
 	{
@@ -160,9 +148,9 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 			if (r > 255) r=255;
 			if (g > 255) g=255;
 			if (b > 255) b=255;
-			img[(x+y*w)*3+2] = (unsigned char)(r);
-			img[(x+y*w)*3+1] = (unsigned char)(g);
-			img[(x+y*w)*3+0] = (unsigned char)(b);
+			imgOut[(x+y*w)*3+2] = (unsigned char)(r);
+			imgOut[(x+y*w)*3+1] = (unsigned char)(g);
+			imgOut[(x+y*w)*3+0] = (unsigned char)(b);
 		}
 	}
 
@@ -185,7 +173,7 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	bmpinfoheader[11] = (unsigned char)(       h>>24);
 
 	f = NULL;
-	f = fopen(filename,"wb");
+	f = fopen(img->filename,"wb");
 	if (f == NULL){
 		printf("Could not open image... Does the output folder exists ?\nExiting...\n");
 		exit(2);
@@ -194,9 +182,10 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	fwrite(bmpinfoheader,1,40,f);
 	for(int i=0; i<h; i++)
 	{
-		fwrite(img+(w*(h-i-1)*3),3,w,f);
+		fwrite(imgOut+(w*(h-i-1)*3),3,w,f);
 		fwrite(bmppad,1,(4-(w*3)%4)%4,f);
 	}
+
 	//Free the memory 
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++){
@@ -206,7 +195,7 @@ void saveArrayAsBMP(float*** input, char* filename, double* PARAMS){
 	}
 	free(imgArr);
 
-	free(img);
+	free(imgOut);
 	fclose(f);
 }
 

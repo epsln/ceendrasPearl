@@ -8,6 +8,7 @@
 #include "include/complexMath.h"
 #include "include/debugTools.h"
 #include "include/plot.h"
+#include "include/treeExploration.h"
 
 void goForward(int *lev, int* tag, double complex word[1000][2][2], double complex gens[4][2][2]){
 	double complex buffWord[2][2];
@@ -38,6 +39,7 @@ void goBackwards(int *lev){
 }
 
 int availableTurn(int *lev, int* tag){
+	if (*lev == -1)	return 0;
 
 	if (modulo(tag[*lev + 1] - 1,  4) == modulo(tag[*lev] + 2 , 4)){
 		return 0;
@@ -65,51 +67,39 @@ void turnForward(int *lev, int tag[100000], double complex word[100000][2][2], d
 
 
 
-int branchTermEpsi(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex word[1000][2][2], float*** imgArr){
+int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex word[1000][2][2], image_t* img){
 	//Basic branch term using only the distance between an older point and a new point
 	//See pp. 185
-	//TODO: Find better way to pass parameters between functions
-	int LEVMAX    = (int) PARAMS[0];
-	double EPSI   = PARAMS[1];
-	double BOUNDS = PARAMS[2];
-	int WIDTH     = (int) PARAMS[3];
-	int HEIGHT    = (int) PARAMS[4];
-	int LINE      = (int) PARAMS[5];
 
-	float aspectRatio = WIDTH/(float)HEIGHT;
+	float aspectRatio = img->w/(float)img->h;
 
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
+
 	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
-	showMatrix(buffWord, PARAMS);
-	if (lev == LEVMAX || cabs(newPoint - *oldPoint) < EPSI){
-		int x0 = (int) map(creal(newPoint), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y0 = (int) map(cimag(newPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x1 = (int) map(creal(*oldPoint), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y1 = (int) map(cimag(*oldPoint), -BOUNDS, BOUNDS, HEIGHT, 0);
-		if (*oldPoint != -1000){
-			if (checkBoundaries(x0, y0, WIDTH, HEIGHT) == 1 && checkBoundaries(x1, y1, WIDTH, HEIGHT) == 1){
-				line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
-				point(x0, y0, imgArr, WIDTH, HEIGHT);
-				point(x1, y1, imgArr, WIDTH, HEIGHT);
-			}
-		}
+
+	showMatrix(buffWord, img);
+
+	if (lev == img->levmax || cabs(newPoint - *oldPoint) < img->epsi){
+		int x0 = (int) map(creal(newPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y0 = (int) map(cimag(newPoint), -img->bounds, img->bounds, img->h, 0);
+		int x1 = (int) map(creal(*oldPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y1 = (int) map(cimag(*oldPoint), -img->bounds, img->bounds, img->h, 0);
+
+		line(x0, y0, x1, y1, img);	
+		point(x0, y0, img);
+		point(x1, y1, img);
 		*oldPoint = newPoint;
+
 		return 1;
 	}
+
 	return 0;
 }
 
-int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], float*** imgArr){
+int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], image_t* img){
 	//Branch termination check based on the repetends methods
-	int LEVMAX    = (int) PARAMS[0];
-	double EPSI   = PARAMS[1];
-	double BOUNDS = PARAMS[2];
-	int WIDTH     = (int) PARAMS[3];
-	int HEIGHT    = (int) PARAMS[4];
-	int LINE      = (int) PARAMS[5];
-	int DEBUG     = (int) PARAMS[5];
-	float aspectRatio = WIDTH/(float)HEIGHT;
+	float aspectRatio = img->w/(float)img->h;
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 
@@ -122,24 +112,24 @@ int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* 
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
 
-	if (lev == LEVMAX || (cabs(z0 - z1) < EPSI && cabs(z1 - z2) < EPSI  && cabs(z2 - z3) )){
-		//showMatrix(buffWord);
-		int x0 = (int) map(creal(z0), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y0 = (int) map(cimag(z0), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x1 = (int) map(creal(z1), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y1 = (int) map(cimag(z1), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x2 = (int) map(creal(z2), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y2 = (int) map(cimag(z2), -BOUNDS, BOUNDS, HEIGHT, 0);
-		int x3 = (int) map(creal(z3), -aspectRatio * BOUNDS, aspectRatio * BOUNDS, 0, WIDTH);
-		int y3 = (int) map(cimag(z3), -BOUNDS, BOUNDS, HEIGHT, 0);
-		line(x0, y0, x1, y1, imgArr, LINE, WIDTH, HEIGHT);	
-		line(x1, y1, x2, y2, imgArr, LINE, WIDTH, HEIGHT);	
-		point(x0, y0, imgArr, WIDTH, HEIGHT);
-		point(x1, y1, imgArr, WIDTH, HEIGHT);
-		point(x2, y2, imgArr, WIDTH, HEIGHT);
+	if (lev == img->levmax || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) )){
+		showMatrix(buffWord, img);
+		int x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
+		int x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y1 = (int) map(cimag(z1), -img->bounds, img->bounds, img->h, 0);
+		int x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
+		int x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		int y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
+		line(x0, y0, x1, y1, img);	
+		line(x1, y1, x2, y2, img);	
+		point(x0, y0, img);
+		point(x1, y1, img);
+		point(x2, y2, img);
 		if (tag[lev] % 2 == 0){
-			line(x2, y2, x3, y3, imgArr, LINE, WIDTH, HEIGHT);	
-			point(x3, y3, imgArr, WIDTH, HEIGHT);
+			line(x2, y2, x3, y3, img);	
+			point(x3, y3, img);
 		}
 		*oldPoint = z2;
 		return 1;
@@ -148,16 +138,9 @@ int branchTermRepetends(double* PARAMS, double complex* oldPoint, int lev, int* 
 }
 
 
-void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, double complex tab, float*** imgArr, int numIm){
+void computeDepthFirst(double complex ta, double complex tb, double complex tab, image_t* img, int numIm){
 	int lev = 0;
-	char filename[100] = "out/img_";
-	char imageNum[5];  
-	sprintf(imageNum, "%d", numIm);
-	strcat(filename, imageNum);
-	strcat(filename, ".bmp");
-	printf("%s\n", filename);
-
-
+	
 	double complex oldPoint = 0.;
 
 	double complex endpt[4];
@@ -165,14 +148,11 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, dou
 	double complex gens[4][2][2];
 	double complex fixRep[4][4];
 	double complex word[1000][2][2];
-	int tag[1000];
+	//TODO: zero that with {0} !
+	int tag[1000] = {0};
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;
-
-	for (int i = 0; i < 1000; i++){
-		tag[i] = 0;
-	}
 
 	grandmaRecipe(ta, tb, gens);
 //	grandmaSpecialRecipe(ta, tb, tab, gens);
@@ -185,25 +165,26 @@ void computeDepthFirst(double* PARAMS, double complex ta, double complex tb, dou
 	computeRepetendsv2(gens, fixRep);
 
 	matrix3dto3D(gens, word, 0, 0);
+	
+	printf("numIm = %d, LEV%d LEVMAX =%d\n",numIm, lev, img->levmax);	
 
 	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
-		while(branchTermRepetends(PARAMS, poldP, lev, tag, fixRep, word, imgArr) == 0){
+		while(branchTermRepetends(poldP, lev, tag, fixRep, word, img) == 0){
 			goForward(plev, tag, word, gens);	
-			printWord(lev, tag, PARAMS);
+			printWord(lev, tag, img);
 		}
 		do{
 			goBackwards(plev);
-			printWord(lev, tag, PARAMS);
+			printWord(lev, tag, img);
 		}while(!(availableTurn(plev, tag) == 1 || lev == -1));
 
 		//Might need to put another exit condition check right here...
 		if (lev == -1 && tag[0] == 1) break;	
 		turnForward(plev, tag, word, gens);
-		printWord(lev, tag, PARAMS);
+		printWord(lev, tag, img);
 	}
-	saveArrayAsBMP(imgArr,filename, PARAMS);
-
+	saveArrayAsBMP(img);
 }
 
 
