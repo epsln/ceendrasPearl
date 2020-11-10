@@ -39,10 +39,10 @@ int main(){
 	double complex tbInit = 0.;
 	int numIm = 0;
 	float theta = 0;
-	taBeg = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
-	tbBeg = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
-	taEnd = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
-	tbEnd = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
+	taBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	tbBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	tbEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	taInit = taBeg;
 	tbInit = tbBeg;
 	printf("taBeg: %lf + %lf\n", creal(taBeg), cimag(taBeg));
@@ -110,8 +110,6 @@ int main(){
 		printf("%lf + i %lf\n", creal(ta), cimag(ta));
 		printf("%lf + i %lf\n\n", creal(tb), cimag(tb));
 
-		ta = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
-		tb = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);
 		numIm++;
@@ -126,8 +124,8 @@ int main(){
 				tbEnd = tbInit;
 			}
 			else{
-				taEnd = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
-				tbEnd = randomComplex(-3 + 1.5 * I, 3 + 1.5 * I);
+				taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+				tbEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 			}
 			printf("taBeg: %lf + %lf\n", creal(taBeg), cimag(taBeg));
 			printf("taEnd: %lf + %lf\n", creal(taEnd), cimag(taEnd));
