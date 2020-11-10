@@ -51,16 +51,6 @@ int main(){
 	printf("tbEnd: %lf + %lf\n\n", creal(tbEnd), cimag(tbEnd));
 	srand(time(NULL));
 
-	double PARAMS[10];
-	//TODO: Use a config file for this ;)
-	PARAMS[0] = 14; //Maximum depth
-	PARAMS[1] = EPSI; //epsilon
-	PARAMS[2] = BOUNDS; //bounds
-	PARAMS[3] = WIDTH; //x resolution
-	PARAMS[4] = HEIGHT; //y resolution
-	PARAMS[5] = LINE; //Draw line (1 = yes)
-	PARAMS[6] = DEBUG; //Debug mode (1 = yes)
-
 	int fps = 30;
 	int duration = 6;
 	int lengthAnim = 30;
