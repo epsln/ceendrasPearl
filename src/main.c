@@ -13,12 +13,12 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 4
+#define ANTIALPOW 8
 #define HEIGHT 1080 * ANTIALPOW 
 #define WIDTH  1920 * ANTIALPOW
 #define BOUNDS 2 
 #define EPSI  0.005 
-#define LEVMAX 14 
+#define LEVMAX 10 
 #define LINE 0 
 #define DEBUG 0
 
@@ -52,7 +52,7 @@ int main(){
 	srand(time(NULL));
 
 	int fps = 30;
-	int duration = 6;
+	int duration = 10;
 	int lengthAnim = 30;
 
 	image_t img;
@@ -101,27 +101,23 @@ int main(){
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);
 		numIm++;
+		printf("ta: %lf + I %lf\n", creal(ta), cimag(ta));
+		printf("tb: %lf + I %lf\n", creal(tb), cimag(tb));
 		if (numIm % (fps * duration) == 0 ){
 			taBeg = taEnd;
 			tbBeg = tbEnd;
+			taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+			tbEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+
 			if (numIm >= fps * lengthAnim - fps * duration){//loop by ending up at the begining traces
-				printf("looping !\n");
 				taBeg = taEnd;
 				tbBeg = tbEnd;
 				taEnd = taInit;
 				tbEnd = tbInit;
 			}
-			else{
-				taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-				tbEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-			}
-			printf("taBeg: %lf + %lf\n", creal(taBeg), cimag(taBeg));
-			printf("taEnd: %lf + %lf\n", creal(taEnd), cimag(taEnd));
-			printf("tbBeg: %lf + %lf\n", creal(tbBeg), cimag(tbBeg));
-			printf("tbEnd: %lf + %lf\n\n", creal(tbEnd), cimag(tbEnd));
 		}
 
-		if (numIm > fps * lengthAnim) return(1);
+		if (numIm >= fps * lengthAnim) return(1);
 	}
 	return 1;
 }
