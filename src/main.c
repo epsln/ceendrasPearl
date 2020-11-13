@@ -13,13 +13,14 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 8
-#define HEIGHT 1080 * ANTIALPOW 
-#define WIDTH  1920 * ANTIALPOW
-#define BOUNDS 2 
+#define ANTIALPOW 1
+#define HEIGHT  1080 * ANTIALPOW 
+#define WIDTH   1920 * ANTIALPOW
+#define BOUNDS 1 
 #define EPSI  0.005 
 #define LEVMAX 10 
 #define LINE 0 
+#define BITWISE 1 
 #define DEBUG 0
 
 
@@ -51,9 +52,9 @@ int main(){
 	printf("tbEnd: %lf + %lf\n\n", creal(tbEnd), cimag(tbEnd));
 	srand(time(NULL));
 
-	int fps = 30;
+	int fps = 10;
 	int duration = 10;
-	int lengthAnim = 30;
+	int lengthAnim = 100;
 
 	image_t img;
 	image_t* pImg = &img;
@@ -66,10 +67,13 @@ int main(){
 	pImg->levmax = LEVMAX;
 	pImg->antialiasingPow = ANTIALPOW;
 	pImg->debug  = DEBUG;
-	pImg->filename = calloc(256, sizeof(char));
+	pImg->bitwise= BITWISE;
+	pImg->filename = malloc(256* sizeof(char));
 
 	pImg->pointArr = NULL;
-	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));//TODO:Replace by calloc
+	pImg->bitArray = NULL;
+	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));
+	pImg->bitArray = (unsigned long long int*)calloc(pImg->w*pImg->h/64, sizeof(unsigned long long int));
 
 	if (pImg->pointArr == NULL){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
@@ -81,6 +85,10 @@ int main(){
 	char prefix[100] = "out/img_";
 	char imageNum[5];  
 
+	if (pImg->bitwise == 1 && (pImg->w % 64 != 0 || pImg->h % 64 != 0)){//Check if image dims are a multiple of 64
+		printf("Image dimensions are not a multiple of 64 ! Exiting...\n");
+		exit(-2);
+	}
 
 	while(1){
 		//Create a filename for the image based on the number of image processed
@@ -97,9 +105,11 @@ int main(){
 		//And multiply by minus one to add. We need to do that for the real and complex part so we get this loooong line :)
 		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-
+		ta = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+		tb = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);
+		//exit(1);
 		numIm++;
 		printf("ta: %lf + I %lf\n", creal(ta), cimag(ta));
 		printf("tb: %lf + I %lf\n", creal(tb), cimag(tb));

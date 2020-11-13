@@ -6,7 +6,14 @@
 #include "include/plot.h"
 
 int checkBoundaries(int x, int y, image_t *img){
-	if (x >= 0 && y >= 0 && x*img->h + y < img->w * img->h &&  x*img->h + y > 0 ) //Careful, might overflow !
+	if (img->bitwise){
+		if (x >= 0 && y >= 0 && x < img->w && y < img->h &&  x*img->h + y > 0) //Careful, might overflow !
+			return 1;
+	else
+		return 0;
+
+	}
+	if (x >= 0 && y >= 0 && x*img->h + y < img->w * img->h &&  x*img->h + y > 0) //Careful, might overflow !
 		return 1;
 	else
 		return 0;
@@ -56,12 +63,31 @@ void plotLineHigh(int x0,int y0, int x1,int y1, image_t* img){
 	}
 }
 
+unsigned long long output(unsigned long long n)
+{
+    unsigned long long m = n ? output(n / 2) : 0;
+    printf("%d", (int)(n % 2));
+    return m;
+}
+
 void point(int x, int y, image_t* img){
 	if (checkBoundaries(x, y, img) == 0) return;
+	if (img->bitwise == 1){
+		//Experimental !
+		//printf("x:%d, y:%d\n", x, y);
+		//printf("add: %d\n",(int)x/64 * img->h + (int)y);
+		//printf("bit: %llx\n", 1ULL << (63 - x ));
+		img->bitArray[(int)x/64 * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
+
+		//printf("out[%d][%d]: %llx\n",x,y,img->bitArray[(int)x/64 * img->h + (int)y]);
+		//printf("out[%d][%d]:",x,y);
+		//output(img->bitArray[(int)x/64 * img->h + (int)y]);
+		//printf("\n");
+	}
 	else{
-		//printf("x: %d || max: %d\n",x*img->w + y, img->w * img -> h); 
 		img->pointArr[x*img->h + y] = 1;
 	}
+	
 }
 
 void line(int x0,int y0, int x1, int y1, image_t* img){
@@ -83,24 +109,55 @@ void line(int x0,int y0, int x1, int y1, image_t* img){
 	}
 }
 
-void antialiasing(image_t* img, float* output){
+
+void antialiasing(image_t* img, float* outputImg){
 	const int w0 = img->w;
 	const int h0 = img->h;
 
+	printf("w0*h0 : %d\n",w0*h0);
 	const int antPow = img->antialiasingPow;
-	for (int i = 0; i < w0; i++){
-		for (int j = 0; j < h0; j++){
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] += img->pointArr[i * img->h + j]; 	
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] += img->pointArr[i * img->h + j]; 	
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] += img->pointArr[i * img->h + j]; 	
-                                                              
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] /= 2;
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] /= 2;
-			output[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] /= 2;
-
+	if (img->bitwise == 1){
+		for (int i = 0; i < w0; i++){
+			for (int j = 0; j < h0; j++){
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+			}
+		//for (i//nt i = 0; i < w0*h0; i++){
+		//	////(n & ( 1 << k )) >> k 
+		//	printf("i: %d, idx: %d\n", i,(int)i/64 * img->h + i);
+		//	outputImg[(i/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
+		//	outputImg[(i/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
+		//	outputImg[(i/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
+		//	//printf("%.f", outputImg[(i/antPow) * 3 + 2]);
+		//	if (i % w0 == 0){
+		//		//printf("%d ", i/64);
+		//		//output(img->bitArray[(int)i/64]);
+		//		//printf("%llu", img->bitArray[(int)i/64]);
+		//		printf("\n");
+		//	}
+//		//	if (img->bitArray[(int)i/64] << i % 64 & 1){
+//		//		printf("i:%d, i/ant:%d, max: %d\n", i, i/antPow, w0*h0);
+//		//		printf("out:%lf, bitArr: %lld\n",output[(i/antPow) * 3 + 0],img->bitArray[(int)i/64] << i % 64 & 1);
+//		//	}
 		}
+		memset(img->bitArray, 0, (img->w*img->h/64) * (sizeof *img->bitArray));
 	}
+	else{
+		for (int i = 0; i < w0; i++){//TODO: Remove the 2 loops ! One is sufficient !!
+			for (int j = 0; j < h0; j++){
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] += img->pointArr[i * img->h + j]; 	
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] += img->pointArr[i * img->h + j]; 	
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] += img->pointArr[i * img->h + j]; 	
+				      
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] /= 2;
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] /= 2;
+				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] /= 2;
+
+			}
+		}
 	memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
+	}
 }
 
 void saveArrayAsBMP(image_t *img){
@@ -119,6 +176,10 @@ void saveArrayAsBMP(image_t *img){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
 		exit(1);
 	}
+
+	//for (int i = 0; i < img->w*img->h/64;i++){
+	//	printf("i:%d %lld\n",i, img->bitArray[i]);
+	//}
 
 	antialiasing(img, imgArr);	
 
