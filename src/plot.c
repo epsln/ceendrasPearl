@@ -122,24 +122,12 @@ void antialiasing(image_t* img, float* outputImg){
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] /= 2.0; 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] /= 2.0; 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] /= 2.0; 	
+
 			}
-		//for (i//nt i = 0; i < w0*h0; i++){
-		//	////(n & ( 1 << k )) >> k 
-		//	printf("i: %d, idx: %d\n", i,(int)i/64 * img->h + i);
-		//	outputImg[(i/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	outputImg[(i/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	outputImg[(i/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	//printf("%.f", outputImg[(i/antPow) * 3 + 2]);
-		//	if (i % w0 == 0){
-		//		//printf("%d ", i/64);
-		//		//output(img->bitArray[(int)i/64]);
-		//		//printf("%llu", img->bitArray[(int)i/64]);
-		//		printf("\n");
-		//	}
-//		//	if (img->bitArray[(int)i/64] << i % 64 & 1){
-//		//		printf("i:%d, i/ant:%d, max: %d\n", i, i/antPow, w0*h0);
-//		//		printf("out:%lf, bitArr: %lld\n",output[(i/antPow) * 3 + 0],img->bitArray[(int)i/64] << i % 64 & 1);
-//		//	}
 		}
 		memset(img->bitArray, 0, (img->w*img->h/64) * (sizeof *img->bitArray));
 	}
