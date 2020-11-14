@@ -79,7 +79,7 @@ void point(int x, int y, image_t* img){
 		//printf("x:%d, y:%d\n", x, y);
 		//printf("add: %d\n",(int)x/64 * img->h + (int)y);
 		//printf("bit: %llx\n", 1ULL << (63 - x ));
-		img->bitArray[(int)fmax(0, ceil((int)x/64.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
+		img->bitArray[(int)fmax(0, ceil(x/64.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
 		//printf("out[%d][%d]: %llx\n",x,y,img->bitArray[(int)x/64 * img->h + (int)y]);
 		//printf("out[%d][%d]:",x,y);
 		//output(img->bitArray[(int)x/64 * img->h + (int)y]);
@@ -126,9 +126,9 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	if (img->bitwise == 1){
 		for (int i = 0; i < w0; i++){
 			for (int j = 0; j < h0; j++){
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)fmax(0, ceil((int)i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)fmax(0, ceil((int)i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)fmax(0, ceil((int)i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 			}
 		}
 
@@ -139,7 +139,8 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 				outputImg[(i * h0/antPow + j)* 3 + 2] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 2], 0, 1 << antPow, 0, 255); 	
 			}
 		}
-		memset(img->bitArray, 0, (img->w*img->h/64) * (sizeof *img->bitArray));
+		//Zero bit array after reading
+		memset(img->bitArray, 0, ceil(img->w/64.0)*img->h * (sizeof *img->bitArray));
 	}
 	//Classical method, just add up all the floats and then divide
 	//TODO: linearise that to obtain some perfs gainz
@@ -149,11 +150,13 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] += img->pointArr[i * img->h + j]; 	
 				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] += img->pointArr[i * img->h + j]; 	
 				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] += img->pointArr[i * img->h + j]; 	
-				      
-				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] /= 2;
-				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] /= 2;
-				outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] /= 2;
-
+			}
+		}
+		for (int i = 0; i < w0/antPow; i++){
+			for (int j = 0; j < h0/antPow; j++){
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, 1 << antPow, 0, 255); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 1], 0, 1 << antPow, 0, 255); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 2], 0, 1 << antPow, 0, 255); 	
 			}
 		}
 	memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
