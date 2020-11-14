@@ -131,10 +131,6 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] *= 255; 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] *= 255; 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] *= 255; 	
-
 			}
 
 		}
