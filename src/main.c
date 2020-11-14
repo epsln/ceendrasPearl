@@ -13,9 +13,9 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 4
-#define HEIGHT  1024 * ANTIALPOW 
-#define WIDTH   1024 * ANTIALPOW
+#define ANTIALPOW 1
+#define WIDTH  1000 * ANTIALPOW 
+#define HEIGHT 1000 * ANTIALPOW
 #define BOUNDS 1 
 #define EPSI  0.005 
 #define LEVMAX 15 
@@ -73,7 +73,7 @@ int main(){
 	pImg->pointArr = NULL;
 	pImg->bitArray = NULL;
 	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));
-	pImg->bitArray = (unsigned long long int*)calloc(pImg->w*pImg->h/64, sizeof(unsigned long long int));
+	pImg->bitArray = (unsigned long long int*)calloc(ceil(pImg->w/64.0)* pImg->h, sizeof(unsigned long long int));
 
 	if (pImg->pointArr == NULL){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
@@ -85,10 +85,10 @@ int main(){
 	char prefix[100] = "out/img_";
 	char imageNum[5];  
 
-	if (pImg->bitwise == 1 && (pImg->w % 64 != 0 || pImg->h % 64 != 0)){//Check if image dims are a multiple of 64
-		printf("Image dimensions are not a multiple of 64 ! Exiting...\n");
-		exit(-2);
-	}
+	//if (pImg->bitwise == 1 && (pImg->w % 64 != 0 || pImg->h % 64 != 0)){//Check if image dims are a multiple of 64
+	//	printf("Image dimensions are not a multiple of 64 ! Exiting...\n");
+	//	exit(-2);
+	//}
 
 	while(1){
 		//Create a filename for the image based on the number of image processed
@@ -105,11 +105,11 @@ int main(){
 		//And multiply by minus one to add. We need to do that for the real and complex part so we get this loooong line :)
 		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		ta = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-		tb = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+		ta = 2.2;
+		tb = 2.2;
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);
-		//exit(1);
+		exit(1);
 		numIm++;
 		printf("ta: %lf + I %lf\n", creal(ta), cimag(ta));
 		printf("tb: %lf + I %lf\n", creal(tb), cimag(tb));
