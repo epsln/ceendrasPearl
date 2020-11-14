@@ -14,13 +14,13 @@
 
 #define SIZEARR 1000
 #define ANTIALPOW 1
-#define WIDTH  1000 * ANTIALPOW 
-#define HEIGHT 1000 * ANTIALPOW
+#define WIDTH  1920 * ANTIALPOW 
+#define HEIGHT 1080 * ANTIALPOW
 #define BOUNDS 1 
 #define EPSI  0.005 
 #define LEVMAX 15 
 #define LINE 0 
-#define BITWISE 1 
+#define BITWISE 1
 #define DEBUG 0
 
 
@@ -73,7 +73,9 @@ int main(){
 	pImg->pointArr = NULL;
 	pImg->bitArray = NULL;
 	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));
-	pImg->bitArray = (unsigned long long int*)calloc(ceil(pImg->w/64.0)* pImg->h, sizeof(unsigned long long int));
+    unsigned int allocSize = (ceil(pImg->w/64.0))* pImg->h;
+    printf("Size of array is %u\n", allocSize);
+	pImg->bitArray = (unsigned long long int*)calloc(allocSize, sizeof(unsigned long long int));
 
 	if (pImg->pointArr == NULL){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
@@ -85,10 +87,6 @@ int main(){
 	char prefix[100] = "out/img_";
 	char imageNum[5];  
 
-	//if (pImg->bitwise == 1 && (pImg->w % 64 != 0 || pImg->h % 64 != 0)){//Check if image dims are a multiple of 64
-	//	printf("Image dimensions are not a multiple of 64 ! Exiting...\n");
-	//	exit(-2);
-	//}
 
 	while(1){
 		//Create a filename for the image based on the number of image processed
@@ -129,5 +127,5 @@ int main(){
 
 		if (numIm >= fps * lengthAnim) return(1);
 	}
-	return 1;
+	return 0;
 }

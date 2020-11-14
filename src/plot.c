@@ -75,15 +75,7 @@ unsigned long long output(unsigned long long n)
 void point(int x, int y, image_t* img){
 	if (checkBoundaries(x, y, img) == 0) return;
 	if (img->bitwise == 1){
-		//Experimental !
-		//printf("x:%d, y:%d\n", x, y);
-		//printf("add: %d\n",(int)x/64 * img->h + (int)y);
-		//printf("bit: %llx\n", 1ULL << (63 - x ));
-		img->bitArray[(int)fmax(0, ceil(x/64.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
-		//printf("out[%d][%d]: %llx\n",x,y,img->bitArray[(int)x/64 * img->h + (int)y]);
-		//printf("out[%d][%d]:",x,y);
-		//output(img->bitArray[(int)x/64 * img->h + (int)y]);
-		//printf("\n");
+		img->bitArray[(int)fmax(0.0, (int)ceil(x/63.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
 	}
 	else{
 		img->pointArr[x*img->h + y] = 1;
@@ -121,22 +113,22 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	//We use some bit shuffling to select the correct bit, starting from the end (we are storing bits in a big endian manner) 
 	//we use i as the index for this bit. it runs from 63 to 0
 	//Each time we add a bit, we also divide it by two to obtain some kind of mean
-	//TODO: linearise that to obtain some perfs gainz
-	//TODO: Adapt this to non multiples of 64 dimensions 
+
 	if (img->bitwise == 1){
-		for (int i = 0; i < w0; i++){
-			for (int j = 0; j < h0; j++){
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)fmax(0, ceil(i/64.0) - 1) * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+		for (int i = 0; i < h0; i++){
+			for (int j = 0; j < w0; j++){
+                int res = (img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ULL << (63 - j % 64))) >> (63 - j % 64);
+				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 0] += res;
+				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 1] += res; 
+				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 2] += res;
 			}
 		}
-
 		for (int i = 0; i < w0/antPow; i++){
 			for (int j = 0; j < h0/antPow; j++){
-				outputImg[(i * h0/antPow + j)* 3 + 0] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 0], 0, 1 << antPow, 0, 255); 	
-				outputImg[(i * h0/antPow + j)* 3 + 1] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 1], 0, 1 << antPow, 0, 255); 	
-				outputImg[(i * h0/antPow + j)* 3 + 2] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 2], 0, 1 << antPow, 0, 255); 	
+                int res = (int)map(outputImg[(i * h0/antPow + j)* 3 + 0], 0, 1 << antPow, 0, 255); 	
+				outputImg[(i * h0/antPow + j)* 3 + 0] = res; 
+				outputImg[(i * h0/antPow + j)* 3 + 1] = res; 
+				outputImg[(i * h0/antPow + j)* 3 + 2] = res; 
 			}
 		}
 		//Zero bit array after reading
