@@ -13,12 +13,12 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 1
-#define HEIGHT  1080 * ANTIALPOW 
-#define WIDTH   1920 * ANTIALPOW
+#define ANTIALPOW 4
+#define HEIGHT  1024 * ANTIALPOW 
+#define WIDTH   1024 * ANTIALPOW
 #define BOUNDS 1 
 #define EPSI  0.005 
-#define LEVMAX 10 
+#define LEVMAX 15 
 #define LINE 0 
 #define BITWISE 1 
 #define DEBUG 0

@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <complex.h>
 
 #include "include/plot.h"
+#include "include/complexMath.h"
 
 int checkBoundaries(int x, int y, image_t *img){
 	if (img->bitwise){
@@ -110,39 +112,43 @@ void line(int x0,int y0, int x1, int y1, image_t* img){
 }
 
 
-void antialiasing(image_t* img, float* outputImg){
+void antialiasing(image_t* img, unsigned char* outputImg){
 	const int w0 = img->w;
 	const int h0 = img->h;
 
-	printf("w0*h0 : %d\n",w0*h0);
 	const int antPow = img->antialiasingPow;
+	//What we do here:
+	//Copy each bit of the bitArray into a float at its corresponding index i,j
+	//We use some bit shuffling to select the correct bit, starting from the end (we are storing bits in a big endian manner) 
+	//we use i as the index for this bit. it runs from 63 to 0
+	//Each time we add a bit, we also divide it by two to obtain some kind of mean
+	//TODO: linearise that to obtain some perfs gainz
+	//TODO: Adapt this to non multiples of 64 dimensions 
 	if (img->bitwise == 1){
 		for (int i = 0; i < w0; i++){
 			for (int j = 0; j < h0; j++){
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
 				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + j] & ( 1ULL << (63 - i % 64))) >> (63 - i % 64); 	
+
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] *= 255; 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] *= 255; 	
+				outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] *= 255; 	
+
 			}
-		//for (i//nt i = 0; i < w0*h0; i++){
-		//	////(n & ( 1 << k )) >> k 
-		//	printf("i: %d, idx: %d\n", i,(int)i/64 * img->h + i);
-		//	outputImg[(i/antPow) * 3 + 0] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	outputImg[(i/antPow) * 3 + 1] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	outputImg[(i/antPow) * 3 + 2] += (img->bitArray[(int)i/64 * img->h + i] & ( 1ULL << i % 64)) >> i % 64 ; 	
-		//	//printf("%.f", outputImg[(i/antPow) * 3 + 2]);
-		//	if (i % w0 == 0){
-		//		//printf("%d ", i/64);
-		//		//output(img->bitArray[(int)i/64]);
-		//		//printf("%llu", img->bitArray[(int)i/64]);
-		//		printf("\n");
-		//	}
-//		//	if (img->bitArray[(int)i/64] << i % 64 & 1){
-//		//		printf("i:%d, i/ant:%d, max: %d\n", i, i/antPow, w0*h0);
-//		//		printf("out:%lf, bitArr: %lld\n",output[(i/antPow) * 3 + 0],img->bitArray[(int)i/64] << i % 64 & 1);
-//		//	}
+
+		}
+		for (int i = 0; i < w0/antPow; i++){
+			for (int j = 0; j < h0/antPow; j++){
+				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 1] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
+				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 2] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
+			}
 		}
 		memset(img->bitArray, 0, (img->w*img->h/64) * (sizeof *img->bitArray));
 	}
+	//Classical method, just add up all the floats and then divide
+	//TODO: linearise that to obtain some perfs gainz
 	else{
 		for (int i = 0; i < w0; i++){//TODO: Remove the 2 loops ! One is sufficient !!
 			for (int j = 0; j < h0; j++){
@@ -181,27 +187,27 @@ void saveArrayAsBMP(image_t *img){
 	//	printf("i:%d %lld\n",i, img->bitArray[i]);
 	//}
 
-	antialiasing(img, imgArr);	
+	antialiasing(img, imgOut);	
 
 	//memset(img->pointArr,0,img->w*img->h);
 
-	int r,g,b,x,y;
-	for(int i=0; i<w; i++)
-	{
-		for(int j=0; j<h; j++)
-		{
-			x=i; y=(h-1)-j;
-			r = imgArr[(i + j * w) * 3 + 0]*255;
-			g = imgArr[(i + j * w) * 3 + 1]*255;
-			b = imgArr[(i + j * w) * 3 + 2]*255;
-			if (r > 255) r=255;
-			if (g > 255) g=255;
-			if (b > 255) b=255;
-			imgOut[(x+y*w)*3+2] = (unsigned char)(r);
-			imgOut[(x+y*w)*3+1] = (unsigned char)(g);
-			imgOut[(x+y*w)*3+0] = (unsigned char)(b);
-		}
-	}
+	//int r,g,b,x,y;
+	//for(int i=0; i<w; i++)
+	//{
+	//	for(int j=0; j<h; j++)
+	//	{
+	//		x=i; y=(h-1)-j;
+	//		r = imgArr[(i + j * w) * 3 + 0]*255;
+	//		g = imgArr[(i + j * w) * 3 + 1]*255;
+	//		b = imgArr[(i + j * w) * 3 + 2]*255;
+	//		if (r > 255) r=255;
+	//		if (g > 255) g=255;
+	//		if (b > 255) b=255;
+	//		imgOut[(x+y*w)*3+2] = (unsigned char)(r);
+	//		imgOut[(x+y*w)*3+1] = (unsigned char)(g);
+	//		imgOut[(x+y*w)*3+0] = (unsigned char)(b);
+	//	}
+	//}
 
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
@@ -237,7 +243,7 @@ void saveArrayAsBMP(image_t *img){
 
 	//Free the memory 
 	
-	free(imgArr);
+	//free(imgArr);
 
 	free(imgOut);
 	fclose(f);
