@@ -136,9 +136,9 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 		}
 		for (int i = 0; i < w0/antPow; i++){
 			for (int j = 0; j < h0/antPow; j++){
-				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 1] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
-				outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 2] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
+				outputImg[(i * h0/antPow + j)* 3 + 0] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 0], 0, pow(2, antPow), 0, 255); 	
+				outputImg[(i * h0/antPow + j)* 3 + 1] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 1], 0, pow(2, antPow), 0, 255); 	
+				outputImg[(i * h0/antPow + j)* 3 + 2] = (int)map(outputImg[(i * h0/antPow + j)* 3 + 2], 0, pow(2, antPow), 0, 255); 	
 			}
 		}
 		memset(img->bitArray, 0, (img->w*img->h/64) * (sizeof *img->bitArray));
