@@ -119,6 +119,8 @@ void antialiasing(image_t* img, unsigned char* outputImg){
         for (int i = 0; i < h0; i++){
             for (int j = 0; j < w0; j++){
                 int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ULL << (63 - j % 64))) >> (63 - j % 64));
+                if (res == 0)
+                    continue;
                 outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 0] += res;
                 outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 1] += res; 
                 outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 2] += res;
@@ -128,20 +130,13 @@ void antialiasing(image_t* img, unsigned char* outputImg){
         memset(img->bitArray, 0, ceil(img->w/64.0)*img->h * (sizeof *img->bitArray));
     }
     //Classical method, just add up all the floats and then divide
-    //TODO: linearise that to obtain some perfs gainz
     else{
-        for (int i = 0; i < w0; i++){//TODO: Remove the 2 loops ! One is sufficient !!
-            for (int j = 0; j < h0; j++){
-                outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 0] += img->pointArr[i * img->h + j]; 	
-                outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 1] += img->pointArr[i * img->h + j]; 	
-                outputImg[(i/antPow+ j/antPow * w0/antPow ) * 3 + 2] += img->pointArr[i * img->h + j]; 	
-            }
-        }
-        for (int i = 0; i < w0/antPow; i++){
-            for (int j = 0; j < h0/antPow; j++){
-                outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 0] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 0], 0, 1 << antPow, 0, 255); 	
-                outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 1] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 1], 0, 1 << antPow, 0, 255); 	
-                outputImg[(i/antPow * h0/antPow + j/antPow) * 3 + 2] = (int)map(outputImg[(i/antPow * h0/antPow + j/antPow)* 3 + 2], 0, 1 << antPow, 0, 255); 	
+        for (int i = 0; i < h0; i++) {
+            for (int j = 0; j < w0; j++){
+                int res = minPixelValue * img->pointArr[j * img->h + i];
+                outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 0] += res; 	
+                outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 1] += res; 	
+                outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 2] += res; 	
             }
         }
         memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
