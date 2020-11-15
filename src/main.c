@@ -13,12 +13,12 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 1
-#define WIDTH  1920 * ANTIALPOW 
+#define ANTIALPOW 4
+#define WIDTH  1080 * ANTIALPOW 
 #define HEIGHT 1080 * ANTIALPOW
 #define BOUNDS 1 
 #define EPSI  0.005 
-#define LEVMAX 15 
+#define LEVMAX 14 
 #define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
@@ -26,8 +26,8 @@
 
 
 int main(){
-	time_t t;
-	srand((unsigned) time(&t));
+	time_t pt;
+	srand((unsigned) time(&pt));
 
 	double complex ta = 0.;
 	double complex tb = 0.;
@@ -39,7 +39,8 @@ int main(){
 	double complex taInit = 0.;
 	double complex tbInit = 0.;
 	int numIm = 0;
-	float theta = 0;
+	int s = (float)rand()/(float)(RAND_MAX/64);
+	int t = (float)rand()/(float)(RAND_MAX);
 	taBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tbBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
@@ -73,8 +74,8 @@ int main(){
 	pImg->pointArr = NULL;
 	pImg->bitArray = NULL;
 	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));
-    unsigned int allocSize = (ceil(pImg->w/64.0))* pImg->h;
-    printf("Size of array is %u\n", allocSize);
+	unsigned int allocSize = (ceil(pImg->w/64.0))* pImg->h;
+	printf("Size of array is %u\n", allocSize);
 	pImg->bitArray = (unsigned long long int*)calloc(allocSize, sizeof(unsigned long long int));
 
 	if (pImg->pointArr == NULL){
@@ -101,13 +102,12 @@ int main(){
 		//The easing function takes a starting value and the value that needs to be added
 		//To get the value that needs to be added we extract the distance between the two traces using copysign
 		//And multiply by minus one to add. We need to do that for the real and complex part so we get this loooong line :)
-		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
-		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		ta = 2.2;
-		tb = 2.2;
+		//ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
+		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
+		ta = schlickComplex((float)(numIm%(fps*duration)), s, t, taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); 
+		tb = schlickComplex((float)(numIm%(fps*duration)), s, t, tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		computeDepthFirst(ta, tb, tab, pImg, numIm);
 		saveArrayAsBMP(pImg);
-		exit(1);
 		numIm++;
 		printf("ta: %lf + I %lf\n", creal(ta), cimag(ta));
 		printf("tb: %lf + I %lf\n", creal(tb), cimag(tb));
@@ -117,6 +117,9 @@ int main(){
 			taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 			tbEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 
+			s = (float)rand()/(float)(RAND_MAX/64);
+			t = (float)rand()/(float)(RAND_MAX);
+
 			if (numIm >= fps * lengthAnim - fps * duration){//loop by ending up at the begining traces
 				taBeg = taEnd;
 				tbBeg = tbEnd;
@@ -124,7 +127,6 @@ int main(){
 				tbEnd = tbInit;
 			}
 		}
-
 		if (numIm >= fps * lengthAnim) return(1);
 	}
 	return 0;

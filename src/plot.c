@@ -117,7 +117,8 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	if (img->bitwise == 1){
 		for (int i = 0; i < h0; i++){
 			for (int j = 0; j < w0; j++){
-                int res = (img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ULL << (63 - j % 64))) >> (63 - j % 64);
+                		int res = (img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ULL << (63 - j % 64))) >> (63 - j % 64);
+
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 0] += res;
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 1] += res; 
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 2] += res;
@@ -125,7 +126,8 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 		}
 		for (int i = 0; i < w0/antPow; i++){
 			for (int j = 0; j < h0/antPow; j++){
-                int res = (int)map(outputImg[(i * h0/antPow + j)* 3 + 0], 0, 1 << antPow, 0, 255); 	
+                		int res = (int)map(outputImg[(i * h0/antPow + j)* 3 + 0], 0, 1 << antPow, 0, 255); 	
+
 				outputImg[(i * h0/antPow + j)* 3 + 0] = res; 
 				outputImg[(i * h0/antPow + j)* 3 + 1] = res; 
 				outputImg[(i * h0/antPow + j)* 3 + 2] = res; 
