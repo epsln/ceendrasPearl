@@ -18,7 +18,7 @@
 #define HEIGHT 1080 * ANTIALPOW
 #define BOUNDS 1 
 #define EPSI  0.005 
-#define LEVMAX 14 
+#define LEVMAX 12
 #define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
@@ -38,9 +38,11 @@ int main(){
 	double complex tab = 0.;
 	double complex taInit = 0.;
 	double complex tbInit = 0.;
+	double s = (float)rand()/(float)(RAND_MAX/64);
+	double t = (float)rand()/(float)(RAND_MAX/1);
+
 	int numIm = 0;
-	int s = (float)rand()/(float)(RAND_MAX/64);
-	int t = (float)rand()/(float)(RAND_MAX);
+
 	taBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tbBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	taEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
@@ -53,9 +55,9 @@ int main(){
 	printf("tbEnd: %lf + %lf\n\n", creal(tbEnd), cimag(tbEnd));
 	srand(time(NULL));
 
-	int fps = 10;
+	int fps = 30;
 	int duration = 10;
-	int lengthAnim = 100;
+	int lengthAnim = 30;
 
 	image_t img;
 	image_t* pImg = &img;

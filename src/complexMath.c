@@ -62,10 +62,12 @@ double schlickEase(double x, double s, double t, double beg, double end, double 
 	x /= nsteps;
 	if (x < t){
 		double res = t*x/(x + s*(t - x) + 0.00001); 
+		//printf("x: %f t:%f s:%f res: %f\n", x, t, s, res);
 		return map(res, 0, 1, beg, end); 
 	}
 	else{
 		double res = ((1 - t) * (x - 1))/(1 - x - s*(t - x) + 0.00001); 
+		//printf("x: %f t:%f s:%f res: %f\n", x, t, s, res);
 		return map(res, 0, 1, beg, end); 
 	}
 }
