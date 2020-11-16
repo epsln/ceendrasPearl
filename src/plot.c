@@ -128,7 +128,7 @@ void antialiasing(image_t* img, unsigned char* outputImg){
         }
         //Zero bit array after reading
 	//Bugged !
-        memset(img->bitArray, 0, (ceil(img->w/64.0)+1)*img->h * (sizeof img->bitArray));
+        memset(img->bitArray, 0, (ceil(img->w/64.0) + 2)*img->h *(sizeof(long long int)));
     }
     //Classical method, just add up all the floats and then divide
     else{

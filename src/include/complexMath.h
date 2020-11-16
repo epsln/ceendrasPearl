@@ -22,6 +22,7 @@ double complex mobiusOnPoint(double complex T[2][2], double complex z);
 //Generators computing
 void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]);
 void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex gens[4][2][2]);
+void maskitRecipe(double complex ta, double complex gens[4][2][2]);
 
 //Cycle computations
 void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3]);

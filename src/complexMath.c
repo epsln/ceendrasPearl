@@ -79,6 +79,31 @@ double complex InOutQuadComplex(double t, double complex beg, double complex end
 double complex schlickComplex(double x, double s, double t, double complex beg, double complex end, double nsteps){
 	return schlickEase(x, s, t, creal(beg), creal(end), nsteps) + I * schlickEase(x, s, t, cimag(beg), cimag(end), nsteps);
 }
+void maskitRecipe(double complex ta, double complex gens[4][2][2]){
+	//See pp. 259
+	double complex mu = ta/I;
+		
+	gens[0][0][0] = mu;
+	gens[0][1][0] = 1; 
+	gens[0][0][1] = 1;
+	gens[0][1][1] = 0; 
+
+	gens[1][0][0] = 1;
+	gens[1][1][0] = 2; 
+	gens[1][0][1] = 0;
+	gens[1][1][1] = 1; 
+
+	gens[2][0][0] = gens[0][1][1];
+	gens[2][1][0] = -gens[0][1][0];
+	gens[2][0][1] = -gens[0][0][1];
+	gens[2][1][1] = gens[0][0][0];
+
+	gens[3][0][0] = gens[1][1][1];
+	gens[3][1][0] = -gens[1][1][0];
+	gens[3][0][1] = -gens[1][0][1];
+	gens[3][1][1] = gens[1][0][0];
+}
+
 
 void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]){
 	double complex a = 1;
