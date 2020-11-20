@@ -81,11 +81,10 @@ double complex schlickComplex(double x, double s, double t, double complex beg, 
 }
 void maskitRecipe(double complex ta, double complex gens[4][2][2]){
 	//See pp. 259
-	double complex mu = ta/I;
 		
-	gens[0][0][0] = mu;
-	gens[0][1][0] = 1; 
-	gens[0][0][1] = 1;
+	gens[0][0][0] = ta;
+	gens[0][1][0] = -I; 
+	gens[0][0][1] = -I;
 	gens[0][1][1] = 0; 
 
 	gens[1][0][0] = 1;

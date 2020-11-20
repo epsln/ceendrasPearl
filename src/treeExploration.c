@@ -119,7 +119,7 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 
 	if (lev == img->levmax || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) )){
 		showMatrix(buffWord, img);
-		/*
+	////	
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
 		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -128,16 +128,16 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 		y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
 		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
-		*/
+		
 		//TODO: Use different bounds depending on generator !
-		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y0 = (int) map(cimag(z0), -2 * img->bounds, 0 , img->h, 0);
-		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y1 = (int) map(cimag(z1), -2 * img->bounds, 0, img->h, 0);
-		x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y2 = (int) map(cimag(z2), -2 * img->bounds, 0, img->h, 0);
-		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y3 = (int) map(cimag(z3), 0, 2 * img->bounds, img->h, 0);
+		//x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		//y0 = (int) map(cimag(z0), -2 * img->bounds, 0 , img->h, 0);
+		//x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		//y1 = (int) map(cimag(z1), -2 * img->bounds, 0, img->h, 0);
+		//x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		//y2 = (int) map(cimag(z2), -2 * img->bounds, 0, img->h, 0);
+		//x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+		//y3 = (int) map(cimag(z3), 0, 2 * img->bounds, img->h, 0);
 		line(x0, y0, x1, y1, img);	
 		line(x1, y1, x2, y2, img);	
 		point(x0, y0, img);
@@ -169,9 +169,9 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 	plev = &lev;
 	double complex *poldP = &oldPoint;
 
-	//grandmaRecipe(ta, tb, gens);
+	grandmaRecipe(ta, tb, gens);
 	//grandmaSpecialRecipe(ta, tb, tab, gens);
-	maskitRecipe(ta, gens);
+	//maskitRecipe(ta, gens);
 
 //	printf("a = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[0][0][0]),cimag(gens[0][0][0]), creal(gens[0][1][0]), cimag(gens[0][1][0]), creal(gens[0][0][1]),cimag(gens[0][0][1]), creal(gens[0][1][1]),cimag(gens[0][1][1]));
 //	printf("b = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[1][0][0]),cimag(gens[1][0][0]), creal(gens[1][1][0]), cimag(gens[1][1][0]), creal(gens[1][0][1]),cimag(gens[1][0][1]), creal(gens[1][1][1]),cimag(gens[1][1][1]));

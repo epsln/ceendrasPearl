@@ -13,12 +13,13 @@
 #include "include/debugTools.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 4
-#define WIDTH  1080 * ANTIALPOW 
+#define ANTIALPOW 8
+#define WIDTH  1920 * ANTIALPOW 
 #define HEIGHT 1080 * ANTIALPOW
 #define BOUNDS 1 
+#define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.005 
-#define LEVMAX 13
+#define LEVMAX 15 
 #define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
@@ -47,13 +48,17 @@ int main(){
 
 	int numIm = 0;
 
-	taBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tbBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tabBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	taBeg  = randomComplex(0, 2 + 1.0 * I);
+	//tbBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	tabBeg = randomComplex(0, 2 + 1.0 * I);
 
-	taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	taEnd  = randomComplex(0, 2 + 1.0 * I);
+	//tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	tabEnd = randomComplex(0, 2 + 1.0 * I);
+
+	taBeg  = 0;
+	tbBeg  = 2;
+	tbEnd  = 2;
 
 	taInit = taBeg;
 	tbInit = tbBeg;
@@ -67,8 +72,8 @@ int main(){
 	printf("tabEnd: %lf + %lf\n\n", creal(tabEnd), cimag(tabEnd));
 
 	int fps = 30;
-	int duration = 10;
-	int lengthAnim = 30;
+	int duration = 5;
+	int lengthAnim = 10;
 
 	image_t img;
 	image_t* pImg = &img;
@@ -130,14 +135,11 @@ int main(){
 			tbBeg = tbEnd;
 			tabBeg = tabEnd;
 
-			//For some weird reason I have to run multiple times the random function... ???
-			taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-			tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-			tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 
-			//taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+			taEnd  = randomComplex(0, 2 + 1.0 * I);
 			//tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 			//tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+
 
 			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
 				taEnd = taInit;
