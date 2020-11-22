@@ -9,6 +9,7 @@
 #include "include/debugTools.h"
 #include "include/plot.h"
 #include "include/treeExploration.h"
+#include "include/recipes.h"
 
 void goForward(int *lev, int* tag, double complex word[1000][2][2], double complex gens[4][2][2]){
 	double complex buffWord[2][2];
@@ -169,14 +170,17 @@ void computeDepthFirst(double complex ta, double complex tb, double complex tab,
 	plev = &lev;
 	double complex *poldP = &oldPoint;
 
-	grandmaRecipe(ta, tb, gens);
-	//grandmaSpecialRecipe(ta, tb, tab, gens);
-	//maskitRecipe(ta, gens);
+	double trUV; 
+	int p = 1;
+	int q = 2;
+	
+	//trUV = traceRecursion(p, q, ta, tb, tab);
+	//printf("trUV(%d/%d): %lf + I %lf\n", p, q, creal(trUV), cimag(trUV));
+	//maskitRecipe(0.70567 + I * 1.61688, gens);
 
-//	printf("a = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[0][0][0]),cimag(gens[0][0][0]), creal(gens[0][1][0]), cimag(gens[0][1][0]), creal(gens[0][0][1]),cimag(gens[0][0][1]), creal(gens[0][1][1]),cimag(gens[0][1][1]));
-//	printf("b = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[1][0][0]),cimag(gens[1][0][0]), creal(gens[1][1][0]), cimag(gens[1][1][0]), creal(gens[1][0][1]),cimag(gens[1][0][1]), creal(gens[1][1][1]),cimag(gens[1][1][1]));
-//	printf("A = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[2][0][0]),cimag(gens[2][0][0]), creal(gens[2][1][0]), cimag(gens[2][1][0]), creal(gens[2][0][1]),cimag(gens[2][0][1]), creal(gens[2][1][1]),cimag(gens[2][1][1]));
-//	printf("B = [[%lf + i %lf, %lf + i %lf],\n     [%lf + i %lf, %lf + i %lf ]]\n\n", creal(gens[3][0][0]),cimag(gens[3][0][0]), creal(gens[3][1][0]), cimag(gens[3][1][0]), creal(gens[3][0][1]),cimag(gens[3][0][1]), creal(gens[3][1][1]),cimag(gens[3][1][1]));
+	grandmaRecipe(ta, 2.0, gens);
+	//grandmaSpecialRecipe(ta, tb, trUV, gens);
+	//maskitRecipe(ta, gens);
 
 	computeCycles(begpt, endpt, gens);
 	computeRepetendsv2(gens, fixRep);

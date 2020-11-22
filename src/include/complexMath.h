@@ -20,6 +20,7 @@ double complex fix(double complex T[2][2]);
 double complex mobiusOnPoint(double complex T[2][2], double complex z);
 
 //Generators computing
+double complex traceRecursion(int p, int q, double complex ta, double complex tB, double complex taB);
 void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]);
 void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex gens[4][2][2]);
 void maskitRecipe(double complex ta, double complex gens[4][2][2]);

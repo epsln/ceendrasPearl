@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <complex.h>
+#include <time.h>
 
 #include "include/arraysOps.h"
 
@@ -44,129 +45,6 @@ double complex fix(double complex T[2][2]){//See pp.76
 }
 
 
-//double easeInOutQuad (double t, double b, double c, int d) { // Page 211
-//    if ((t/=d/2) < 1) return c/2*t*t + b;
-//    return -c/2 * ((t - 1)*(t-2) - 1) + b;
-//};
-
-
-double easeInOutQuad(double t, double b, double c, double d) {
-	t /= d/2;
-	if (t < 1) return c/2*t*t + b;
-	t--;
-	return -c/2 * (t*(t-2) - 1) + b;
-}
-
-double schlickEase(double x, double s, double t, double beg, double end, double nsteps){
-	//Trying to implement this paper for shits and giggles: https://arxiv.org/pdf/2010.09714.pdf
-	x /= nsteps;
-	if (x < t){
-		double res = t*x/(x + s*(t - x) + 0.00001); 
-		//printf("x: %f t:%f s:%f res: %f\n", x, t, s, res);
-		return map(res, 0, 1, beg, end); 
-	}
-	else{
-		double res = ((1 - t) * (x - 1))/(1 - x - s*(t - x) + 0.00001); 
-		//printf("x: %f t:%f s:%f res: %f\n", x, t, s, res);
-		return map(res, 0, 1, beg, end); 
-	}
-}
-
-double complex InOutQuadComplex(double t, double complex beg, double complex end, double nsteps){
-	return easeInOutQuad(t, creal(beg), creal(end), nsteps) + I * easeInOutQuad(t, cimag(beg), cimag(end), nsteps);
-}
-
-double complex schlickComplex(double x, double s, double t, double complex beg, double complex end, double nsteps){
-	return schlickEase(x, s, t, creal(beg), creal(end), nsteps) + I * schlickEase(x, s, t, cimag(beg), cimag(end), nsteps);
-}
-void maskitRecipe(double complex ta, double complex gens[4][2][2]){
-	//See pp. 259
-		
-	gens[0][0][0] = ta;
-	gens[0][1][0] = -I; 
-	gens[0][0][1] = -I;
-	gens[0][1][1] = 0; 
-
-	gens[1][0][0] = 1;
-	gens[1][1][0] = 2; 
-	gens[1][0][1] = 0;
-	gens[1][1][1] = 1; 
-
-	gens[2][0][0] = gens[0][1][1];
-	gens[2][1][0] = -gens[0][1][0];
-	gens[2][0][1] = -gens[0][0][1];
-	gens[2][1][1] = gens[0][0][0];
-
-	gens[3][0][0] = gens[1][1][1];
-	gens[3][1][0] = -gens[1][1][0];
-	gens[3][0][1] = -gens[1][0][1];
-	gens[3][1][1] = gens[1][0][0];
-}
-
-
-void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]){
-	double complex a = 1;
-	double complex b = (-ta * tb);
-	double complex c = ta * ta + tb * tb; double complex delta = b*b - 4 * a * c; 
-	double complex tab = (- b - csqrt(delta))/(2 * a); 
-	double complex z0 = ((tab - 2) * tb)/(tb * tab - 2 * ta + 2 * I * tab);
-
-	gens[0][0][0] = ta/2;
-	gens[0][1][0] =  (ta*tab - 2 * tb + 4 * I)/(z0*(2 * tab + 4)); 
-	gens[0][0][1] = ((ta * tab - 2 * tb - 4 * I)*z0)/(2* tab - 4);
-	gens[0][1][1] = ta/2; 
-
-	gens[1][0][0] = (tb - 2 * I)/2;
-	gens[1][1][0] = tb/2; 
-	gens[1][0][1] = tb/2;
-	gens[1][1][1] = (tb + 2 * I)/2; 
-
-	gens[2][0][0] = gens[0][1][1];
-	gens[2][1][0] = -gens[0][1][0];
-	gens[2][0][1] = -gens[0][0][1];
-	gens[2][1][1] = gens[0][0][0];
-
-	gens[3][0][0] = gens[1][1][1];
-	gens[3][1][0] = -gens[1][1][0];
-	gens[3][0][1] = -gens[1][0][1];
-	gens[3][1][1] = gens[1][0][0];
-}
-
-void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex gens[4][2][2]){
-	//Grandma's Special four-alarm two generator group recipe 
-	//See pp. 261
-	double complex tc = ta * ta + tb * tb + tab * tab - ta * tb * tab - 2;
-	double complex Q  = csqrt(2 - tc);	
-	double complex R = 0;
-	if (cabs(tc + I * Q * csqrt(tc + 2)) >= 2)
-		R = csqrt(tc + 2);
-	else
-		R = -csqrt(tc + 2);
-	
-	double complex z0 = ((tab - 2) * (tb + R))/(tb * tab - 2 * ta + I * Q * tab);
-	
-	gens[0][0][0] = ta/2;
-	gens[0][1][0] =  (ta * tab - 2 * tb + 2 * I * Q)/(z0 * (2 * tab + 4)); 
-	gens[0][0][1] = ((ta * tab - 2 * tb - 2 * I * Q) * z0)/(2 * tab - 4);
-	gens[0][1][1] = ta/2; 
-
-	gens[1][0][0] = (tb - I * Q)/2;
-	gens[1][1][0] = (tb * tab - 2 * ta + I * Q * tab)/(z0*(2 * tab + 4));
-	gens[1][0][1] = ((ta * tab - 2 * ta - I * Q * tab)*z0)/(2 * tab - 4);
-	gens[1][1][1] = (tb + 2 * I * Q)/2; 
-
-
-	gens[2][0][0] = gens[0][1][1];
-	gens[2][1][0] = -gens[0][1][0];
-	gens[2][0][1] = -gens[0][0][1];
-	gens[2][1][1] = gens[0][0][0];
-
-	gens[3][0][0] = gens[1][1][1];
-	gens[3][1][0] = -gens[1][1][0];
-	gens[3][0][1] = -gens[1][0][1];
-	gens[3][1][1] = gens[1][0][0];
-
-}
 void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3]){//See pp.218
 	double complex buff_gen_a[2][2];
 	double complex buff_gen_b[2][2];
