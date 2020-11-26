@@ -155,32 +155,19 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 }
 
 
-void computeDepthFirst(double complex ta, double complex tb, double complex tab, image_t* img, int numIm){
+void computeDepthFirst(double complex gens[4][2][2], image_t* img, int numIm){
 	int lev = 0;
 	
 	double complex oldPoint = 0.;
 
 	double complex endpt[4];
 	double complex begpt[4];
-	double complex gens[4][2][2];
 	double complex fixRep[4][4];
 	double complex word[1000][2][2];
 	int tag[1000] = {0};
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;
-
-	double trUV; 
-	int p = 1;
-	int q = 2;
-	
-	//trUV = traceRecursion(p, q, ta, tb, tab);
-	//printf("trUV(%d/%d): %lf + I %lf\n", p, q, creal(trUV), cimag(trUV));
-	//maskitRecipe(0.70567 + I * 1.61688, gens);
-
-	grandmaRecipe(ta, 2.0, gens);
-	//grandmaSpecialRecipe(ta, tb, trUV, gens);
-	//maskitRecipe(ta, gens);
 
 	computeCycles(begpt, endpt, gens);
 	computeRepetendsv2(gens, fixRep);

@@ -149,10 +149,11 @@ void saveArrayAsBMP(image_t *img){
     int h = img->h/img->antialiasingPow;
 
     FILE *f;
-    unsigned char *imgOut = NULL;
     int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
     //Allocate image array
     float * imgArr = NULL;
+    unsigned char *imgOut = NULL;
+
     imgArr = (float*)calloc(w * h * 3, sizeof(float));
     imgOut = (unsigned char *)calloc(3*w*h, sizeof(unsigned char));
 
@@ -160,10 +161,6 @@ void saveArrayAsBMP(image_t *img){
         printf("Could not allocate memory for the image array !\nExiting...\n");
         exit(1);
     }
-
-    //for (int i = 0; i < img->w*img->h/64;i++){
-    //	printf("i:%d %lld\n",i, img->bitArray[i]);
-    //}
 
     antialiasing(img, imgOut);	
 

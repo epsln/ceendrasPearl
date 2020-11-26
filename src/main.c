@@ -12,6 +12,7 @@
 #include "include/treeExploration.h"
 #include "include/debugTools.h"
 #include "include/easing.h"
+#include "include/accidents.h"
 
 #define SIZEARR 1000
 #define ANTIALPOW 4
@@ -19,8 +20,8 @@
 #define HEIGHT 1080 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.005 
-#define LEVMAX 15 
+#define EPSI  0.001 
+#define LEVMAX 100 
 #define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
@@ -30,6 +31,10 @@
 int main(){
 	time_t pt;
 	srand((unsigned) time(&pt));
+
+	int fps = 10;
+	int duration = 3;
+	int lengthAnim = 1;
 
 	double complex ta = 0.;
 	double complex tb = 0.;
@@ -49,11 +54,12 @@ int main(){
 
 	int numIm = 0;
 
+
 	taBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tbBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tabBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 
-	taEnd  =  randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 	tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 
@@ -71,10 +77,10 @@ int main(){
 	printf("tabBeg: %lf + %lf\n", creal(tabBeg), cimag(tabBeg));
 	printf("tabEnd: %lf + %lf\n\n", creal(tabEnd), cimag(tabEnd));
 
-	int fps = 30;
-	int duration = 3;
-	int lengthAnim = 6;
 
+	double complex gens[4][2][2];
+
+	//TODO: Move this portion to its own file :)
 	image_t img;
 	image_t* pImg = &img;
 
@@ -103,38 +109,64 @@ int main(){
 	printf("levmax %d\n", pImg->levmax);
 	
 	char prefix[100] = "out/img_";
-	char imageNum[5];  
+	char imageNum[6];  
+	
+	double complex mu = 2*I;
+	double complex *pMu = &mu; 
 
+	int denum = 25;//The maximum denominator we should attain in the farray sequence
+
+	//ratio *fareySeq = (ratio * ) malloc(denum*denum);//Allocating an array for the farray sequence using the limit of its length  
+	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
+
+	makeFareySeq(denum, fareySeq);
+	
 
 	while(1){
 		srand((unsigned) time(&pt));
 		//Create a filename for the image based on the number of image processed
+		//TODO: Move this to its own function :)
 		sprintf(imageNum, "%d", numIm);
 		strcat(prefix, imageNum);
-		strcat(prefix, ".bmp");
+		strcat(prefix, ".bmp\0");
 		strcpy(pImg->filename, prefix);
 		strcpy(prefix, "out/img_");
 		printf("Image: %s\n\n", pImg->filename);
 
-		//Here, we interpolate between two values of ta,tb using an easing function
-		//The easing function takes a starting value and the value that needs to be added
-		//To get the value that needs to be added we extract the distance between the two traces using copysign
-		//And multiply by minus one to add. We need to do that for the real and complex part so we get this loooong line :)
+		//Here, we interpolate between two traces using an easing function
 		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
-		computeDepthFirst(ta, tb, tab, pImg, numIm);
+		if (DEBUG == 1){
+			printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
+			printf("tb:  %lf + I %lf\n", creal(tb), cimag(tb));
+			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
+		}
+
+		//Compute the associated mu value...
+		newtonSolver(pMu, fareySeq[numIm]);
+		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
+
+		//Compute some generators using a recipe...
+	//	maskitRecipe(mu, gens);
+		grandmaRecipe(-I*mu, 2, gens);
+
+		//Explore depth first combination of generators...
+		computeDepthFirst(gens, pImg, numIm);
+
+		//And save as an image.
 		saveArrayAsBMP(pImg);
+
 		numIm++;
-		printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
-		printf("tb:  %lf + I %lf\n", creal(tb), cimag(tb));
-		printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
-		if (numIm % (fps * duration) == 0 ){
+
+		
+		//printf("p/q: %d/%d\n", *pP, *pQ);
+
+		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
 			taBeg = taEnd;
 			tbBeg = tbEnd;
 			tabBeg = tabEnd;
-
 
 			taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 			tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
@@ -147,7 +179,10 @@ int main(){
 				tabEnd = tabInit;
 			}
 		}
-		if (numIm >= fps * lengthAnim) return(1);
+
+		if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
+		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
+		//Else, we go again !
 	}
 	return 0;
 }
