@@ -12,6 +12,7 @@
 #include "include/treeExploration.h"
 #include "include/debugTools.h"
 #include "include/easing.h"
+#include "include/recipes.h"
 #include "include/accidents.h"
 
 #define SIZEARR 1000
@@ -21,8 +22,9 @@
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define LEVMAX 100 
-#define LINE 0 
+#define LEVMAX 50 
+#define MAXWORD 500 
+#define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
 
@@ -78,18 +80,19 @@ int main(){
 	printf("tabEnd: %lf + %lf\n\n", creal(tabEnd), cimag(tabEnd));
 
 
-	double complex gens[4][2][2];
+	double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
 
 	//TODO: Move this portion to its own file :)
 	image_t img;
 	image_t* pImg = &img;
 
-	pImg->w      = WIDTH;
-	pImg->h      = HEIGHT;
-	pImg->bounds = BOUNDS;
-	pImg->epsi   = EPSI;
-	pImg->line   = LINE;
-	pImg->levmax = LEVMAX;
+	pImg->w       = WIDTH;
+	pImg->h       = HEIGHT;
+	pImg->bounds  = BOUNDS;
+	pImg->epsi    = EPSI;
+	pImg->line    = LINE;
+	pImg->levmax  = LEVMAX;
+	pImg->maxword = MAXWORD;
 	pImg->antialiasingPow = ANTIALPOW;
 	pImg->debug  = DEBUG;
 	pImg->bitwise= BITWISE;
@@ -145,7 +148,7 @@ int main(){
 		}
 
 		//Compute the associated mu value...
-		newtonSolver(pMu, fareySeq[numIm]);
+		newtonSolver(pMu, fareySeq[numIm + 1]);
 		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
@@ -159,7 +162,6 @@ int main(){
 		saveArrayAsBMP(pImg);
 
 		numIm++;
-
 		
 		//printf("p/q: %d/%d\n", *pP, *pQ);
 

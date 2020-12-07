@@ -19,15 +19,9 @@ void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][
 double complex fix(double complex T[2][2]);
 double complex mobiusOnPoint(double complex T[2][2], double complex z);
 
-//Generators computing
-double complex traceRecursion(int p, int q, double complex ta, double complex tB, double complex taB);
-void grandmaRecipe(double complex ta, double complex tb, double complex gens[4][2][2]);
-void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex gens[4][2][2]);
-void maskitRecipe(double complex ta, double complex gens[4][2][2]);
-
 //Cycle computations
-void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3]);
-void computeRepetendsv2(double complex gens[4][2][2], double complex fixRep[4][4]);
-void computeCycles(double complex begpt[4], double complex endpt[4], double complex gens[4][2][2]);
+void computeRepetends(double complex* gens, double complex fixRep[4][3]);
+void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]);
+void computeCycles(double complex begpt[4], double complex endpt[4], double complex* gens);
 
 #endif

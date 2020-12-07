@@ -11,7 +11,7 @@
 #include "include/treeExploration.h"
 #include "include/recipes.h"
 
-void goForward(int *lev, int* tag, double complex word[1000][2][2], double complex gens[4][2][2]){
+void goForward(int *lev, int* tag, double complex* word, double complex* gens){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
@@ -50,7 +50,7 @@ int availableTurn(int *lev, int* tag){
 	}
 }	
 
-void turnForward(int *lev, int tag[100000], double complex word[100000][2][2], double complex gens[4][2][2]){
+void turnForward(int *lev, int tag[100000], double complex* word, double complex* gens){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
@@ -68,7 +68,7 @@ void turnForward(int *lev, int tag[100000], double complex word[100000][2][2], d
 
 
 
-int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex word[1000][2][2], image_t* img){
+int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex* word, image_t* img){
 	//Basic branch term using only the distance between an older point and a new point
 	//See pp. 185
 
@@ -100,7 +100,7 @@ int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex e
 	return 0;
 }
 
-int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex word[1000][2][2], image_t* img){
+int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex* word, image_t* img){
 	//Branch termination check based on the repetends methods
 	float aspectRatio = img->w/(float)img->h;
 	double complex buffWord[2][2];
@@ -118,7 +118,10 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
 
-	if (lev == img->levmax || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) )){
+	if (lev == img->levmax){
+		return 1;
+	}
+	if ((cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) )){
 		showMatrix(buffWord, img);
 	////	
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -155,7 +158,7 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 }
 
 
-void computeDepthFirst(double complex gens[4][2][2], image_t* img, int numIm){
+void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	int lev = 0;
 	
 	double complex oldPoint = 0.;
@@ -163,8 +166,8 @@ void computeDepthFirst(double complex gens[4][2][2], image_t* img, int numIm){
 	double complex endpt[4];
 	double complex begpt[4];
 	double complex fixRep[4][4];
-	double complex word[1000][2][2];
-	int tag[1000] = {0};
+	double complex *word = (double complex *)calloc(img->maxword * 2 * 2, sizeof(double complex));
+	int *tag = (int *)calloc(img->maxword, sizeof(int));
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;

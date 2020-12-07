@@ -13,6 +13,7 @@ typedef struct image{
 
 	//Computation parameters
 	int levmax;
+	int maxword;
 	double bounds;
 	double epsi;
 

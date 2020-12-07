@@ -26,12 +26,8 @@ int modulo(int a, int b){
 }
 
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]){//Not implementing any higher dims lol
-
-		//(a e + b g | a f + b h
+	//(a e + b g | a f + b h
 	// c e + d g | c f + d h)
-	// a = A[0][0] b = A[1][0] c = A[0][1] d = A[1][1]
-	// e = B[0][0] f = B[1][0] g = B[0][1] h = B[1][1]
-
 	C[0][0] = A[0][0] * B[0][0] + A[1][0] * B[0][1];
 	C[1][0] = A[0][0] * B[1][0] + A[1][0] * B[1][1];
 	C[0][1] = A[0][1] * B[0][0] + A[1][1] * B[0][1];
@@ -39,13 +35,12 @@ void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][
 }
 
 double complex fix(double complex T[2][2]){//See pp.76
-	// a = A[0][0] b = A[1][0] c = A[0][1] d = A[1][1]
 	double complex z0 = (T[0][0] - T[1][1] - csqrt(cpow(T[1][1] - T[0][0], 2) + 4*T[1][0]*T[0][1]))/(2*T[0][1]);
 	return z0;
 }
 
 
-void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3]){//See pp.218
+void computeRepetends(double complex* gens, double complex fixRep[4][3]){//See pp.218
 	double complex buff_gen_a[2][2];
 	double complex buff_gen_b[2][2];
 	double complex buff_gen_A[2][2];
@@ -121,7 +116,7 @@ void computeRepetends(double complex gens[4][2][2], double complex fixRep[4][3])
 
 
 
-void computeRepetendsv2(double complex gens[4][2][2], double complex fixRep[4][4]){//See pp.218
+void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]){//See pp.218
 	double complex buff_gen_a[2][2];
 	double complex buff_gen_b[2][2];
 	double complex buff_gen_A[2][2];
@@ -211,9 +206,10 @@ void computeRepetendsv2(double complex gens[4][2][2], double complex fixRep[4][4
 	matmul(buff_out0, buff_gen_a, buff_out1);
 	matmul(buff_out1, buff_gen_B, buff_out0);
 	fixRep[3][2] = fix(buff_out0);
+
 }
 
-void computeCycles(double complex begpt[4], double complex endpt[4], double complex gens[4][2][2]){
+void computeCycles(double complex begpt[4], double complex endpt[4], double complex* gens){
 
 	double complex buff_gen0[2][2];
 	double complex buff_gen1[2][2];
