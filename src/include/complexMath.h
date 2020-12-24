@@ -1,5 +1,6 @@
 #ifndef complexMath 
 #define complexMath 
+#include "plot.h"
 
 //General helper functions
 double map(double n,double  start1,double  stop1,double  start2,double  stop2);
@@ -11,6 +12,9 @@ double easeInOutQuad(double t, double b, double c, double d);
 double schlickEase(double x, double s, double t, double beg, double end, double nsteps);
 double complex InOutQuadComplex(double t, double complex beg, double complex end, double nsteps);
 double complex schlickComplex(double x, double s, double t, double complex beg, double complex end, double nsteps);
+
+//Boxdim calculation
+double computeBoxdim(image_t *img);
 
 //Matrixes ops
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]);

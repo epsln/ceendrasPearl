@@ -16,16 +16,16 @@
 #include "include/accidents.h"
 
 #define SIZEARR 1000
-#define ANTIALPOW 4
-#define WIDTH  1920 * ANTIALPOW 
-#define HEIGHT 1080 * ANTIALPOW
+#define ANTIALPOW 1
+#define WIDTH  4000 * ANTIALPOW 
+#define HEIGHT 4000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define LEVMAX 50 
+#define LEVMAX 10 
 #define MAXWORD 500 
 #define LINE 1 
-#define BITWISE 1
+#define BITWISE 0
 #define DEBUG 0
 
 
@@ -71,14 +71,6 @@ int main(){
 	taInit = taBeg;
 	tbInit = tbBeg;
 	tabInit = tabBeg;
-
-	printf("taBeg: %lf + %lf\n", creal(taBeg), cimag(taBeg));
-	printf("taEnd: %lf + %lf\n", creal(taEnd), cimag(taEnd));
-	printf("tbBeg: %lf + %lf\n", creal(tbBeg), cimag(tbBeg));
-	printf("tbEnd: %lf + %lf\n", creal(tbEnd), cimag(tbEnd));
-	printf("tabBeg: %lf + %lf\n", creal(tabBeg), cimag(tabBeg));
-	printf("tabEnd: %lf + %lf\n\n", creal(tabEnd), cimag(tabEnd));
-
 
 	double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
 
@@ -129,17 +121,18 @@ int main(){
 		srand((unsigned) time(&pt));
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
+		
 		sprintf(imageNum, "%d", numIm);
 		strcat(prefix, imageNum);
 		strcat(prefix, ".bmp\0");
 		strcpy(pImg->filename, prefix);
 		strcpy(prefix, "out/img_");
-		printf("Image: %s\n\n", pImg->filename);
+		//printf("Image: %s\n\n", pImg->filename);
 
 		//Here, we interpolate between two traces using an easing function
-		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
+		//ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
+		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
+		//tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
 		if (DEBUG == 1){
 			printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
@@ -149,15 +142,18 @@ int main(){
 
 		//Compute the associated mu value...
 		newtonSolver(pMu, fareySeq[numIm + 1]);
-		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
+		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
-	//	maskitRecipe(mu, gens);
+		//maskitRecipe(mu, gens);
+		//grandmaRecipe(2, 2, gens);
 		grandmaRecipe(-I*mu, 2, gens);
 
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
 
+		double bDim = computeBoxdim(pImg);
+		printf("%f   %lf\n",fareySeq[numIm + 1].p/(float)fareySeq[numIm + 1].q, bDim);
 		//And save as an image.
 		saveArrayAsBMP(pImg);
 
@@ -183,6 +179,7 @@ int main(){
 		}
 
 		if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
+		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
 		//Else, we go again !
 	}

@@ -5,16 +5,17 @@
 #include <time.h>
 
 #include "include/arraysOps.h"
+#include "include/plot.h"
 
 double map(double n,double  start1,double  stop1,double  start2,double  stop2){//map a real from one range to another
 	return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
 }
 
 double complex randomComplex(double complex min, double complex max){
-	    double realPart = (creal(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + creal(min) ;
-	    double imagPart = (cimag(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + cimag(min) ;
-	    
-	    return realPart + I * imagPart;
+	double realPart = (creal(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + creal(min) ;
+	double imagPart = (cimag(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + cimag(min) ;
+
+	return realPart + I * imagPart;
 }
 
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
@@ -23,6 +24,23 @@ double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.
 
 int modulo(int a, int b){
 	return ((a % b) + b ) % b;
+}
+
+double computeBoxdim(image_t *img){
+	long int count = 0;
+	double epsi = 2.0 * img->bounds/(float)img->w * img->w/(float)img->h;//Might need to take into account other viewpoints...
+	if (img->bitwise == 1){
+		printf("Bitwise boxdim is not yet implemeted !\nExiting...\n");
+		exit(-2);
+	}
+	else{
+		for(int i = 0; i < img->w; i++){
+			for(int j = 0; j < img->h; j++){
+				if (img->pointArr[j * img->h + i] == 1) count++;
+			}
+		}
+	}
+	return log(count)/log(1/epsi);
 }
 
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]){//Not implementing any higher dims lol

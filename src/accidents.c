@@ -98,7 +98,7 @@ void nextPQ(int* pP, int* pQ, int denom){
 	q2 = 0;
 	r = *pP;
 	s = *pQ;
-	printf("p/q: %d/%d\ndenom: %d\n", *pP, *pQ, denom);
+	//printf("p/q: %d/%d\ndenom: %d\n", *pP, *pQ, denom);
 	while (s != 0){
 		a = floor((float)r/s);
 		temp0 = s;
@@ -111,7 +111,7 @@ void nextPQ(int* pP, int* pQ, int denom){
 		p1 = temp0;
 		q1 = temp1;
 		sign = -sign;
-		printf("s: %.1f r: %.1f p1/q1: %.1f/%.1f p2/q2: %.1f/%.1f sign: %d\n", s, r, p1, q1, p2, q2, sign);
+	//	printf("s: %.1f r: %.1f p1/q1: %.1f/%.1f p2/q2: %.1f/%.1f sign: %d\n", s, r, p1, q1, p2, q2, sign);
 	}
 	k = floor(((float)denom - sign*q1)/denom);
 //	printf("k: %d\n", k);
@@ -135,24 +135,17 @@ void newtonSolver(double complex *pz0, ratio fraction){
 	double complex realVal, imagVal, deriv;
 	double complex traceEqVal;
 	
-	printf("p/q: %d/%d\n", fraction.p, fraction.q);
-	printf("guess: %lf + I * %lf\n", creal(*pz0), cimag(*pz0));
 	//Carefull, without a imaginary part, newton doesnt converge !
 	*pz0 += I;
 	for (int i = 0; i < maxiter; i++){
 		//Compute the complex derivate using a simple finite differences scheme on real and imag axis
 		realVal = (traceEqn(fraction, z + epsilon)     - traceEqn(fraction, z - epsilon))/(2*epsilon);
 		imagVal = (traceEqn(fraction, z + epsilon * I) - traceEqn(fraction, z - epsilon * I))/(2 * epsilon * I);
-		//printf("realVal: %lf + i %lf\nimagVal: %lf + i %lf \n\n", creal(realVal), cimag(realVal),creal(imagVal), cimag(imagVal));
 		deriv = (realVal + imagVal)/2.0;
-		//printf("deriv: %lf + i %lf\n", creal(deriv), cimag(deriv));
 		//Update the guess 	
 		traceEqVal = traceEqn(fraction, z);
-		//printf("tracEqVal: %lf + i %lf\n\n", creal(traceEqVal), cimag(traceEqVal));
 		z = z - traceEqVal/deriv;
-//		printf("z: %lf + %lf I\n", creal(z), cimag(z));
 		if (cabs(traceEqVal) <= 1E-7 && cabs(z - *pz0) <= 1E-7){
-			printf("z: %lf + %lf I\n", creal(z), cimag(z));
 			return;
 		}
 		else
