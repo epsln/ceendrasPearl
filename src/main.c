@@ -22,12 +22,11 @@
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define LEVMAX 10 
+#define LEVMAX 15 
 #define MAXWORD 500 
 #define LINE 1 
 #define BITWISE 0
 #define DEBUG 0
-
 
 
 int main(){
@@ -100,12 +99,12 @@ int main(){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
 		exit(-1);
 	}
-	
+
 	printf("levmax %d\n", pImg->levmax);
-	
+
 	char prefix[100] = "out/img_";
 	char imageNum[6];  
-	
+
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
 
@@ -115,18 +114,13 @@ int main(){
 	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
 
 	makeFareySeq(denum, fareySeq);
-	
+
 
 	while(1){
 		srand((unsigned) time(&pt));
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
-		
-		sprintf(imageNum, "%d", numIm);
-		strcat(prefix, imageNum);
-		strcat(prefix, ".bmp\0");
-		strcpy(pImg->filename, prefix);
-		strcpy(prefix, "out/img_");
+
 		//printf("Image: %s\n\n", pImg->filename);
 
 		//Here, we interpolate between two traces using an easing function
@@ -147,18 +141,32 @@ int main(){
 		//Compute some generators using a recipe...
 		//maskitRecipe(mu, gens);
 		//grandmaRecipe(2, 2, gens);
-		grandmaRecipe(-I*mu, 2, gens);
+		//grandmaRecipe(-I*mu, 2, gens);
 
 		//Explore depth first combination of generators...
-		computeDepthFirst(gens, pImg, numIm);
+		for (int i = 0; i < 250; i++){
+			for (int j = 0; j < 250; j++){
+				sprintf(imageNum, "%d", numIm);
+				strcat(prefix, imageNum);
+				strcat(prefix, ".bmp\0");
+				strcpy(pImg->filename, prefix);
+				strcpy(prefix, "out/img_");
 
-		double bDim = computeBoxdim(pImg);
-		printf("%f   %lf\n",fareySeq[numIm + 1].p/(float)fareySeq[numIm + 1].q, bDim);
-		//And save as an image.
-		saveArrayAsBMP(pImg);
+				float a = map(i, 0, 250, 0, 3);
+				float b = map(j, 0, 250, 0, 3);
+				//ta = a + I*b;
+				grandmaRecipe(ta, 2, gens);
+				computeDepthFirst(gens, pImg, numIm);
 
-		numIm++;
-		
+				double bDim = computeBoxdim(pImg);
+				printf("%f %f %lf\n",creal(ta), cimag(ta), bDim);
+				//And save as an image.
+				saveArrayAsBMP(pImg);
+				numIm++;
+			}
+		}
+
+
 		//printf("p/q: %d/%d\n", *pP, *pQ);
 
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
