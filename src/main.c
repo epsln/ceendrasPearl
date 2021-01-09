@@ -97,8 +97,6 @@ int main(){
 		exit(-1);
 	}
 
-	printf("levmax %d\n", pImg->levmax);
-
 	char prefix[100] = "out/img_";
 	char imageNum[6];  
 
