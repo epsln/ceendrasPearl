@@ -15,15 +15,13 @@
 #include "include/recipes.h"
 #include "include/accidents.h"
 
-#define SIZEARR 5000
 #define ANTIALPOW 4
 #define WIDTH  1000 * ANTIALPOW 
 #define HEIGHT 1000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001 
-#define LEVMAX 2000 
-#define MAXWORD 4000 
+#define EPSI  0.01 
+#define MAXWORD 1000 
 #define LINE 1 
 #define BITWISE 0
 #define DEBUG 0
@@ -82,7 +80,6 @@ int main(){
 	pImg->bounds  = BOUNDS;
 	pImg->epsi    = EPSI;
 	pImg->line    = LINE;
-	pImg->levmax  = LEVMAX;
 	pImg->maxword = MAXWORD;
 	pImg->antialiasingPow = ANTIALPOW;
 	pImg->debug  = DEBUG;
@@ -143,7 +140,7 @@ int main(){
 
 		printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		//Compute the associated mu value...
-		newtonSolver(pMu, fareySeq[numIm]);
+		newtonSolver(pMu, fareySeq[numIm + 2]);
 		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
