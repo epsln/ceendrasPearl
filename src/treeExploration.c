@@ -68,37 +68,6 @@ void turnForward(int *lev, int tag[100000], double complex* word, double complex
 
 
 
-int branchTermEpsi(double complex* oldPoint, int lev, int* tag, double complex endpt[4], double complex* word, image_t* img){
-	//Basic branch term using only the distance between an older point and a new point
-	//See pp. 185
-
-	float aspectRatio = img->w/(float)img->h;
-
-	double complex buffWord[2][2];
-	matrix3dto2D(word, buffWord, lev);
-
-	double complex newPoint = mobiusOnPoint(buffWord, endpt[tag[lev]]);
-
-	showMatrix(buffWord, img);
-	int x0, x1;
-	int y0, y1;
-
-	if (lev == img->levmax || cabs(newPoint - *oldPoint) < img->epsi){
-		x0 = (int) map(creal(newPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y0 = (int) map(cimag(newPoint), -img->bounds, img->bounds, img->h, 0);
-		x1 = (int) map(creal(*oldPoint), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y1 = (int) map(cimag(*oldPoint), -img->bounds, img->bounds, img->h, 0);
-
-		line(x0, y0, x1, y1, img);	
-		point(x0, y0, img);
-		point(x1, y1, img);
-		*oldPoint = newPoint;
-
-		return 1;
-	}
-
-	return 0;
-}
 
 int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex* word, image_t* img){
 	//Branch termination check based on the repetends methods
