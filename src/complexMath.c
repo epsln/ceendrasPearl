@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <complex.h>
+#include <string.h>
 #include <time.h>
 
 #include "include/arraysOps.h"
@@ -40,6 +41,8 @@ double computeBoxdim(image_t *img){
 			}
 		}
 	}
+
+        memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
 	return log(count)/log(1/epsi);
 }
 

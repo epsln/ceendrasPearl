@@ -124,7 +124,6 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 	}
 	if ((cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi )){
 		showMatrix(buffWord, img);
-	////	
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
 		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);

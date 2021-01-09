@@ -15,15 +15,15 @@
 #include "include/recipes.h"
 #include "include/accidents.h"
 
-#define SIZEARR 1000
-#define ANTIALPOW 1
-#define WIDTH  4000 * ANTIALPOW 
-#define HEIGHT 4000 * ANTIALPOW
+#define SIZEARR 5000
+#define ANTIALPOW 4
+#define WIDTH  1000 * ANTIALPOW 
+#define HEIGHT 1000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define LEVMAX 15 
-#define MAXWORD 500 
+#define LEVMAX 2000 
+#define MAXWORD 4000 
 #define LINE 1 
 #define BITWISE 0
 #define DEBUG 0
@@ -113,11 +113,18 @@ int main(){
 	//ratio *fareySeq = (ratio * ) malloc(denum*denum);//Allocating an array for the farray sequence using the limit of its length  
 	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
 
-	makeFareySeq(denum, fareySeq);
-
+	//makeFareySeq(denum, fareySeq);
+	makeFiboSeq(1000, fareySeq);
 
 	while(1){
 		srand((unsigned) time(&pt));
+		sprintf(imageNum, "%d", numIm);
+		strcat(prefix, imageNum);
+		strcat(prefix, ".bmp\0");
+		strcpy(pImg->filename, prefix);
+		strcpy(prefix, "out/img_");
+
+
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
 
@@ -134,59 +141,39 @@ int main(){
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
 		}
 
+		printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		//Compute the associated mu value...
-		newtonSolver(pMu, fareySeq[numIm + 1]);
-		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
+		newtonSolver(pMu, fareySeq[numIm]);
+		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
 		//maskitRecipe(mu, gens);
 		//grandmaRecipe(2, 2, gens);
-		//grandmaRecipe(-I*mu, 2, gens);
+		grandmaRecipe(-I*mu, 2, gens);
 
 		//Explore depth first combination of generators...
-		for (int i = 0; i < 250; i++){
-			for (int j = 0; j < 250; j++){
-				sprintf(imageNum, "%d", numIm);
-				strcat(prefix, imageNum);
-				strcat(prefix, ".bmp\0");
-				strcpy(pImg->filename, prefix);
-				strcpy(prefix, "out/img_");
+		computeDepthFirst(gens, pImg, numIm);
+		saveArrayAsBMP(pImg);
+		numIm ++;
+		//if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
+		//	taBeg = taEnd;
+		//	tbBeg = tbEnd;
+		//	tabBeg = tabEnd;
 
-				float a = map(i, 0, 250, 0, 3);
-				float b = map(j, 0, 250, 0, 3);
-				//ta = a + I*b;
-				grandmaRecipe(ta, 2, gens);
-				computeDepthFirst(gens, pImg, numIm);
-
-				double bDim = computeBoxdim(pImg);
-				printf("%f %f %lf\n",creal(ta), cimag(ta), bDim);
-				//And save as an image.
-				saveArrayAsBMP(pImg);
-				numIm++;
-			}
-		}
+		//	taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+		//	tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+		//	tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
 
 
-		//printf("p/q: %d/%d\n", *pP, *pQ);
+		//	if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
+		//		taEnd = taInit;
+		//		tbEnd = tbInit;
+		//		tabEnd = tabInit;
+		//	}
+		//}
 
-		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
-			taBeg = taEnd;
-			tbBeg = tbEnd;
-			tabBeg = tabEnd;
-
-			taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-			tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-			tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-
-
-			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
-				taEnd = taInit;
-				tbEnd = tbInit;
-				tabEnd = tabInit;
-			}
-		}
-
-		if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
+		if (numIm > 69) return(1);//Get out of here when we're done !
+		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
 		//Else, we go again !

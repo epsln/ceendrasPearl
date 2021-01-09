@@ -86,6 +86,15 @@ void makeFareySeq(int denum, ratio* fareyArr){
 	}
 }
 
+void makeFiboSeq(int lengthAnim, ratio* fiboFracts){
+	long long int fiboSerie[70] = {0};//Have to stop at 70 because of long long int MAXINT being kinda small in comparison to \infty
+	fiboSerie[1] = 1;
+	for (int i = 1; i < 69; i++){
+		fiboSerie[i + 1] = fiboSerie[i - 1] + fiboSerie[i]; 
+		fiboFracts[i] = (ratio){fiboSerie[i + 1], fiboSerie[i]};  	
+	}
+}
+
 void nextPQ(int* pP, int* pQ, int denom){
 	//Doesnt work ?? ;_;
 	float p1, p2, r;
@@ -129,7 +138,7 @@ double complex traceEqn(ratio fraction, double complex mu){
 
 void newtonSolver(double complex *pz0, ratio fraction){
 	//TODO: Maybe implement the halley ? 
-	int maxiter = 500;
+	int maxiter = 10000;
 	double complex z = *pz0;
 	double epsilon = 1E-15;
 	double complex realVal, imagVal, deriv;
