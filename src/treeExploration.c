@@ -87,7 +87,7 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
 
-	if (lev == img->maxword){
+	if (lev == img->maxword - 1){
 		*oldPoint = z2;
 		return 1;
 	}
