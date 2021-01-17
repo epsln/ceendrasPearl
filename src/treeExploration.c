@@ -69,7 +69,7 @@ void turnForward(int *lev, int tag[100000], double complex* word, double complex
 
 
 
-int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double complex fixRep[4][4], double complex* word, image_t* img){
+int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double complex* word, image_t* img){
 	//Branch termination check based on the repetends methods
 	float aspectRatio = img->w/(float)img->h;
 	double complex buffWord[2][2];
@@ -83,14 +83,17 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 	int x0, x1, x2, x3;
 	int y0, y1, y2, y3;
 
+	//If we hit the maximum length of word (-1 because of 0 indexing, bailout !)
+	if (lev == img->maxword - 1){
+		return 1;
+	}
+
+	//if the word ends with a or A, use a 4th fixed point 
 	if (tag[lev] % 2 == 0){
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
-
-	if (lev == img->maxword){
-		*oldPoint = z2;
-		return 1;
-	}
+	
+	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
 	if ((cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi )){
 		showMatrix(buffWord, img);
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -116,11 +119,12 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 		point(x0, y0, img);
 		point(x1, y1, img);
 		point(x2, y2, img);
+
+		//if the word ends with a or A, use a 4th fixed point 
 		if (tag[lev] % 2 == 0){
 			line(x2, y2, x3, y3, img);	
 			point(x3, y3, img);
 		}
-		*oldPoint = z2;
 		return 1;
 	}
 	return 0;
@@ -130,8 +134,6 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	int lev = 0;
 	
-	double complex oldPoint = 0.;
-
 	double complex endpt[4];
 	double complex begpt[4];
 	double complex fixRep[4][4];
@@ -139,17 +141,15 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	int *tag = (int *)calloc(img->maxword, sizeof(int));
 	int *plev;
 	plev = &lev;
-	double complex *poldP = &oldPoint;
 
 	computeCycles(begpt, endpt, gens);
 	computeRepetendsv2(gens, fixRep);
 
 	matrix3dto3D(gens, word, 0, 0);
 	
-
-	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
-		while(branchTermRepetends(poldP, lev, tag, fixRep, word, img) == 0){
+		while(branchTermRepetends(lev, tag, fixRep, word, img) == 0){
+			//printf("lev %d\n", lev);
 			goForward(plev, tag, word, gens);	
 			printWord(lev, tag, img);
 		}
