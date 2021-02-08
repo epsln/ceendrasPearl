@@ -51,7 +51,7 @@ int availableTurn(int *lev, int* tag){
 	}
 }	
 
-void turnForward(int *lev, int tag[100000], double complex* word, double complex* gens){
+void turnForward(int *lev, int *tag, double complex* word, double complex* gens){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
