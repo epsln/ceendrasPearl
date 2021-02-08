@@ -11,7 +11,7 @@
 #include "include/treeExploration.h"
 #include "include/recipes.h"
 
-void goForward(int *lev, int* tag, double complex* word, double complex* gens){
+void goForward(int *lev, int* tag, int* state, int FSA[19][4], double complex* word, double complex* gens){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
@@ -23,6 +23,7 @@ void goForward(int *lev, int* tag, double complex* word, double complex* gens){
 		}
 	}
 
+	if (FSA[state[*lev]][modulo(tag[*lev - 1] + 1, 4)] == -1) return;
 	*lev = *lev + 1; //Advance one lvl
 
 	tag[*lev] = modulo(tag[*lev - 1] + 1, 4); //Take the rightmost turn
@@ -101,7 +102,7 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 		y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
 		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
-		
+
 		//TODO: Use different bounds depending on generator !
 		//x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		//y0 = (int) map(cimag(z0), -2 * img->bounds, 0 , img->h, 0);
@@ -128,15 +129,50 @@ int branchTermRepetends(double complex* oldPoint, int lev, int* tag, double comp
 
 
 void computeDepthFirst(double complex* gens, image_t* img, int numIm){
+	//TODO: clean me up
 	int lev = 0;
-	
+
 	double complex oldPoint = 0.;
 
-	double complex endpt[4];
-	double complex begpt[4];
-	double complex fixRep[4][4];
+	double complex endpt[4];//Deprecated !
+	double complex begpt[4];//Deprecated !
+
+	double complex fixRep[4][4];//Contains the fixed points of a few special combinations of gens
+
+	//Array of size [maxword, 2, 2]
+	//Contains all of the word computed until the current level
 	double complex *word = (double complex *)calloc(img->maxword * 2 * 2, sizeof(double complex));
-	int *tag = (int *)calloc(img->maxword, sizeof(int));
+	//The tag array contains the index of the used gen up until current level
+	int *tag  = (int *)calloc(img->maxword, sizeof(int));
+	//The state array contains the state of the automaton (see pp. 360)
+	//This automaton prevents us from making forbiden association that ends up in identity (like a and A) 
+	int *state = (int *)calloc(img->maxword, sizeof(int));
+
+	//State automaton array:
+	//Given the current state and the next generator, gives the next state
+	//If possible, try to find an algo that generates this sort of stuff
+	int FSA[19][4] = {
+		{ 1,  2,  3,  4},
+		{ 1,  5, -1,  4},
+		{ 7,  2,  8, -1},
+		{-1,  2,  8,  6},
+		{ 9, -1, 10,  4},
+		{ 7,  2, 11, -1},
+		{12, -1, 10,  4},
+		{ 1,  5, -1, 13},
+		{-1,  2,  3, 13},
+		{ 1,  5, -1,  4},
+		{-1, 16,  3,  4},
+		{-1,  2,  3, 17},
+		{ 1, 18, -1,  4},
+		{ 9, -1, -1,  4},
+		{-1, -1, 10,  4},
+		{ 7,  2, -1, -1},
+		{-1,  2,  8, -1},
+		{-1, -1, 10,  4},
+		{ 7,  2, -1, -1}
+	};
+
 	int *plev;
 	plev = &lev;
 	double complex *poldP = &oldPoint;
@@ -145,12 +181,12 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	computeRepetendsv2(gens, fixRep);
 
 	matrix3dto3D(gens, word, 0, 0);
-	
+
 
 	oldPoint = begpt[3];
 	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
 		while(branchTermRepetends(poldP, lev, tag, fixRep, word, img) == 0){
-			goForward(plev, tag, word, gens);	
+			goForward(plev, tag, state, FSA, word, gens);	
 			printWord(lev, tag, img);
 		}
 		do{

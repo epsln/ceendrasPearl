@@ -95,6 +95,40 @@ void makeFiboSeq(int lengthAnim, ratio* fiboFracts){
 	}
 }
 
+void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
+	//Creates an array filed with the continued fraction approximation of realNum
+	//TODO: Make this using arbitrary precision...
+	long double intPart;
+	long double reciprocal, num, denum, temp;
+	int fractTerms[lengthArr + 1];//Array to hold the values of the denominator of the continued fraction
+
+
+	intPart = floor(realNum);
+	reciprocal = 1.0/(realNum - intPart);
+	printf("rec: %llf\n", reciprocal);
+	fractTerms[0] = intPart;		
+	for (int i = 1; i < lengthArr; i++){
+		intPart = floor(reciprocal);
+		reciprocal = 1.0/(reciprocal - intPart);
+		fractTerms[i] = (int)intPart;
+		printf("rec: %llf\n", reciprocal);
+		//printf("%d ", fractTerms[i]);
+	}
+	printf("\n");
+
+	num = 1;
+	denum = fractTerms[lengthArr - 1];
+	for(int i = lengthArr - 1; i > 0; i--){
+		temp = denum;
+		denum = fractTerms[i] * denum + num;
+		num = temp;
+		fractionArr[lengthArr - i - 1] = (ratio){num, denum};	
+		printf("%lld/%lld\n", fractionArr[lengthArr - i - 1].p, fractionArr[lengthArr - i - 1].q);
+	}
+	
+
+}
+
 void nextPQ(int* pP, int* pQ, int denom){
 	//Doesnt work ?? ;_;
 	float p1, p2, r;

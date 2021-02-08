@@ -20,8 +20,8 @@
 #define HEIGHT 1000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.01 
-#define MAXWORD 1000 
+#define EPSI  0.001 
+#define MAXWORD 50 
 #define LINE 1 
 #define BITWISE 0
 #define DEBUG 0
@@ -109,7 +109,11 @@ int main(){
 	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
 
 	//makeFareySeq(denum, fareySeq);
-	makeFiboSeq(1000, fareySeq);
+	//makeFiboSeq(1000, fareySeq);
+	//for(int i = 1; i <= 300; i++){
+	//	fareySeq[i - 1] = (ratio){1, i};
+	//}
+	makeContinuedFraction(10, 3.1415926, fareySeq);
 
 	while(1){
 		srand((unsigned) time(&pt));
@@ -138,7 +142,7 @@ int main(){
 
 		printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		//Compute the associated mu value...
-		newtonSolver(pMu, fareySeq[numIm + 2]);
+		newtonSolver(pMu, fareySeq[numIm]);
 		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...

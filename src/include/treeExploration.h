@@ -1,7 +1,7 @@
 #ifndef treeExploration
 #define treeExploration
 
-void goForward(int *lev, int* tag, double complex* word, double complex* gens);
+void goForward(int *lev, int* tag, int* state, int FSA[19][4], double complex* word, double complex* gens);
 void goBackwards(int *lev);
 int availableTurn(int *lev, int* tag);
 void turnForward(int *lev, int tag[1000], double complex* word, double complex* gens);
