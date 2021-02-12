@@ -15,6 +15,9 @@ void goForward(int *lev, int* tag, int* state, int FSA[19][4], double complex* w
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
+
+	int idxGen = 0, i = 0;
+	
 	for (int i = 0; i < 2; i++){
 		for (int j = 0; j < 2; j++){
 			buffWord[i][j] = 0;
@@ -23,10 +26,20 @@ void goForward(int *lev, int* tag, int* state, int FSA[19][4], double complex* w
 		}
 	}
 
-	if (FSA[state[*lev]][modulo(tag[*lev - 1] + 1, 4)] == -1) return;
+	//printf("state[%d] = %d\n", *lev, state[*lev]);
+	//printf("FSA[%d][%d] = %d\n\n", state[*lev], modulo(tag[*lev - 1] + 1, 4),  FSA[state[*lev]][modulo(tag[*lev - 1] + 1, 4)]);
+	//printf("FSA[%d][%d] = %d\n", state[*lev + 1], modulo(tag[*lev + 1] - 1, 4), FSA[state[*lev + 1]][modulo(tag[*lev + 1] - 1, 4)]);
+	//while((FSA[state[*lev + 1]][idxGen] == -1)){
+	//	idxGen = modulo(tag[*lev + 1] - i, 4);
+	//	i--;
+	//}
+
 	*lev = *lev + 1; //Advance one lvl
 
+	//state[*lev] = FSA[state[*lev]][idxGen];
+
 	tag[*lev] = modulo(tag[*lev - 1] + 1, 4); //Take the rightmost turn
+	//tag[*lev] = idxGen; //Take the rightmost turn
 
 
 	matrix3dto2D(word, buffWord, *lev - 1);
@@ -40,8 +53,9 @@ void goBackwards(int *lev){
 	*lev = *lev - 1;
 }
 
-int availableTurn(int *lev, int* tag){
+int availableTurn(int *lev, int* tag, int* state, int FSA[19][4]){
 	if (*lev == -1)	return 0;
+
 
 	if (modulo(tag[*lev + 1] - 1,  4) == modulo(tag[*lev] + 2 , 4)){
 		return 0;
@@ -51,11 +65,22 @@ int availableTurn(int *lev, int* tag){
 	}
 }	
 
-void turnForward(int *lev, int *tag, double complex* word, double complex* gens){
+void turnForward(int *lev, int *tag, int* state, int FSA[19][4], double complex* word, double complex* gens){
 	double complex buffWord[2][2];
 	double complex buffGen[2][2];
 	double complex buffOut[2][2];
+	int idxGen = 0, i = 0;
+
 	tag[*lev + 1] = modulo(tag[*lev + 1] - 1,  4);
+	
+
+	//while((FSA[state[*lev + 1]][idxGen] == -1)){
+	//	idxGen = modulo(tag[*lev + 1] - i, 4);
+	//	i--;
+	//}
+	//state[*lev + 1] = idxGen;
+	state[*lev + 1] = modulo(tag[*lev + 1] - 1,  4) ;
+
 	if (*lev == -1)
 		matrix3dto3D(gens, word, 0, tag[0]);
 	else{
@@ -150,29 +175,32 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	//This automaton prevents us from making forbiden association that ends up in identity (like a and A) 
 	int *state = (int *)calloc(img->maxword, sizeof(int));
 
+	memset(state, 0, img->maxword * sizeof(int));
+	state[0] = 1;//We start at a
+
 	//State automaton array:
 	//Given the current state and the next generator, gives the next state
 	//If possible, try to find an algo that generates this sort of stuff
 	int FSA[19][4] = {
-		{ 1,  2,  3,  4},
-		{ 1,  5, -1,  4},
-		{ 7,  2,  8, -1},
-		{-1,  2,  8,  6},
-		{ 9, -1, 10,  4},
-		{ 7,  2, 11, -1},
-		{12, -1, 10,  4},
-		{ 1,  5, -1, 13},
-		{-1,  2,  3, 13},
-		{ 1,  5, -1,  4},
-		{-1, 16,  3,  4},
-		{-1,  2,  3, 17},
-		{ 1, 18, -1,  4},
-		{ 9, -1, -1,  4},
-		{-1, -1, 10,  4},
-		{ 7,  2, -1, -1},
-		{-1,  2,  8, -1},
-		{-1, -1, 10,  4},
-		{ 7,  2, -1, -1}
+		{ 1,  2,  3,  4},//Identity
+		{ 1,  5, -1,  4},//a
+		{ 7,  2,  8, -1},//b
+		{-1,  2,  8,  6},//A
+		{ 9, -1, 10,  4},//B
+		{ 7,  2, 11, -1},//ab
+		{12, -1, 10,  4},//AB
+		{ 1,  5, -1, 13},//ba
+		{-1,  2,  3, 13},//bA
+		{ 1,  5, -1,  4},//Ba
+		{-1, 16,  3,  4},//BA
+		{-1,  2,  3, 17},//abA
+		{ 1, 18, -1,  4},//ABa
+		{ 9, -1, -1,  4},//baB
+		{-1, -1, 10,  4},//bAB
+		{ 7,  2, -1, -1},//Bab
+		{-1,  2,  8, -1},//BAb
+		{-1, -1, 10,  4},//abAB
+		{ 7,  2, -1, -1} //ABab
 	};
 
 	int *plev;
@@ -191,11 +219,11 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 		do{
 			goBackwards(plev);
 			printWord(lev, tag, img);
-		}while(!(availableTurn(plev, tag) == 1 || lev == -1));
+		}while(!(availableTurn(plev, tag, state, FSA) == 1 || lev == -1));
 
 		//Might need to put another exit condition check right here...
 		if (lev == -1 && tag[0] == 1) break;	
-		turnForward(plev, tag, word, gens);
+		turnForward(plev, tag, state, FSA, word, gens);
 		printWord(lev, tag, img);
 	}
 }

@@ -88,11 +88,21 @@ void makeFareySeq(int denum, ratio* fareyArr){
 
 void makeFiboSeq(int lengthAnim, ratio* fiboFracts){
 	long long int fiboSerie[70] = {0};//Have to stop at 70 because of long long int MAXINT being kinda small in comparison to \infty
+	fiboSerie[0] = 0;
 	fiboSerie[1] = 1;
-	for (int i = 1; i < 69; i++){
-		fiboSerie[i + 1] = fiboSerie[i - 1] + fiboSerie[i]; 
-		fiboFracts[i] = (ratio){fiboSerie[i + 1], fiboSerie[i]};  	
+	for (int i = 2; i < 69; i++){
+		fiboSerie[i] = fiboSerie[i - 2] + fiboSerie[i - 1]; 
+		fiboFracts[i - 2] = (ratio){fiboSerie[i - 2], fiboSerie[i]};  	
 	}
+}
+
+void makePiSeq(int lengthAnim, ratio* piFracts){
+	piFracts[0] = (ratio){4, 1};
+	for (int i = 1; i < lengthAnim ; i++){
+		piFracts[i] = (ratio){piFracts[i - 1].p * (2 * i + 1) + pow(-1, i) * piFracts[i - 1].q * 4,
+	       		              piFracts[i - 1].q * (2 * i + 1)};
+	}
+	
 }
 
 void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
