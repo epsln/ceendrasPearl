@@ -14,16 +14,17 @@
 #include "include/easing.h"
 #include "include/recipes.h"
 #include "include/accidents.h"
+#include "include/progressBar.h"
 
 #define ANTIALPOW 4
 #define WIDTH  1000 * ANTIALPOW 
 #define HEIGHT 1000 * ANTIALPOW
-#define BOUNDS 1 
+#define BOUNDS 2 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define MAXWORD 50 
+#define MAXWORD 20 
 #define LINE 1 
-#define BITWISE 0
+#define BITWISE 1
 #define DEBUG 0
 
 
@@ -31,14 +32,22 @@ int main(){
 	time_t pt;
 	srand((unsigned) time(&pt));
 
-	int fps = 10;
-	int duration = 3;
-	int lengthAnim = 1;
+	int numIm = 0;
 
 	double complex ta = 0.;
 	double complex tb = 0.;
 	double complex tab = 0.;
 
+	//Using number of clock ticks to estimate time
+	//Not using a time_t timestamp in case of subsecond compute time
+	double timeArray[30] = {0};
+
+	/*
+	int fps = 10;
+	int duration = 3;
+	int lengthAnim = 1;
+
+	
 	double complex taBeg = 0.;
 	double complex tbBeg = 0.;
 	double complex tabBeg = 0.;
@@ -51,7 +60,7 @@ int main(){
 	double complex tbInit = 0.;
 	double complex tabInit = 0.;
 
-	int numIm = 0;
+	
 
 
 	taBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
@@ -68,6 +77,7 @@ int main(){
 	taInit = taBeg;
 	tbInit = tbBeg;
 	tabInit = tabBeg;
+	*/
 
 	double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
 
@@ -110,12 +120,15 @@ int main(){
 
 	//makeFareySeq(denum, fareySeq);
 	//makeFiboSeq(1000, fareySeq);
-	//for(int i = 1; i <= 300; i++){
-	//	fareySeq[i - 1] = (ratio){1, i};
-	//}
-	makeContinuedFraction(10, 3.1415926, fareySeq);
+	//makePiSeq(denum * denum, fareySeq);
+	for(int i = 1; i <= 30; i++){
+		fareySeq[i - 1] = (ratio){1, i};
+	}
+	//makeContinuedFraction(10, (sqrt(35) - 5)/10.0, fareySeq);
 
 	while(1){
+		//Create a filename for the image based on the number of image processed
+		//TODO: Move this to its own function :)
 		srand((unsigned) time(&pt));
 		sprintf(imageNum, "%d", numIm);
 		strcat(prefix, imageNum);
@@ -124,8 +137,6 @@ int main(){
 		strcpy(prefix, "out/img_");
 
 
-		//Create a filename for the image based on the number of image processed
-		//TODO: Move this to its own function :)
 
 		//printf("Image: %s\n\n", pImg->filename);
 
@@ -146,13 +157,17 @@ int main(){
 		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
-		//maskitRecipe(mu, gens);
-		//grandmaRecipe(2, 2, gens);
-		grandmaRecipe(-I*mu, 2, gens);
+		grandmaRecipe(-I*mu, 3, gens);
 
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
+
+		//Save as bmp
 		saveArrayAsBMP(pImg);
+
+		//Update progress bar
+		pBarAnim(numIm, 30, timeArray); 
+
 		numIm ++;
 		//if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
 		//	taBeg = taEnd;
@@ -171,7 +186,7 @@ int main(){
 		//	}
 		//}
 
-		if (numIm > 69) return(1);//Get out of here when we're done !
+		if (numIm > 30) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
