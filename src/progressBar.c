@@ -21,12 +21,20 @@ void pBarAnim(int numImg, int totalImg, double timeArray[10]){
 	//Ge the current time
 	time ( &rawtime );
 
+
+	//Move all values one idx back
+	if(numImg > 10){
+		for (int i = 0; i < fmin(10, numImg); i++){
+			timeArray[i] = timeArray[i + 1]; 
+		}
+	}
+
+	//Add at current time at the end
 	//Divide clock by clock per sec to get time in sec
-	timeArray[numImg] = (double)clock()/CLOCKS_PER_SEC;
-	avgTimeImage = timeArray[0];
+	timeArray[(int)fmin(9, numImg)] = (double)clock()/CLOCKS_PER_SEC; 
 
 	//Rolling average 
-	for (int i = fmax(1, numImg-10) ; i < numImg; i++){
+	for (int i = 1; i < fmin(10, numImg); i++){
 		avgTimeImage += timeArray[i] - timeArray[i - 1];	
 	}
 	avgTimeImage /= fmin(numImg + 1, 10); 
@@ -37,7 +45,7 @@ void pBarAnim(int numImg, int totalImg, double timeArray[10]){
 	//Get that ETA in a nice format 
 	eta = localtime ( &rawtime );
 
-	diff = timeArray[numImg] - timeArray[numImg - 1];
+	diff = timeArray[(int)fmin(9, numImg)] - timeArray[(int)fmin(8, numImg - 1)];
 
 	printf("Compute time for last image: %d:%d:%d:%d\n", (int) diff / 3600, (int) diff /  60, (int) diff % 60, (int) trunc(diff * 1000));
 	printf("Average compute time: %d:%d:%d:%d\n", (int) avgTimeImage / 3600, (int) avgTimeImage / 60 , (int) avgTimeImage % 60, (int) trunc(avgTimeImage * 1000));
