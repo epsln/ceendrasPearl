@@ -19,10 +19,10 @@
 #define ANTIALPOW 4
 #define WIDTH  1000 * ANTIALPOW 
 #define HEIGHT 1000 * ANTIALPOW
-#define BOUNDS 2 
+#define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define MAXWORD 20 
+#define MAXWORD 15 
 #define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
@@ -38,16 +38,17 @@ int main(){
 	double complex tb = 0.;
 	double complex tab = 0.;
 
+	int fps = 60;
+	int duration = 5;
+	int lengthAnim = 15;
+
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
-	double timeArray[30] = {0};
-
-	/*
-	int fps = 10;
-	int duration = 3;
-	int lengthAnim = 1;
-
+	//Use a rolling average of the past 10 times to get something semi accurate
+	double timeArray[10];
 	
+
+
 	double complex taBeg = 0.;
 	double complex tbBeg = 0.;
 	double complex tabBeg = 0.;
@@ -60,16 +61,14 @@ int main(){
 	double complex tbInit = 0.;
 	double complex tabInit = 0.;
 
-	
 
+	taBeg  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+	tbBeg  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+	tabBeg = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
 
-	taBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tbBeg  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tabBeg = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-
-	taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-	tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+	taEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+	tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+	tabEnd = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
 
 	tbBeg  = 2;
 	tbEnd  = 2;
@@ -77,7 +76,7 @@ int main(){
 	taInit = taBeg;
 	tbInit = tbBeg;
 	tabInit = tabBeg;
-	*/
+
 
 	double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
 
@@ -121,9 +120,9 @@ int main(){
 	//makeFareySeq(denum, fareySeq);
 	//makeFiboSeq(1000, fareySeq);
 	//makePiSeq(denum * denum, fareySeq);
-	for(int i = 1; i <= 30; i++){
-		fareySeq[i - 1] = (ratio){1, i};
-	}
+	//for(int i = 1; i <= 30; i++){
+	//	fareySeq[i - 1] = (ratio){1, i};
+	//}
 	//makeContinuedFraction(10, (sqrt(35) - 5)/10.0, fareySeq);
 
 	while(1){
@@ -136,28 +135,27 @@ int main(){
 		strcpy(pImg->filename, prefix);
 		strcpy(prefix, "out/img_");
 
-
-
 		//printf("Image: %s\n\n", pImg->filename);
 
 		//Here, we interpolate between two traces using an easing function
-		//ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		//tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
+		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
+		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
+		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
 		if (DEBUG == 1){
-			printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
-			printf("tb:  %lf + I %lf\n", creal(tb), cimag(tb));
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
+			printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		}
+		printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
+		printf("tb:  %lf + I %lf\n", creal(tb), cimag(tb));
 
-		printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		//Compute the associated mu value...
-		newtonSolver(pMu, fareySeq[numIm]);
-		printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
+		//newtonSolver(pMu, fareySeq[numIm]);
+		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
-		grandmaRecipe(-I*mu, 3, gens);
+		//grandmaRecipe(-I*mu, 3, gens);
+		grandmaRecipe(ta, tb, gens);
 
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
@@ -166,30 +164,30 @@ int main(){
 		saveArrayAsBMP(pImg);
 
 		//Update progress bar
-		pBarAnim(numIm, 30, timeArray); 
+		pBarAnim(numIm, fps * lengthAnim, timeArray); 
 
 		numIm ++;
-		//if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
-		//	taBeg = taEnd;
-		//	tbBeg = tbEnd;
-		//	tabBeg = tabEnd;
+		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
+			taBeg = taEnd;
+			tbBeg = tbEnd;
+			tabBeg = tabEnd;
 
-		//	taEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-		//	tbEnd  = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
-		//	tabEnd = randomComplex(-3 - 1.5 * I, 3 + 1.5 * I);
+			taEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+			tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+			tabEnd = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
 
 
-		//	if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
-		//		taEnd = taInit;
-		//		tbEnd = tbInit;
-		//		tabEnd = tabInit;
-		//	}
-		//}
+			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
+				taEnd = taInit;
+				tbEnd = tbInit;
+				tabEnd = tabInit;
+			}
+		}
 
-		if (numIm > 30) return(1);//Get out of here when we're done !
+		//if (numIm > 30) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
-		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
+		if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
 		//Else, we go again !
 	}
 	return 0;

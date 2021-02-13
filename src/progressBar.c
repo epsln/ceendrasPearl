@@ -4,7 +4,7 @@
 
 #include "include/progressBar.h"
 
-void pBarAnim(int numImg, int totalImg, double timeArray[totalImg]){
+void pBarAnim(int numImg, int totalImg, double timeArray[10]){
 	//One pbar that shows everything that needs to be done in order to finish the program
 	//Shows time per image
 	//Shows ETA
@@ -12,22 +12,29 @@ void pBarAnim(int numImg, int totalImg, double timeArray[totalImg]){
 
 	double avgTimeImage = 0;
 	double diff = 0;
-	//Time Array is an overkill method to estimate time per image
-	//Each time an image is done, the timestamp is saved at the numImg position in the array
-	//Then we can do some averaging to get the mean time per image and use this for our estimate
+
+	//Each time an image is done, the number of sec since prog launch is saved at the numImg position in the array
+	//Then we can do some floating average to get the mean time per image and use this for our estimate
 	time_t rawtime;
 	struct tm * eta;
 
+	//Ge the current time
 	time ( &rawtime );
 
+	//Divide clock by clock per sec to get time in sec
 	timeArray[numImg] = (double)clock()/CLOCKS_PER_SEC;
 	avgTimeImage = timeArray[0];
 
-	for (int i = 1; i <= numImg; i++){
+	//Rolling average 
+	for (int i = fmax(1, numImg-10) ; i < numImg; i++){
 		avgTimeImage += timeArray[i] - timeArray[i - 1];	
 	}
-	avgTimeImage /= numImg + 1; 
+	avgTimeImage /= fmin(numImg + 1, 10); 
+
+	//Add the average time * num of image left to get ETA
 	rawtime = rawtime + avgTimeImage * (totalImg - numImg);
+
+	//Get that ETA in a nice format 
 	eta = localtime ( &rawtime );
 
 	diff = timeArray[numImg] - timeArray[numImg - 1];
