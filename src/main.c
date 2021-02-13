@@ -16,9 +16,9 @@
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 4
-#define WIDTH  1000 * ANTIALPOW 
-#define HEIGHT 1000 * ANTIALPOW
+#define ANTIALPOW 8
+#define WIDTH  4000 * ANTIALPOW 
+#define HEIGHT 4000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
@@ -45,7 +45,7 @@ int main(){
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
 	//Use a rolling average of the past 10 times to get something semi accurate
-	double timeArray[10];
+	double timeArray[11];
 	
 
 
@@ -173,7 +173,7 @@ int main(){
 			tabBeg = tabEnd;
 
 			taEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-			tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+			//tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
 			tabEnd = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
 
 
