@@ -34,7 +34,14 @@ void pBarAnim(int numImg, int totalImg, double timeArray[totalImg]){
 
 	printf("Compute time for last image: %d:%d:%d:%d\n", (int) diff / 3600, (int) diff /  60, (int) diff % 60, (int) trunc(diff * 1000));
 	printf("Average compute time: %d:%d:%d:%d\n", (int) avgTimeImage / 3600, (int) avgTimeImage / 60 , (int) avgTimeImage % 60, (int) trunc(avgTimeImage * 1000));
-	printf("ETA: %d/%d/%d %d:%d:%d\n",eta->tm_mday, eta->tm_mon + 1, eta->tm_year + 1900, eta->tm_hour, eta->tm_min, eta->tm_sec);
+	if (numImg == totalImg - 1){
+		diff = timeArray[numImg] - timeArray[0];
+		printf("Total Compute Time: %d:%d:%d:%d\n", (int) diff / 3600, (int) diff /  60, (int) diff % 60, (int) trunc(diff * 1000));
+		printf("Thanks for your patience ! Love you bye\n");
+	}
+	else	
+		printf("ETA: %d/%d/%d %d:%d:%d\n",eta->tm_mday, eta->tm_mon + 1, eta->tm_year + 1900, eta->tm_hour, eta->tm_min, eta->tm_sec);
+
 	//A quick hacky progess bar 
 	printf("[");
 	for (int i = 0; i < (float)numImg/(totalImg) * 50; i++){
@@ -45,4 +52,5 @@ void pBarAnim(int numImg, int totalImg, double timeArray[totalImg]){
 		printf(" ");
 	}
 	printf("] %.2f \% \n\n", (float)numImg/totalImg * 100 );
+
 }
