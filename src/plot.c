@@ -144,6 +144,21 @@ void antialiasing(image_t* img, unsigned char* outputImg){
     }
 }
 
+void makeFilename(int numImg, image_t *img){
+	char prefix[100] = "out/img_";
+	char numStr[6];  
+
+		sprintf(numStr, "%d", numImg);
+		strcat(prefix, numStr);
+		strcat(prefix, ".bmp\0");
+		strcpy(img->filename, prefix);
+		memset(prefix, 0, sizeof(prefix));
+		strcpy(prefix, "out/img_");
+
+
+}
+
+
 void saveArrayAsBMP(image_t *img){
     int w = img->w/img->antialiasingPow;
     int h = img->h/img->antialiasingPow;
