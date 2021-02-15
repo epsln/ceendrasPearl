@@ -6,6 +6,8 @@
 #include <time.h>
 #include <complex.h>
 
+#include "mpc.h"
+
 #include "include/complexMath.h"
 #include "include/plot.h"
 #include "include/arraysOps.h"
@@ -16,12 +18,12 @@
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 8
-#define WIDTH  4000 * ANTIALPOW 
-#define HEIGHT 4000 * ANTIALPOW
+#define ANTIALPOW 4
+#define WIDTH  1000 * ANTIALPOW 
+#define HEIGHT 1000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001 
+#define EPSI  0.1 
 #define MAXWORD 15 
 #define LINE 1 
 #define BITWISE 1
@@ -45,8 +47,7 @@ int main(){
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
 	//Use a rolling average of the past 10 times to get something semi accurate
-	double timeArray[11];
-	
+	double timeArray[10];
 
 
 	double complex taBeg = 0.;
@@ -93,7 +94,7 @@ int main(){
 	pImg->antialiasingPow = ANTIALPOW;
 	pImg->debug  = DEBUG;
 	pImg->bitwise= BITWISE;
-	pImg->filename = malloc(256* sizeof(char));
+	pImg->filename = malloc(256 * sizeof(char));
 
 	pImg->pointArr = NULL;
 	pImg->bitArray = NULL;
@@ -105,9 +106,6 @@ int main(){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
 		exit(-1);
 	}
-
-	char prefix[100] = "out/img_";
-	char imageNum[6];  
 
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
@@ -129,13 +127,8 @@ int main(){
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
 		srand((unsigned) time(&pt));
-		sprintf(imageNum, "%d", numIm);
-		strcat(prefix, imageNum);
-		strcat(prefix, ".bmp\0");
-		strcpy(pImg->filename, prefix);
-		strcpy(prefix, "out/img_");
-
-		//printf("Image: %s\n\n", pImg->filename);
+		makeFilename(numIm, pImg);
+		printf("Image: %s\n", pImg->filename);
 
 		//Here, we interpolate between two traces using an easing function
 		ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
@@ -160,7 +153,7 @@ int main(){
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
 
-		//Save as bmp
+		//Save save\n");
 		saveArrayAsBMP(pImg);
 
 		//Update progress bar

@@ -2,6 +2,8 @@
 #define complexMath 
 #include "plot.h"
 
+#include "mpc.h"
+
 //General helper functions
 double map(double n,double  start1,double  stop1,double  start2,double  stop2);
 int modulo(int a, int b);
@@ -17,15 +19,15 @@ double complex schlickComplex(double x, double s, double t, double complex beg, 
 double computeBoxdim(image_t *img);
 
 //Matrixes ops
-void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]);
+void matmul(mpc_t A[2][2], mpc_t B[2][2], mpc_t C[2][2]);
 
 //Mobius operations
-double complex fix(double complex T[2][2]);
-double complex mobiusOnPoint(double complex T[2][2], double complex z);
+double complex fix(mpc_t rop, mpc_t T[2][2]);
+double complex mobiusOnPoint(mpc_t rop, mpc_t T[2][2], mpc_t z);
 
 //Cycle computations
-void computeRepetends(double complex* gens, double complex fixRep[4][3]);
-void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]);
-void computeCycles(double complex begpt[4], double complex endpt[4], double complex* gens);
+void computeCycles(double complex begpt[4], double complex endpt[4], double complex* gens); //DEPRECATED
+void computeRepetends(double complex* gens, double complex fixRep[4][3]); //DEPRECATED
+void computeRepetendsv2(double complex* gens, mpc_t fixRep[4][4]);
 
 #endif
