@@ -90,17 +90,6 @@ void grandmaSpecialRecipe(double complex ta, double complex tb, double complex t
 	gens[(1 * 2 + 0) * 2 + 1] = ((ta * tab - 2 * ta - I * Q * tab)*z0)/(2 * tab - 4);
 	gens[(1 * 2 + 1) * 2 + 1] = (tb + 2 * I * Q)/2; 
 
-	printf("[%lf + %lf, ", creal(gens[(0 * 2 + 0) * 2 + 0]), cimag(gens[(0 * 2 + 0) * 2 + 0])); 
-	printf("%lf + %lf]\n", creal(gens[(0 * 2 + 1) * 2 + 0]), cimag(gens[(0 * 2 + 1) * 2 + 0])); 
-	printf("[%lf + %lf, ", creal(gens[(0 * 2 + 0) * 2 + 1]), cimag(gens[(0 * 2 + 0) * 2 + 1])); 
-	printf("%lf + %lf]\n", creal(gens[(0 * 2 + 1) * 2 + 1]), cimag(gens[(0 * 2 + 1) * 2 + 1])); 
-
-	printf("[%lf + %lf, ", creal(gens[(1 * 2 + 0) * 2 + 0]), cimag(gens[(1 * 2 + 0) * 2 + 0])); 
-	printf("%lf + %lf]\n", creal(gens[(1 * 2 + 1) * 2 + 0]), cimag(gens[(1 * 2 + 1) * 2 + 0])); 
-	printf("[%lf + %lf, ", creal(gens[(1 * 2 + 0) * 2 + 1]), cimag(gens[(1 * 2 + 0) * 2 + 1])); 
-	printf("%lf + %lf]\n", creal(gens[(1 * 2 + 1) * 2 + 1]), cimag(gens[(1 * 2 + 1) * 2 + 1])); 
-                                
-             
 	gens[(2 * 2 + 0) * 2 + 0] =  gens[(0 * 2 + 1) * 2 + 1];
 	gens[(2 * 2 + 1) * 2 + 0] = -gens[(0 * 2 + 1) * 2 + 0];
 	gens[(2 * 2 + 0) * 2 + 1] = -gens[(0 * 2 + 0) * 2 + 1];
