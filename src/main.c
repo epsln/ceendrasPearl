@@ -16,13 +16,13 @@
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 8
-#define WIDTH  4000 * ANTIALPOW 
-#define HEIGHT 4000 * ANTIALPOW
+#define ANTIALPOW 4
+#define WIDTH  2000 * ANTIALPOW 
+#define HEIGHT 2000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001 
-#define MAXWORD 15 
+#define EPSI  0.00001 
+#define MAXWORD 100 
 #define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
@@ -40,7 +40,7 @@ int main(){
 
 	int fps = 60;
 	int duration = 5;
-	int lengthAnim = 15;
+	int lengthAnim = 30;
 
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
@@ -62,16 +62,14 @@ int main(){
 	double complex tabInit = 0.;
 
 
-	taBeg  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-	tbBeg  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-	tabBeg = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+	taBeg  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	tbBeg  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	tabBeg = randomComplex(-2 - 1. * I, 2 + 1 * I);
 
-	taEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-	tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-	tabEnd = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-
-	tbBeg  = 2;
-	tbEnd  = 2;
+	taEnd  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	tbEnd  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	tabEnd = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	tbEnd  = 2; 
 
 	taInit = taBeg;
 	tbInit = tbBeg;
@@ -147,7 +145,7 @@ int main(){
 			printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		}
 		printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
-		printf("tb:  %lf + I %lf\n", creal(tb), cimag(tb));
+		printf("tab:  %lf + I %lf\n", creal(tab), cimag(tab));
 
 		//Compute the associated mu value...
 		//newtonSolver(pMu, fareySeq[numIm]);
@@ -155,7 +153,8 @@ int main(){
 
 		//Compute some generators using a recipe...
 		//grandmaRecipe(-I*mu, 3, gens);
-		grandmaRecipe(ta, tb, gens);
+		grandmaRecipe(2, 2, gens);
+		//grandmaSpecialRecipe(2, ta, tab, gens);
 
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
@@ -165,6 +164,7 @@ int main(){
 
 		//Update progress bar
 		pBarAnim(numIm, fps * lengthAnim, timeArray); 
+		exit(-1);
 
 		numIm ++;
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
@@ -172,10 +172,11 @@ int main(){
 			tbBeg = tbEnd;
 			tabBeg = tabEnd;
 
-			taEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-			//tbEnd  = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
-			tabEnd = randomComplex(-2 - 1.5 * I, 2 + 1.5 * I);
+			taEnd  = randomComplex(-2 - 1 * I, 2 + 1 * I);
+			tbEnd  = randomComplex(-2 - 1 * I, 2 + 1 * I);
+			tabEnd = randomComplex(-2 - 1 * I, 2 + 1 * I);
 
+			tbEnd = 2;
 
 			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
 				taEnd = taInit;

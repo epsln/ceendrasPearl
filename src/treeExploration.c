@@ -110,7 +110,8 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 	int y0, y1, y2, y3;
 
 	//If we hit the maximum length of word (-1 because of 0 indexing, bailout !)
-	if (lev == img->maxword - 1){
+	//Used only in case of point mode
+	if (img->line == 0 && lev == img->maxword - 1){
 		return 1;
 	}
 
@@ -120,7 +121,7 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 	}
 	
 	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
-	if ((cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi )){
+	if (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi ){
 		showMatrix(buffWord, img);
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
@@ -140,6 +141,7 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 		//y2 = (int) map(cimag(z2), -2 * img->bounds, 0, img->h, 0);
 		//x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		//y3 = (int) map(cimag(z3), 0, 2 * img->bounds, img->h, 0);
+		//printf("%lf %lf\n",creal(z0), cimag(z0));
 		line(x0, y0, x1, y1, img);	
 		line(x1, y1, x2, y2, img);	
 		point(x0, y0, img);
