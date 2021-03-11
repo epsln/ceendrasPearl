@@ -121,7 +121,7 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 	}
 	
 	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
-	if ((img->line == 0 && lev == img->maxword - 1) && cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi ){
+	if ((img->line == 0 && lev == img->maxword - 1) || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi) ){
 		showMatrix(buffWord, img);
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
