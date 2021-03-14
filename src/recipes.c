@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "include/recipes.h"
+#include "include/quatsMath.h"
 
 void maskitRecipe(double complex ta, double complex* gens){
 	//See pp. 259
@@ -28,6 +29,34 @@ void maskitRecipe(double complex ta, double complex* gens){
 	gens[(3 * 2 + 1) * 2 + 1] =  gens[(1 * 2 + 0) * 2 + 0];
 }
 
+void maskitRecipeQuat(quat_t ta, quat_t* gens){
+	//See pp. 259
+	quat_t buff;
+		
+	gens[(0 * 2 + 0) * 2 + 0] = ta;
+	gens[(0 * 2 + 0) * 2 + 1] = (quat_t){0, -1, 0, 0}; 
+	gens[(0 * 2 + 1) * 2 + 0] = (quat_t){0, -1, 0, 0};
+	gens[(0 * 2 + 1) * 2 + 1] = (quat_t){0, 0, 0, 0}; 
+
+	gens[(1 * 2 + 0) * 2 + 0] = (quat_t){1, 0, 0, 0};
+	gens[(1 * 2 + 0) * 2 + 1] = (quat_t){2, 0, 0, 0}; 
+	gens[(1 * 2 + 1) * 2 + 0] = (quat_t){0, 0, 0, 0};
+	gens[(1 * 2 + 1) * 2 + 1] = (quat_t){1, 0, 0, 0}; 
+
+	gens[(2 * 2 + 0) * 2 + 0] =  gens[(0 * 2 + 1) * 2 + 1];
+	buff = gens[(0 * 2 + 0) * 2 + 1];
+	gens[(2 * 2 + 0) * 2 + 1] = (quat_t){-buff.a, -buff.b, -buff.c, -buff.d};
+	buff = gens[(0 * 2 + 1) * 2 + 0];
+	gens[(2 * 2 + 1) * 2 + 0] =  (quat_t){-buff.a, -buff.b, -buff.c, -buff.d};
+	gens[(2 * 2 + 1) * 2 + 1] =  gens[(0 * 2 + 0) * 2 + 0];
+                                                             
+	gens[(3 * 2 + 0) * 2 + 0] =  gens[(1 * 2 + 1) * 2 + 1];
+	buff = gens[(1 * 2 + 0) * 2 + 1];
+	gens[(3 * 2 + 0) * 2 + 1] = (quat_t){-buff.a, -buff.b, -buff.c, -buff.d};
+	buff = gens[(1 * 2 + 1) * 2 + 0];
+	gens[(3 * 2 + 1) * 2 + 0] = (quat_t){-buff.a, -buff.b, -buff.c, -buff.d};
+	gens[(3 * 2 + 1) * 2 + 1] =  gens[(1 * 2 + 0) * 2 + 0];
+}
 
 
 void grandmaRecipe(double complex ta, double complex tb, double complex* gens){
