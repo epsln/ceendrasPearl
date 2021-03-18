@@ -56,7 +56,9 @@ void maskitRecipeQuat(quat_t ta, quat_t* gens){
 	buff = gens[(1 * 2 + 1) * 2 + 0];
 	gens[(3 * 2 + 1) * 2 + 0] = (quat_t){-buff.a, -buff.b, -buff.c, -buff.d};
 	gens[(3 * 2 + 1) * 2 + 1] =  gens[(1 * 2 + 0) * 2 + 0];
+
 }
+
 
 
 void grandmaRecipe(double complex ta, double complex tb, double complex* gens){

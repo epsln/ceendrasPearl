@@ -6,14 +6,19 @@ typedef struct quat_t{
 }quat_t;
 
 
-void quatAdd(quat_t* out, quat_t a, quat_t b);
-void quatSub(quat_t* out, quat_t a, quat_t b);
-void quatMult(quat_t* out, quat_t a, quat_t b);
-void quatDiv(quat_t* out, quat_t a, quat_t b);
+quat_t quatAdd(quat_t a, quat_t b);
+quat_t quatSub(quat_t a, quat_t b);
+quat_t quatMult(quat_t a, quat_t b);
+quat_t quatDiv(quat_t a, quat_t b);
 
 long double quatNorm(quat_t h);
 long double quatDist(quat_t h1, quat_t h2);
 
 void matmulQuat(quat_t A[2][2], quat_t B[2][2], quat_t C[2][2]);
-void mobiusOnPointQuat(quat_t* out, quat_t T[2][2] , quat_t h);
+quat_t mobiusOnPointQuat(quat_t T[2][2] , quat_t h);
+
+quat_t fixQuat(quat_t T[2][2]);
+void computeRepetendsQuats(quat_t* gens, quat_t fixRep[4][4]);
+
+void showMatrixQuat(quat_t T[2][2]);
 #endif

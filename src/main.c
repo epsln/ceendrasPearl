@@ -7,6 +7,7 @@
 #include <complex.h>
 
 #include "include/complexMath.h"
+#include "include/quatsMath.h"
 #include "include/plot.h"
 #include "include/arraysOps.h"
 #include "include/treeExploration.h"
@@ -21,9 +22,9 @@
 #define HEIGHT 2000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.00001 
-#define MAXWORD 100 
-#define LINE 1 
+#define EPSI  0.001 
+#define MAXWORD 9 
+#define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
 
@@ -76,7 +77,8 @@ int main(){
 	tabInit = tabBeg;
 
 
-	double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
+	//double complex* gens = (double complex*)calloc(4*2*2, sizeof(double complex));
+	quat_t* gensQuat = (quat_t*)calloc(4*2*2, sizeof(quat_t));
 
 	//TODO: Move this portion to its own file :)
 	image_t img;
@@ -123,6 +125,7 @@ int main(){
 	//}
 	//makeContinuedFraction(10, (sqrt(35) - 5)/10.0, fareySeq);
 
+	quat_t trace = (quat_t){0, 2, -2,0 };
 	while(1){
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
@@ -140,6 +143,10 @@ int main(){
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
+		ta  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		tb  = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		tab = randomComplex(-2 - 1. * I, 2 + 1 * I);
+
 		if (DEBUG == 1){
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
 			printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
@@ -152,19 +159,43 @@ int main(){
 		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
+		//maskitRecipe(ta, gens);
 		//grandmaRecipe(-I*mu, 3, gens);
-		grandmaRecipe(2, 2, gens);
-		//grandmaSpecialRecipe(2, ta, tab, gens);
+		//grandmaRecipe(ta, tab, gens);
+		//grandmaSpecialRecipe(-2, tb, tab, gens);
 
+		maskitRecipeQuat(trace, gensQuat);
+		
+		/*
+		gens[(0 * 2 + 0) * 2 + 0] = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		gens[(0 * 2 + 0) * 2 + 1] = randomComplex(-2 - 1. * I, 2 + 1 * I); 
+		gens[(0 * 2 + 1) * 2 + 0] = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		gens[(0 * 2 + 1) * 2 + 1] = randomComplex(-2 - 1. * I, 2 + 1 * I); 
+
+		gens[(1 * 2 + 0) * 2 + 0] = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		gens[(1 * 2 + 0) * 2 + 1] = randomComplex(-2 - 1. * I, 2 + 1 * I); 
+		gens[(1 * 2 + 1) * 2 + 0] = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		gens[(1 * 2 + 1) * 2 + 1] = randomComplex(-2 - 1. * I, 2 + 1 * I); 
+
+		gens[(2 * 2 + 0) * 2 + 0] =  gens[(0 * 2 + 1) * 2 + 1];
+		gens[(2 * 2 + 0) * 2 + 1] = -gens[(0 * 2 + 0) * 2 + 1];
+		gens[(2 * 2 + 1) * 2 + 0] = -gens[(0 * 2 + 1) * 2 + 0];
+		gens[(2 * 2 + 1) * 2 + 1] =  gens[(0 * 2 + 0) * 2 + 0];
+								     
+		gens[(3 * 2 + 0) * 2 + 0] =  gens[(1 * 2 + 1) * 2 + 1];
+		gens[(3 * 2 + 0) * 2 + 1] = -gens[(1 * 2 + 0) * 2 + 1];
+		gens[(3 * 2 + 1) * 2 + 0] = -gens[(1 * 2 + 1) * 2 + 0];
+		gens[(3 * 2 + 1) * 2 + 1] =  gens[(1 * 2 + 0) * 2 + 0];
+		*/
 		//Explore depth first combination of generators...
-		computeDepthFirst(gens, pImg, numIm);
-
+		//computeDepthFirst(gens, pImg, numIm);
+		computeDepthFirstQuat(gensQuat, pImg, numIm);
+		exit(1);
 		//Save as bmp
 		saveArrayAsBMP(pImg);
 
 		//Update progress bar
 		pBarAnim(numIm, fps * lengthAnim, timeArray); 
-		exit(-1);
 
 		numIm ++;
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
@@ -189,6 +220,7 @@ int main(){
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
+		if (numIm >= 10 * 30) return(1);//Get out of here when we're done !
 		//Else, we go again !
 	}
 	return 0;
