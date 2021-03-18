@@ -1,5 +1,5 @@
 # Ceendra's Pearl
-Implementation of Indra's Pearl depth first search in C. I followed the classic algorithm. As such, the code is a tad messy, but should be fairly understandable. 
+Implementation of Indra's Pearl depth first search in C. I followed the classic algorithm. As such, the code is a tad messy, but should be fairly understandable. I wrote an article underlying the basic principles behind it on my blog, which is available [here](https://epsln.github.io/blog/indraspearl_pt1/)
 
 ## Compilation
 
