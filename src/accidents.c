@@ -4,6 +4,7 @@
 #include <complex.h>
 
 #include "include/accidents.h"
+#include "include/complexMath.h"
 
 
 double complex tracePoly(ratio fraction, double complex ta, double complex tB, double complex taB){
@@ -182,14 +183,20 @@ double complex traceEqn(ratio fraction, double complex mu){
 
 void newtonSolver(double complex *pz0, ratio fraction){
 	//TODO: Maybe implement the halley ? 
-	int maxiter = 10000;
+	int maxiter = 100000;
 	double complex z = *pz0;
-	double epsilon = 1E-15;
+	double epsilon = 1E-10;
 	double complex realVal, imagVal, deriv;
 	double complex traceEqVal;
 	
 	//Carefull, without a imaginary part, newton doesnt converge !
-	*pz0 += I;
+	if (cimag(*pz0))
+		*pz0 += I;
+
+	if( isinf(cimag(traceEqn(fraction, z))) || isnan(cimag(traceEqn(fraction, z)))){
+		printf("Newton method failed !\nAbandoning all hopes and exiting...\n");
+		exit(-1);
+	}
 	for (int i = 0; i < maxiter; i++){
 		//Compute the complex derivate using a simple finite differences scheme on real and imag axis
 		realVal = (traceEqn(fraction, z + epsilon)     - traceEqn(fraction, z - epsilon))/(2*epsilon);
@@ -198,11 +205,12 @@ void newtonSolver(double complex *pz0, ratio fraction){
 		//Update the guess 	
 		traceEqVal = traceEqn(fraction, z);
 		z = z - traceEqVal/deriv;
-		if (cabs(traceEqVal) <= 1E-7 && cabs(z - *pz0) <= 1E-7){
+		if (cabs(traceEqVal) <= 1E-9 && cabs(z - *pz0) <= 1E-4){
 			return;
 		}
-		else
+		else{
 			*pz0 = z;
+		}
 	}
 	printf("Newton method failed !\nAbandoning all hopes and exiting...\n");
 	exit(-1);
