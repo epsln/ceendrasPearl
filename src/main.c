@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <complex.h>
+#include <pthread.h>
 
 #include "include/complexMath.h"
 #include "include/plot.h"
@@ -21,8 +22,8 @@
 #define HEIGHT 2000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.00001 
-#define MAXWORD 100 
+#define EPSI  0.001 
+#define MAXWORD  17 
 #define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
@@ -119,9 +120,9 @@ int main(){
 	//makeFiboSeq(1000, fareySeq);
 	//makePiSeq(denum * denum, fareySeq);
 	//for(int i = 1; i <= 30; i++){
-	//	fareySeq[i - 1] = (ratio){1, i};
+	//	fareySeq[i - 1] = (ratio){i*i, i};
 	//}
-	//makeContinuedFraction(10, (sqrt(35) - 5)/10.0, fareySeq);
+	//makeContinuedFraction(30, (sqrt(35) - 5)/10.0, fareySeq);
 
 	while(1){
 		//Create a filename for the image based on the number of image processed
@@ -148,13 +149,18 @@ int main(){
 		printf("tab:  %lf + I %lf\n", creal(tab), cimag(tab));
 
 		//Compute the associated mu value...
-		//newtonSolver(pMu, fareySeq[numIm]);
+		//newtonSolver(pMu, fareySeq[numIm]); 
 		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
-		//grandmaRecipe(-I*mu, 3, gens);
-		grandmaRecipe(2, 2, gens);
-		//grandmaSpecialRecipe(2, ta, tab, gens);
+		ta = easeInOutQuad(numIm, 0, 2, 60 * 5);
+		tb = 2;
+		double complex p = -ta * tb;
+		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
+		tab = (-p-csqrt(cpow(p, 2) - 4 * q))/2; 
+
+		grandmaSpecialRecipe(ta, tb, tab, gens);
+		//grandmaRecipe(1.924781 - 0.047529 *I, 2, gens);
 
 		//Explore depth first combination of generators...
 		computeDepthFirst(gens, pImg, numIm);
@@ -163,8 +169,7 @@ int main(){
 		saveArrayAsBMP(pImg);
 
 		//Update progress bar
-		pBarAnim(numIm, fps * lengthAnim, timeArray); 
-		exit(-1);
+		pBarAnim(numIm, 60 * 5, timeArray); 
 
 		numIm ++;
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
@@ -188,7 +193,9 @@ int main(){
 		//if (numIm > 30) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
 		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
-		if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
+		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
+
+		if (numIm >= 60 * 5){    pthread_exit(NULL);  return(1);}//Get out of here when we're done !
 		//Else, we go again !
 	}
 	return 0;
