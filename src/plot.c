@@ -158,7 +158,7 @@ void makeFilename(int numImg, image_t *img){
 
 }
 
-void saveArrayAsBMPTest(image_t *img){
+void saveArrayAsBMP(image_t *img){
 	int w = img->w/img->antialiasingPow;
 	int h = img->h/img->antialiasingPow;
 
