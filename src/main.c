@@ -22,9 +22,9 @@
 #define HEIGHT 2000 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001 
-#define MAXWORD  17 
-#define LINE 1 
+#define EPSI  0.0001 
+#define MAXWORD  20 
+#define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
 
@@ -123,6 +123,8 @@ int main(){
 	//	fareySeq[i - 1] = (ratio){i*i, i};
 	//}
 	//makeContinuedFraction(30, (sqrt(35) - 5)/10.0, fareySeq);
+	dfsArgs * args = malloc(sizeof(*args));
+        pthread_t threadArray[4];
 
 	while(1){
 		//Create a filename for the image based on the number of image processed
@@ -145,28 +147,40 @@ int main(){
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
 			printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		}
-		printf("ta:  %lf + I %lf\n", creal(ta), cimag(ta));
-		printf("tab:  %lf + I %lf\n", creal(tab), cimag(tab));
 
 		//Compute the associated mu value...
-		//newtonSolver(pMu, fareySeq[numIm]); 
+		//newtonSolver(pMu, fareySeq[numIm + 1]); 
 		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
 		ta = easeInOutQuad(numIm, 0, 2, 60 * 5);
-		tb = 2;
+		tb = 2 + (1 - easeInOutQuad(numIm, 0, 1, 60 * 5)) * I;
+		ta = 2  * cos ( 3.14159265359/10.0); 
+		tb = 2 * cos ( 3.14159265359/10.0); 
 		double complex p = -ta * tb;
 		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
-		tab = (-p-csqrt(cpow(p, 2) - 4 * q))/2; 
-
-		grandmaSpecialRecipe(ta, tb, tab, gens);
-		//grandmaRecipe(1.924781 - 0.047529 *I, 2, gens);
-
+		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
+		
+		//grandmaSpecialRecipe(ta, tb, tab, gens);
+		grandmaRecipe(ta, tb, gens);
+		dfsArgs *args;
 		//Explore depth first combination of generators...
-		computeDepthFirst(gens, pImg, numIm);
+		//computeDepthFirst(args);
+		for (int i = 0; i < 4; i++){
+			args = malloc(sizeof(dfsArgs));
+			args->gens = gens;
+			args->img = pImg;
+			args->numIm = numIm;
+			args->numBranch = modulo(4 - i, 4);
+			pthread_create(&threadArray[i], NULL, computeDepthFirst, args);
+		}
 
 		//Save as bmp
+		for(int i = 0; i < 4 ; i++){
+			pthread_join(threadArray[i], NULL);
+		}
 		saveArrayAsBMP(pImg);
+		exit(1);
 
 		//Update progress bar
 		pBarAnim(numIm, 60 * 5, timeArray); 

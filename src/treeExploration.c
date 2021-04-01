@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "include/arraysOps.h"
 #include "include/complexMath.h"
@@ -17,9 +18,9 @@ void goForward(int *lev, int* tag, int* state, int FSA[19][4], double complex* w
 	double complex buffOut[2][2];
 
 	int idxGen = 0, i = 1;
-	
+
 	//printf("goForward: %d\n", *lev);
-	
+
 	for (int i = 0; i < 2; i++){
 		for (int j = 0; j < 2; j++){
 			buffWord[i][j] = 0;
@@ -61,8 +62,8 @@ void goBackwards(int *lev){
 }
 
 int availableTurn(int *lev, int* tag, int* state, int FSA[19][4]){
-//	printf("availableTurn\n");
-//	printf("FSA[%d][%d] = %d\n\n", state[*lev], modulo(tag[*lev + 1] - 1, 4), FSA[state[*lev]][modulo(tag[*lev + 1] - 1, 4)]);
+	//	printf("availableTurn\n");
+	//	printf("FSA[%d][%d] = %d\n\n", state[*lev], modulo(tag[*lev + 1] - 1, 4), FSA[state[*lev]][modulo(tag[*lev + 1] - 1, 4)]);
 	if (*lev == -1)	return 0;
 
 	if((FSA[state[*lev]][modulo(tag[*lev + 1] - 1, 4)] == 0))
@@ -70,10 +71,10 @@ int availableTurn(int *lev, int* tag, int* state, int FSA[19][4]){
 
 	//if (modulo(tag[*lev + 1] - 1,  4) == modulo(tag[*lev] + 2 , 4))
 	//	return 0;
-	
+
 	else
 		return 1;
-	
+
 }	
 
 void turnForward(int *lev, int *tag, int* state, int FSA[19][4], double complex* word, double complex* gens){
@@ -84,20 +85,20 @@ void turnForward(int *lev, int *tag, int* state, int FSA[19][4], double complex*
 	//printf("turnForward\n");
 
 	//tag[*lev + 1] = modulo(tag[*lev + 1] - 1,  4);
-	
+
 
 	do{	
 		idxGen = modulo(tag[*lev + 1] - i, 4);
-	//	printf("FSA[%d][%d] == %d\n",state[*lev], idxGen + 1, FSA[state[*lev]][idxGen]);
+		//	printf("FSA[%d][%d] == %d\n",state[*lev], idxGen + 1, FSA[state[*lev]][idxGen]);
 		i--;
 	}while((FSA[state[*lev]][idxGen] == 0));
 
-//	printf("idxGen = %d\n", idxGen);
+	//	printf("idxGen = %d\n", idxGen);
 	state[*lev + 1] = FSA[state[*lev]][idxGen];
-//	printf("state[%d] = %d\n", *lev + 1, state[*lev + 1]);
+	//	printf("state[%d] = %d\n", *lev + 1, state[*lev + 1]);
 
 	tag[*lev + 1] = idxGen; 
-//	printf("tag[%d] = %d\n\n", *lev + 1, tag[*lev + 1]);
+	//	printf("tag[%d] = %d\n\n", *lev + 1, tag[*lev + 1]);
 	//state[*lev + 1] = modulo(tag[*lev + 1] - 1,  4) ;
 
 	if (*lev == -1)
@@ -142,7 +143,7 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 	if (tag[lev] % 2 == 0){
 		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
 	}
-	
+
 	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
 	if ((img->line == 0 && lev == img->maxword - 1) || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi) ){
 		showMatrix(buffWord, img);
@@ -185,32 +186,32 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 }
 
 
-void computeDepthFirst(double complex* gens, image_t* img, int numIm){
-	//TODO: clean me up
+void *computeDepthFirst(void *_args){
+	//TODO: clean me ud
 	int lev = 0;
 
 	double complex endpt[4];//Deprecated !
 	double complex begpt[4];//Deprecated !
 
 	double complex fixRep[4][4];//Contains the fixed points of a few special combinations of gens
-	
+
+        dfsArgs *args = (dfsArgs *) _args;
+
 	//Array of size [maxword, 2, 2]
 	//Contains all of the word computed until the current level
-	double complex *word = (double complex *)calloc(img->maxword * 2 * 2, sizeof(double complex));
+	double complex *word = (double complex *)calloc(args->img->maxword * 2 * 2, sizeof(double complex));
 	//The tag array contains the index of the used gen up until current level
-	int *tag  = (int *)calloc(img->maxword, sizeof(int));
+	int *tag  = (int *)calloc(args->img->maxword, sizeof(int));
 	//The state array contains the state of the automaton (see pp. 360)
 	//This automaton prevents us from making forbiden association that ends up in identity (like a and A) 
-	int *state = (int *)calloc(img->maxword, sizeof(int));
+	int *state = (int *)calloc(args->img->maxword, sizeof(int));
 
-	memset(state, 0, img->maxword * sizeof(int));
-	state[0] = 1;//We start at a
-	tag[0] = 0;
+	memset(state, 0, args->img->maxword * sizeof(int));
 
 	//State automaton array:
 	//Given the current state and the next generator, gives the next state
 	//If possible, try to find an algo that generates this sort of stuff
-	
+
 	int FSA[19][4] = {
 		{ 1,  2,  3,  4},//Identity 0 
 		{ 1,  5,  0,  4},//a        1
@@ -232,7 +233,7 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 		{ 0,  0, 10,  4},//abAB     17
 		{ 7,  2,  0,  0} //ABab     18
 	};
-		
+
 	//int FSA[5][4] = {
 	//	{ 1,  2,  3,  4},//Identity 0 
 	//	{ 1,  2,  0,  4},//a        1
@@ -243,27 +244,34 @@ void computeDepthFirst(double complex* gens, image_t* img, int numIm){
 	int *plev;
 	plev = &lev;
 
-	computeCycles(begpt, endpt, gens);
-	computeRepetendsv2(gens, fixRep);
+	computeCycles(begpt, endpt, args->gens);
+	computeRepetendsv2(args->gens, fixRep);
 
-	matrix3dto3D(gens, word, 0, 0);
+	matrix3dto3D(args->gens, word, 0, 0);
 
-	while (!(lev == -1 && tag[0] == 1)){//See pp.148 for algo
-		while(branchTermRepetends(lev, tag, fixRep, word, img) == 0){
-			goForward(plev, tag, state, FSA, word, gens);	
-			printWord(lev, tag, img);
+	//We will use the thread id to know what branch to explore
+	//Order: 0, 3, 2, 1
+	state[0] = args->numBranch + 1;
+	tag[0] = args->numBranch;
+	while (!(lev == -1 && tag[0] == modulo(args->numBranch- 1, 4))){//See pp.148 for algo
+		while(branchTermRepetends(lev, tag, fixRep, word, args->img) == 0){
+			goForward(plev, tag, state, FSA, word, args->gens);	
+			printWord(lev, tag, args->img);
 		}
 		do{
 			goBackwards(plev);
-			printWord(lev, tag, img);
+			printWord(lev, tag, args->img);
 		}while(!(availableTurn(plev, tag, state, FSA) == 1 || lev == -1));
 
 		//Might need to put another exit condition check right here...
-		if (lev == -1 && tag[0] == 1) break;	
+		if (lev == -1 && tag[0] == modulo(args->numBranch - 1, 4)) break;	
 
-		turnForward(plev, tag, state, FSA, word, gens);
-		printWord(lev, tag, img);
+		turnForward(plev, tag, state, FSA, word, args->gens);
+		printWord(lev, tag, args->img);
 	}
+	free (args);
+	pthread_exit(NULL);
+	return 0;
 }
 
 
