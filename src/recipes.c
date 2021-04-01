@@ -7,6 +7,8 @@
 void maskitRecipe(double complex ta, double complex* gens){
 	//See pp. 259
 		
+	printf("mu:  %lf + %lf\n", creal(ta), cimag(ta));
+
 	gens[(0 * 2 + 0) * 2 + 0] = ta;
 	gens[(0 * 2 + 0) * 2 + 1] = -I; 
 	gens[(0 * 2 + 1) * 2 + 0] = -I;
@@ -35,6 +37,9 @@ void grandmaRecipe(double complex ta, double complex tb, double complex* gens){
 		printf("Error ! ta and tb cannot be both == 0 !\n Exiting...\n");
 		exit(-3);
 	}
+	printf("ta:  %lf + %lf\n", creal(ta), cimag(ta));
+	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
+
 	double complex a = 1;
 	double complex b = (-ta * tb);
 	double complex c = ta * ta + tb * tb;
@@ -66,6 +71,9 @@ void grandmaRecipe(double complex ta, double complex tb, double complex* gens){
 void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex* gens){
 	//Grandma's Special four-alarm two generator group recipe 
 	//See pp. 261
+	printf("ta:  %lf + %lf\n", creal(ta), cimag(ta));
+	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
+	printf("tab: %lf + %lf\n", creal(tab), cimag(tab));
 	double complex tc = ta * ta + tb * tb + tab * tab - ta * tb * tab - 2;
 	tc = 0;
 	double complex Q  = csqrt(2 - tc);	
