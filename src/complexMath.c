@@ -12,6 +12,10 @@ double map(double n,double  start1,double  stop1,double  start2,double  stop2){/
 	return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
 }
 
+double cmap(double complex n,double complex start1, double complex stop1,double  complex start2,double complex stop2){//map a complex from one range to another
+	return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
+}
+
 double complex randomComplex(double complex min, double complex max){
 	double realPart = (creal(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + creal(min) ;
 	double imagPart = (cimag(max - min)) * ((((double) rand()) / (double) RAND_MAX)) + cimag(min) ;
