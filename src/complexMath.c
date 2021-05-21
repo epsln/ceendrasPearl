@@ -23,6 +23,10 @@ double complex randomComplex(double complex min, double complex max){
 	return realPart + I * imagPart;
 }
 
+double complex randomComplexFixDist(double complex z0, double d){//Get a complex number at fixed modulus and rand arg from z0
+	double theta = (double)rand()/(double) RAND_MAX;
+	return d * (cos(theta) + I * sin(theta)) + z0;
+}
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
 }

@@ -7,6 +7,7 @@ double map(double n,double  start1,double  stop1,double  start2,double  stop2);
 double cmap(double complex n,double complex start1, double complex stop1,double  complex start2,double complex stop2);
 int modulo(int a, int b);
 double complex randomComplex(double complex min, double complex max);
+double complex randomComplexFixDist(double complex z0, double d);//Get a complex number at fixed modulus and rand arg from z0
 
 //Easing function stuff
 double easeInOutQuad(double t, double b, double c, double d);
