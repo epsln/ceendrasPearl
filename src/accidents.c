@@ -182,12 +182,12 @@ void getSpecialWordFromFract(ratio fraction, char* specialWord){
 	do{
 		while(num + fraction.q < fraction.p + fraction.q){
 			num += fraction.q;
-			specialWord[i] = 0;
+			specialWord[i] = 3;
 			i++;
 		}
 		while(num - fraction.p > 1){
 			num -= fraction.p;
-			specialWord[i] = 3;
+			specialWord[i] = 0;
 			i++;
 		}
 	}while(num != 1);
