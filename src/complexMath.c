@@ -27,6 +27,7 @@ double complex randomComplexFixDist(double complex z0, double d){//Get a complex
 	double theta = (double)rand()/(double) RAND_MAX;
 	return d * (cos(theta) + I * sin(theta)) + z0;
 }
+
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
 }
@@ -61,6 +62,26 @@ void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][
 	C[1][0] = A[0][0] * B[1][0] + A[1][0] * B[1][1];
 	C[0][1] = A[0][1] * B[0][0] + A[1][1] * B[0][1];
 	C[1][1] = A[0][1] * B[1][0] + A[1][1] * B[1][1];
+}
+
+void composeGen(double complex* gens, int index, double complex* word){
+	//Ugly workaround to those  *** arrays
+	//Uses a buffer array to not have multiple buffer in calling funct
+	//You get an input [2][2] mat which is also your output
+	//This funct mults it by the gen at given index 
+	//(a e + b g | a f + b h
+	// c e + d g | c f + d h)
+	// TODO: Check the indexes pls 
+	double complex C[2][2]; 
+	C[0][0] = word[0 * 2 + 0] * gens[(index * 2 + 0) * 2 + 0] + word[1 * 2 + 0] * gens[(index * 2 + 0) * 2 + 1];
+	C[1][0] = word[0 * 2 + 0] * gens[(index * 2 + 1) * 2 + 0] + word[1 * 2 + 0] * gens[(index * 2 + 1) * 2 + 1];
+	C[0][1] = word[0 * 2 + 1] * gens[(index * 2 + 0) * 2 + 0] + word[1 * 2 + 1] * gens[(index * 2 + 0) * 2 + 1];
+	C[1][1] = word[0 * 2 + 1] * gens[(index * 2 + 1) * 2 + 0] + word[1 * 2 + 1] * gens[(index * 2 + 1) * 2 + 1];
+
+	word[0 * 2 + 0] = C[0][0]; 
+	word[1 * 2 + 0] = C[1][0]; 
+	word[0 * 2 + 1] = C[0][1]; 	
+	word[1 * 2 + 1] = C[1][1]; 
 }
 
 double complex fix(double complex T[2][2]){//See pp.76
@@ -144,8 +165,54 @@ void computeRepetends(double complex* gens, double complex fixRep[4][3]){//See p
 }
 
 
+void getCyclicPerm(char** cyclicPerms, char* repr){
+	//There are len(n) permutations of a string, so we store them in a 2D array size (len(n), len(n))
+	for (int i = 0; i < strlen(repr); i++){
+		for (int j = 0; j < strlen(repr); j++){
+			cyclicPerms[i][j] = repr[j + i % strlen(repr)];
+			
+		}
+	}
+	
+}
 
-void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]){//See pp.218
+void makeWord(double complex out[2][2], double complex* gens, char* word){
+	//Create a word based on its integer representation 
+	double complex buff_gen_a[2][2];
+	double complex buff_gen_b[2][2];
+	double complex buff_gen_A[2][2];
+	double complex buff_gen_B[2][2];
+	double complex *buff_out;
+	
+	//First copy out a gen to a flattened array that we'll use to compose a word
+	//TODO: sort out the [2][2] and the flattened (*) array please
+	//TODO: Check the indexes pls 
+	buff_out[0 * 2 + 0] = gens[(word[0] * 2 + 0) * 2 + 0];
+	buff_out[0 * 2 + 1] = gens[(word[0] * 2 + 0) * 2 + 0];
+	buff_out[1 * 2 + 0] = gens[(word[0] * 2 + 0) * 2 + 0];
+	buff_out[1 * 2 + 1] = gens[(word[0] * 2 + 0) * 2 + 0];
+
+	matrix3dto2D(gens, buff_gen_a, 0);
+	matrix3dto2D(gens, buff_gen_b, 1);
+	matrix3dto2D(gens, buff_gen_A, 2);
+	matrix3dto2D(gens, buff_gen_B, 3);
+
+	//Start by multiplying the 2 highest decimals
+	//Length of a number in dec is log10(num) + 1
+	//Decimal at index i of number is number % 
+	composeGen(gens, word[1], buff_out);
+	for (int i = 0; i <  strlen(word); i++){
+		composeGen(gens, word[i] , buff_out);
+	}
+   
+	//TODO: Check the indexes pls 
+	out[0][0] = buff_out[0 * 2 + 0];
+	out[1][0] = buff_out[0 * 2 + 1];
+	out[0][1] = buff_out[1 * 2 + 0];
+	out[1][1] = buff_out[1 * 2 + 1];
+}
+
+void computeRepetendsv2(double complex* gens, double complex fixRep[4][4], char* specialWord){//See pp.218
 	double complex buff_gen_a[2][2];
 	double complex buff_gen_b[2][2];
 	double complex buff_gen_A[2][2];
@@ -157,6 +224,18 @@ void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]){//See
 	matrix3dto2D(gens, buff_gen_b, 1);
 	matrix3dto2D(gens, buff_gen_A, 2);
 	matrix3dto2D(gens, buff_gen_B, 3);
+	
+	int indexArray[4] = {0};
+	
+	/*We have a fixRep array that is 4 * strlen(specialWord)
+	 * On each index x we store all the permutations that ends in a specific generator
+	 * We need to keep track of the number of permutations we add to each index of fixRep
+	 * Sol: an array of index of length 4
+	 * We loop on all cyclic permutations of the specials words
+	 * The index of the gen is the last char of the string 
+	*/	
+	//for (int i = 0; i < strlen(specialWord); i++){
+	//}
 
 	//bAba
 	matmul(buff_gen_b, buff_gen_A, buff_out0);

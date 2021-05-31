@@ -20,14 +20,17 @@ double computeBoxdim(image_t *img);
 
 //Matrixes ops
 void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][2]);
+void composeGen(double complex* gens, int index, double complex* word);
 
 //Mobius operations
 double complex fix(double complex T[2][2]);
 double complex mobiusOnPoint(double complex T[2][2], double complex z);
 
 //Cycle computations
+void makeWord(double complex out[2][2], double complex* gens, char* word);
+void getCyclicPerm(char** cyclicPerms, char* repr);
 void computeRepetends(double complex* gens, double complex fixRep[4][3]);
-void computeRepetendsv2(double complex* gens, double complex fixRep[4][4]);
+void computeRepetendsv2(double complex* gens, double complex fixRep[4][4], char* specialWord);
 void computeCycles(double complex begpt[4], double complex endpt[4], double complex* gens);
 
 #endif
