@@ -3,6 +3,7 @@
 *.dep
 *.o
 *.bmp
+*.jpg
 *.mp4
 out/
 vids/
