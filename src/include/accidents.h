@@ -16,6 +16,8 @@ void makeFiboSeq(int lengthAnim, ratio* fareyArr);//Populates a ratio array with
 void makePiSeq(int lengthAnim, ratio* fareyArr);//Populates a ratio array with the Fibonacci Sequence ratio (F_{n+1}/F_n)
 void makeContinuedFraction(int lengthAnim, double real, ratio* fareyArr);//Populates a ratio array with the Fibonacci Sequence ratio (F_{n+1}/F_n)
 
+void getSpecialWordFromFract(ratio fraction, char* specialWord);//Get the special word out of the fraction representation
+
 void newtonSolver(double complex *pZ0, ratio fraction);//Newton solve our way into a mu existence
 
 

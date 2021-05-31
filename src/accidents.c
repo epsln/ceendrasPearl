@@ -174,6 +174,25 @@ void nextPQ(int* pP, int* pQ, int denom){
 
 }
 
+void getSpecialWordFromFract(ratio fraction, char* specialWord){
+	//Fraction 2/5 -> aaaBaaB (since we don't care about the order and we'll check all cyclicPerms)
+	//pp. 276
+	int num = 1; 
+	int i = 0;
+	do{
+		while(num + fraction.q < fraction.p + fraction.q){
+			num += fraction.q;
+			specialWord[i] = 0;
+			i++;
+		}
+		while(num - fraction.p > 1){
+			num -= fraction.p;
+			specialWord[i] = 3;
+			i++;
+		}
+	}while(num != 1);
+}
+
 double complex traceEqn(ratio fraction, double complex mu){
 	//Helper function to reduce a bit the line size :)
 	//printf("tPoly(%d, %d, %lf + i %lf, %lf, %lf + I %lf) = ", fraction.p, fraction.q, creal(-I*mu), cimag(-I*mu), 2.0, creal(-I * mu + 2 * I), cimag(-I * mu + 2 * I));
