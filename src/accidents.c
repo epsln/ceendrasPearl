@@ -190,7 +190,7 @@ void newtonSolver(double complex *pz0, ratio fraction){
 	double complex traceEqVal;
 	
 	//Carefull, without a imaginary part, newton doesnt converge !
-	if (cimag(*pz0))
+	if (cimag(*pz0) == 0)
 		*pz0 += I;
 
 	if( isinf(cimag(traceEqn(fraction, z))) || isnan(cimag(traceEqn(fraction, z)))){
