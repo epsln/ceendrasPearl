@@ -112,41 +112,36 @@ void turnForward(int *lev, int *tag, int* state, int FSA[19][4], double complex*
 	*lev = *lev + 1;
 }
 
-
-
-
-int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double complex* word, image_t* img){
+int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLength, int numFP[4],  double complex* word, image_t* img){
 	//Branch termination check based on the repetends methods
 	float aspectRatio = img->w/(float)img->h;
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
-
-	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev]][0]);
-	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev]][1]);
-	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev]][2]);
+	
+	/*
+	double complex z0 = mobiusOnPoint(buffWord, fixRep[tag[lev] * 2 + 0]);
+	double complex z1 = mobiusOnPoint(buffWord, fixRep[tag[lev] * 2 + 1]);
+	double complex z2 = mobiusOnPoint(buffWord, fixRep[tag[lev] * 2 + 2]);
 	double complex z3 = z2;
+	*/
+	
 
-	int x0, x1, x2, x3;
-	int y0, y1, y2, y3;
+	int x0, x1, y0, y1;
+	//int y0, y1, y2, y3;
 
 	//If we hit the maximum length of word (-1 because of 0 indexing, bailout !)
 	//Used only in case of point mode
-	//printf("lvl: %d\n", lev);
-	//printf("%lf %lf\n",creal(z0), cimag(z0));
-	//printf("%lf %lf\n",creal(z1), cimag(z1));
-	//printf("%lf %lf\n\n",creal(z2), cimag(z2));
 	if (img->line == 1 && lev == img->maxword - 1){
 		return 1;
 	}
 
-	//if the word ends with a or A, use a 4th fixed point 
-	if (tag[lev] % 2 == 0){
-		z3 = mobiusOnPoint(buffWord, fixRep[tag[lev]][3]);
-	}
 
 	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
-	if ((img->line == 0 && lev == img->maxword - 1) || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi) ){
+	//if ((img->line == 0 && lev == img->maxword - 1) || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi) ){
+	//if ((img->line == 0 && lev == img->maxword - 1) && checkDist(fixRep, buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
+	if (checkDist(fixRep, wordLength, buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
 		showMatrix(buffWord, img);
+		/*
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
 		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -155,8 +150,24 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 		y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
 		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
+		*/
+		for (int i = 0; i < numFP[tag[lev]] - 1; i++){
+			x0 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+			y0 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i])), -img->bounds, img->bounds , img->h, 0);
+			x1 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i + 1])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+			y1 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i + 1])), -img->bounds, img->bounds , img->h, 0);
+			//printf("fp %lf %lf\n",creal( fixRep[tag[lev] * 2 + i]), cimag( fixRep[tag[lev] * 2 + i]));
+			//printf("fp %lf %lf\n",creal( fixRep[tag[lev] * 2 + i + 1]), cimag( fixRep[tag[lev] * 2 + i + 1]));
+			//printf("%lf %lf\n",creal(z0), cimag(z0));
+			//printf("%lf %lf\n",creal(z1), cimag(z1));
+			//printf("(%d, %d, %d, %d)\n", x0, y0, x1, y1);
+			point(x0, y0, img);
+			point(x1, y1, img);
+			line(x0, y0, x1, y1, img);	
+		}
 
 		//TODO: Use different bounds depending on generator !
+		/*
 		//x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		//y0 = (int) map(cimag(z0), -2 * img->bounds, 0 , img->h, 0);
 		//x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -165,7 +176,7 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 		//y2 = (int) map(cimag(z2), -2 * img->bounds, 0, img->h, 0);
 		//x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		//y3 = (int) map(cimag(z3), 0, 2 * img->bounds, img->h, 0);
-		//
+		
 		//printf("%lf %lf\n",creal(z0), cimag(z0));
 		//printf("%lf %lf\n",creal(z1), cimag(z1));
 		//printf("%lf %lf\n",creal(z2), cimag(z2));
@@ -180,38 +191,36 @@ int branchTermRepetends(int lev, int* tag, double complex fixRep[4][4], double c
 			line(x2, y2, x3, y3, img);	
 			point(x3, y3, img);
 		}
+		*/
 		return 1;
 	}
 	return 0;
 }
 
-
 void *computeDepthFirst(void *_args){
 	//TODO: clean me ud
-	int lev = 0;
-
-	double complex endpt[4];//Deprecated !
-	double complex begpt[4];//Deprecated !
-
-	double complex fixRep[4][4];//Contains the fixed points of a few special combinations of gens
-
         dfsArgs *args = (dfsArgs *) _args;
 
+	int lev = 0;
+
+	//double complex fixRep[4][4];//Contains the fixed points of a few special combinations of gens
+	//double complex* fixRep = (double complex*) calloc(4 * 2 * strlen(args->specialWord), sizeof(char));//Contains the fixed points of a few special combinations of gens
 	//Array of size [maxword, 2, 2]
 	//Contains all of the word computed until the current level
 	double complex *word = (double complex *)calloc(args->img->maxword * 2 * 2, sizeof(double complex));
 	//The tag array contains the index of the used gen up until current level
 	int *tag  = (int *)calloc(args->img->maxword, sizeof(int));
+
 	//The state array contains the state of the automaton (see pp. 360)
 	//This automaton prevents us from making forbiden association that ends up in identity (like a and A) 
 	int *state = (int *)calloc(args->img->maxword, sizeof(int));
-
 	memset(state, 0, args->img->maxword * sizeof(int));
+	
 
 	//State automaton array:
 	//Given the current state and the next generator, gives the next state
 	//If possible, try to find an algo that generates this sort of stuff
-
+	/*
 	int FSA[19][4] = {
 		{ 1,  2,  3,  4},//Identity 0 
 		{ 1,  5,  0,  4},//a        1
@@ -233,19 +242,16 @@ void *computeDepthFirst(void *_args){
 		{ 0,  0, 10,  4},//abAB     17
 		{ 7,  2,  0,  0} //ABab     18
 	};
-
-	//int FSA[5][4] = {
-	//	{ 1,  2,  3,  4},//Identity 0 
-	//	{ 1,  2,  0,  4},//a        1
-	//	{ 1,  2,  3,  0},//b        2
-	//	{ 0,  2,  3,  4},//A        3
-	//	{ 1,  0,  3,  4}//B        4
-	//};
+	*/
+	int FSA[5][4] = {
+		{ 1,  2,  3,  4},//Identity 0 
+		{ 1,  2,  0,  4},//a        1
+		{ 1,  2,  3,  0},//b        2
+		{ 0,  2,  3,  4},//A        3
+		{ 1,  0,  3,  4}//B        4
+	};
 	int *plev;
 	plev = &lev;
-
-	computeCycles(begpt, endpt, args->gens);
-	computeRepetendsv2(args->gens, fixRep);
 
 	matrix3dto3D(args->gens, word, 0, 0);
 
@@ -254,7 +260,7 @@ void *computeDepthFirst(void *_args){
 	state[0] = args->numBranch + 1;
 	tag[0] = args->numBranch;
 	while (!(lev == -1 && tag[0] == modulo(args->numBranch- 1, 4))){//See pp.148 for algo
-		while(branchTermRepetends(lev, tag, fixRep, word, args->img) == 0){
+		while(branchTermRepetends(lev, tag, args->fixRep, args->wordLength, args->numFP, word, args->img) == 0){
 			goForward(plev, tag, state, FSA, word, args->gens);	
 			printWord(lev, tag, args->img);
 		}
