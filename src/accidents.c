@@ -177,20 +177,32 @@ void nextPQ(int* pP, int* pQ, int denom){
 void getSpecialWordFromFract(ratio fraction, char* specialWord){
 	//Fraction 2/5 -> aaaBaaB (since we don't care about the order and we'll check all cyclicPerms)
 	//pp. 276
+	//specialWord = calloc(fraction.p + fraction.q, sizeof(char));
+	char* buff  = calloc(fraction.p + fraction.q, sizeof(char));
 	int num = 1; 
 	int i = 0;
+	int idx = 3;
+	int numToAdd = fraction.q;
 	do{
-		while(num + fraction.q < fraction.p + fraction.q){
-			num += fraction.q;
-			specialWord[i] = 3;
-			i++;
-		}
-		while(num - fraction.p > 1){
-			num -= fraction.p;
-			specialWord[i] = 0;
-			i++;
-		}
+		if(num + fraction.q > fraction.p + fraction.q){
+			numToAdd = -fraction.p;
+			idx = 0;
+		}	
+		if(num - fraction.p < 1){
+			numToAdd = fraction.q;
+			idx = 3;
+		}	
+		num += numToAdd;
+		buff[i] = idx;
+		i++;
 	}while(num != 1);
+	num = fraction.q + fraction.p - 1;
+	for(int i = 0; i < fraction.p + fraction.q; i++){
+		specialWord[i] = buff[num];
+		num--;
+		printf("%d", specialWord[i]);
+	}
+	printf("\n");
 }
 
 double complex traceEqn(ratio fraction, double complex mu){
