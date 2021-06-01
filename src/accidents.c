@@ -122,10 +122,7 @@ void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
 		intPart = floor(reciprocal);
 		reciprocal = 1.0/(reciprocal - intPart);
 		fractTerms[i] = (int)intPart;
-		printf("rec: %llf\n", reciprocal);
-		//printf("%d ", fractTerms[i]);
 	}
-	printf("\n");
 
 	num = 1;
 	denum = fractTerms[lengthArr - 1];
@@ -134,10 +131,7 @@ void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
 		denum = fractTerms[i] * denum + num;
 		num = temp;
 		fractionArr[lengthArr - i - 1] = (ratio){num, denum};	
-		printf("%lld/%lld\n", fractionArr[lengthArr - i - 1].p, fractionArr[lengthArr - i - 1].q);
 	}
-	
-
 }
 
 void nextPQ(int* pP, int* pQ, int denom){
