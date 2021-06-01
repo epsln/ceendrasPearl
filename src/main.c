@@ -23,7 +23,7 @@
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.0001 
-#define MAXWORD  20 
+#define MAXWORD  100 
 #define LINE 0 
 #define BITWISE 1
 #define DEBUG 0
@@ -48,8 +48,6 @@ int main(){
 	//Use a rolling average of the past 10 times to get something semi accurate
 	double timeArray[11];
 	
-
-
 	double complex taBeg = 0.;
 	double complex tbBeg = 0.;
 	double complex tabBeg = 0.;
@@ -111,18 +109,25 @@ int main(){
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
 
-	int denum = 25;//The maximum denominator we should attain in the farray sequence
+	int denum = 5;//The maximum denominator we should attain in the farray sequence
 
 	//ratio *fareySeq = (ratio * ) malloc(denum*denum);//Allocating an array for the farray sequence using the limit of its length  
 	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
+	ratio fract;
+	int wordLength = fract.p + fract.q;
 
-	//makeFareySeq(denum, fareySeq);
+	
+	char* speWord;//Array containing the specialWord
+	double complex*  fixRep; //2D array containing the fix point of all cyclic perm and inverse of the speWord
+	int numFP[4] = {0}; //Number of fixed point per gens
+
+	makeFareySeq(denum, fareySeq);
 	//makeFiboSeq(1000, fareySeq);
 	//makePiSeq(denum * denum, fareySeq);
 	//for(int i = 1; i <= 30; i++){
 	//	fareySeq[i - 1] = (ratio){i*i, i};
 	//}
-	//makeContinuedFraction(30, (sqrt(35) - 5)/10.0, fareySeq);
+	//makeContinuedFraction(30, 3.141592689397, fareySeq);
 	dfsArgs * args = malloc(sizeof(*args));
         pthread_t threadArray[4];
 
@@ -149,28 +154,56 @@ int main(){
 		}
 
 		//Compute the associated mu value...
-		//newtonSolver(pMu, fareySeq[numIm + 1]); 
+		fract = fareySeq[numIm + 1];
+		newtonSolver(pMu, fract); 
+		grandmaRecipe(-I * mu, 2, gens);
+
+		//Care with the calloc !
+		speWord = calloc(fract.p + fract.q, sizeof(char));
+		fixRep  = calloc(4 * (fract.p + fract.q), sizeof(double complex));//4 gens * (p + q number of perm) 
+		for (int i = 0; i < 4; i++)
+			numFP[i] = 0;
+
+			
+		getSpecialWordFromFract(fract, speWord);
+		computeRepetendsv2(gens, fixRep, numFP, speWord, fract.p + fract.q);
+		
 		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
 
 		//Compute some generators using a recipe...
-		ta = easeInOutQuad(numIm, 0, 2, 60 * 5);
-		tb = 2 + (1 - easeInOutQuad(numIm, 0, 1, 60 * 5)) * I;
-		ta = 2  * cos ( 3.14159265359/10.0); 
-		tb = 2 * cos ( 3.14159265359/10.0); 
+		tb = 2; 
 		double complex p = -ta * tb;
 		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
 		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
 		
+		//printf("%lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		//grandmaSpecialRecipe(ta, tb, tab, gens);
-		grandmaRecipe(ta, tb, gens);
 		dfsArgs *args;
+
 		//Explore depth first combination of generators...
-		//computeDepthFirst(args);
 		for (int i = 0; i < 4; i++){
+			//Put me in a separate function pls
 			args = malloc(sizeof(dfsArgs));
 			args->gens = gens;
 			args->img = pImg;
 			args->numIm = numIm;
+			//Need to implement a way to not hardcode the size of fixRep...
+			args->specialWord = calloc(fract.p + fract.q, sizeof(char));
+			args->fixRep = calloc(4 * (fract.p + fract.q), sizeof(double complex));
+			strcpy(args->specialWord, speWord);
+			for (int i = 0; i < fract.p + fract.q; i++)
+				args->specialWord[i] = speWord[i];
+			
+			for (int i = 0; i < 4; i++){
+				args->numFP[i] = numFP[i];
+			}
+
+			for (int j = 0; j < 4; j++){
+				for (int h = 0; h < numFP[j]; h++){
+					args->fixRep[j * (fract.p + fract.q) + h] = fixRep[j * (fract.p + fract.q) + h];
+				}
+			}
+			args->wordLength = wordLength;
 			args->numBranch = modulo(4 - i, 4);
 			pthread_create(&threadArray[i], NULL, computeDepthFirst, args);
 		}
@@ -180,10 +213,9 @@ int main(){
 			pthread_join(threadArray[i], NULL);
 		}
 		saveArrayAsBMP(pImg);
-		exit(1);
 
 		//Update progress bar
-		pBarAnim(numIm, 60 * 5, timeArray); 
+		pBarAnim(numIm, fps * lengthAnim, timeArray); 
 
 		numIm ++;
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
@@ -191,11 +223,9 @@ int main(){
 			tbBeg = tbEnd;
 			tabBeg = tabEnd;
 
-			taEnd  = randomComplex(-2 - 1 * I, 2 + 1 * I);
-			tbEnd  = randomComplex(-2 - 1 * I, 2 + 1 * I);
-			tabEnd = randomComplex(-2 - 1 * I, 2 + 1 * I);
-
-			tbEnd = 2;
+			taEnd  = randomComplexFixDist(taBeg, 0.25);
+			tbEnd  = randomComplexFixDist(taBeg, 0.25);
+			tabEnd = randomComplexFixDist(taBeg, 0.25);
 
 			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
 				taEnd = taInit;
@@ -204,12 +234,7 @@ int main(){
 			}
 		}
 
-		//if (numIm > 30) return(1);//Get out of here when we're done !
-		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
-		//if (fareySeq[numIm].p == 0 && fareySeq[numIm].q == 0) return(1);//Get out of here when we're done !
-		//if (numIm >= fps * lengthAnim) return(1);//Get out of here when we're done !
-
-		if (numIm >= 60 * 5){    pthread_exit(NULL);  return(1);}//Get out of here when we're done !
+		if (numIm >= fps * duration){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
 		//Else, we go again !
 	}
 	return 0;
