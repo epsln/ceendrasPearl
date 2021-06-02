@@ -18,13 +18,13 @@
 #include "include/progressBar.h"
 
 #define ANTIALPOW 4
-#define WIDTH  2000 * ANTIALPOW 
-#define HEIGHT 2000 * ANTIALPOW
+#define WIDTH  4 * 1080 * ANTIALPOW 
+#define HEIGHT 4 * 1080 * ANTIALPOW
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.0001 
-#define MAXWORD  100 
-#define LINE 0 
+#define MAXWORD  1000 
+#define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
 
@@ -109,7 +109,7 @@ int main(){
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
 
-	int denum = 5;//The maximum denominator we should attain in the farray sequence
+	int denum = 25;//The maximum denominator we should attain in the farray sequence
 
 	//ratio *fareySeq = (ratio * ) malloc(denum*denum);//Allocating an array for the farray sequence using the limit of its length  
 	ratio fareySeq[denum*denum];//Allocating an array for the farray sequence using the limit of its length  
@@ -121,13 +121,13 @@ int main(){
 	double complex*  fixRep; //2D array containing the fix point of all cyclic perm and inverse of the speWord
 	int numFP[4] = {0}; //Number of fixed point per gens
 
-	makeFareySeq(denum, fareySeq);
-	//makeFiboSeq(1000, fareySeq);
+	//makeFareySeq(denum, fareySeq);
+	//makeFiboSeq(23, fareySeq);
 	//makePiSeq(denum * denum, fareySeq);
-	//for(int i = 1; i <= 30; i++){
-	//	fareySeq[i - 1] = (ratio){i*i, i};
-	//}
-	//makeContinuedFraction(30, 3.141592689397, fareySeq);
+	for(int i = 1; i <= 100; i++){
+		fareySeq[i - 1] = (ratio){1, i};
+	}
+	//makeContinuedFraction(30, 0.1415926, fareySeq);
 	dfsArgs * args = malloc(sizeof(*args));
         pthread_t threadArray[4];
 
@@ -154,13 +154,15 @@ int main(){
 		}
 
 		//Compute the associated mu value...
-		fract = fareySeq[numIm + 1];
+		fract = fareySeq[numIm+1];
+		printf("p/q: %lld/%lld\n", fract.p, fract.q);
+		wordLength = fract.p + fract.q;
 		newtonSolver(pMu, fract); 
 		grandmaRecipe(-I * mu, 2, gens);
 
 		//Care with the calloc !
-		speWord = calloc(fract.p + fract.q, sizeof(char));
-		fixRep  = calloc(4 * (fract.p + fract.q), sizeof(double complex));//4 gens * (p + q number of perm) 
+		speWord = calloc(fract.p + fract.q + 4, sizeof(char));
+		fixRep  = calloc(4 * (fract.p + fract.q + 4), sizeof(double complex));//4 gens * (p + q number of perm) 
 		for (int i = 0; i < 4; i++)
 			numFP[i] = 0;
 
@@ -188,8 +190,8 @@ int main(){
 			args->img = pImg;
 			args->numIm = numIm;
 			//Need to implement a way to not hardcode the size of fixRep...
-			args->specialWord = calloc(fract.p + fract.q, sizeof(char));
-			args->fixRep = calloc(4 * (fract.p + fract.q), sizeof(double complex));
+			args->specialWord = calloc(fract.p + fract.q + 4, sizeof(char));
+			args->fixRep = calloc(4 * (fract.p + fract.q + 4), sizeof(double complex));
 			strcpy(args->specialWord, speWord);
 			for (int i = 0; i < fract.p + fract.q; i++)
 				args->specialWord[i] = speWord[i];
