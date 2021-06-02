@@ -196,6 +196,18 @@ void getSpecialWordFromFract(ratio fraction, char* specialWord){
 	}
 }
 
+void getTraceFromFract(double complex *pz0, ratio fraction){
+	//Get the trace of a particular fraction following each farey neighbor
+	ratio fractionArr[fraction.q * fraction.q];
+	makeFareySeq(fraction.q, fractionArr);
+	int i = -1;
+	while(fraction.p != fractionArr[i].p || fraction.q != fractionArr[i].q){
+		i++;
+		newtonSolver(pz0, fractionArr[i]);
+	}
+
+}
+
 double complex traceEqn(ratio fraction, double complex mu){
 	//Helper function to reduce a bit the line size :)
 	//printf("tPoly(%d, %d, %lf + i %lf, %lf, %lf + I %lf) = ", fraction.p, fraction.q, creal(-I*mu), cimag(-I*mu), 2.0, creal(-I * mu + 2 * I), cimag(-I * mu + 2 * I));
