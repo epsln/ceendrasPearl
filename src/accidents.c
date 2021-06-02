@@ -116,7 +116,6 @@ void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
 
 	intPart = floor(realNum);
 	reciprocal = 1.0/(realNum - intPart);
-	printf("rec: %llf\n", reciprocal);
 	fractTerms[0] = intPart;		
 	for (int i = 1; i < lengthArr; i++){
 		intPart = floor(reciprocal);
@@ -194,9 +193,7 @@ void getSpecialWordFromFract(ratio fraction, char* specialWord){
 	for(int i = 0; i < fraction.p + fraction.q; i++){
 		specialWord[i] = buff[num];
 		num--;
-		printf("%d", specialWord[i]);
 	}
-	printf("\n");
 }
 
 double complex traceEqn(ratio fraction, double complex mu){
