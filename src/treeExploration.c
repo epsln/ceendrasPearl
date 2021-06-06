@@ -131,7 +131,7 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 
 	//If we hit the maximum length of word (-1 because of 0 indexing, bailout !)
 	//Used only in case of point mode
-	if (img->line == 1 && lev == img->maxword - 1){
+	if (lev == img->maxword - 1){
 		return 1;
 	}
 
