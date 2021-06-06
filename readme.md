@@ -32,8 +32,11 @@ One can also create sequences of images by varying the ta/tb parameters from a s
 ### Farey and other Sequences
 Another cool way is to use farey sequences to compute the mu parameter and get a group that is on the border between chaos and stability. The Farey Sequence is simply all the fractions between 0/1 and 1/1 with a specified maximum denominator. Using the makeFareySeq you can fill an array of rationals with the Farey Sequence, and then use a newton root finder to find the associated mu parameter and get a cool looking fraction out of it. You can also use the Fibonacci serie to get an approximation for irrational groups.
 
-## Arbitrary precision 
-I have started to implement some function using the mpc library, which is an extension of `gmp` and `mpfr` and allows me to use complex numbers with arbitrary precision without having to write everything myself. This dependency is optional but allows for much more precise computation.
+### Special Words
+I have implemented a special word algorithm that finds the fixed point of some special sequences of words. Those points are the fixed point cyclic permutations of the special word. Given a special word in integer representation, you can get the associated fixed point array that will allow you to make better and faster plot.
+
+### Fast
+It's in C, so it's fast, despite my attempt at slowing the thing down. Moreover, I have (jankily) implemented multithreading. For now, the program uses 4 threads by default, but I should implement a way to find how many threads are available, and work with that.
 
 ## Documentation
 As I have said the code is a bit messy, but I'll try to make some documentation explaining what's going on in details, and especially some guide in how to modify the program to make it do what you want it to do.
