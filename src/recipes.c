@@ -71,9 +71,9 @@ void grandmaRecipe(double complex ta, double complex tb, double complex* gens){
 void grandmaSpecialRecipe(double complex ta, double complex tb, double complex tab, double complex* gens){
 	//Grandma's Special four-alarm two generator group recipe 
 	//See pp. 261
-	printf("ta:  %lf + %lf\n", creal(ta), cimag(ta));
-	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
-	printf("tab: %lf + %lf\n", creal(tab), cimag(tab));
+//	printf("ta:  %lf + %lf\n", creal(ta), cimag(ta));
+//	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
+//	printf("tab: %lf + %lf\n", creal(tab), cimag(tab));
 	double complex tc = ta * ta + tb * tb + tab * tab - ta * tb * tab - 2;
 	tc = 0;
 	double complex Q  = csqrt(2 - tc);	
