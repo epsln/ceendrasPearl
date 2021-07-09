@@ -66,8 +66,10 @@ void matmul(double complex A[2][2], double complex B[2][2], double complex C[2][
 
 int checkDist(double complex* fixRep, int wordLength, double complex word[2][2], int genIndex, int numFP, double epsi){
 	//Check if the distance between a word and all fixed point of the special word is < epsi
-	for (int i = 0; i < numFP - 1; i++){
-		//printf("%lf\n",cabs(mobiusOnPoint(word, fixRep[genIndex * 2 + i]) - mobiusOnPoint(word, fixRep[genIndex * 2 + i + 1]))  );
+	for (int i = 0; i < numFP; i++){
+		//printf("%+lf %+lf\n", creal(mobiusOnPoint(word, fixRep[genIndex * wordLength + i])), cimag(mobiusOnPoint(word, fixRep[genIndex * wordLength + i])));
+		//printf("%+lf %+lf\n", creal(mobiusOnPoint(word, fixRep[genIndex * wordLength + i + 1])), cimag(mobiusOnPoint(word, fixRep[genIndex * wordLength + i + 1])));
+		//printf("%lf\n",cabs(mobiusOnPoint(word, fixRep[genIndex * wordLength + i]) - mobiusOnPoint(word, fixRep[genIndex * wordLength + i + 1]))  );
 		if (cabs(mobiusOnPoint(word, fixRep[genIndex * wordLength + i]) - mobiusOnPoint(word, fixRep[genIndex * wordLength + i + 1])) > epsi)
 				return 0;
 	}
@@ -215,8 +217,8 @@ void makeWord(double complex out[2][2], double complex* gens, char* word, int wo
 	//Start by multiplying the 2 highest decimals
 	//Length of a number in dec is log10(num) + 1
 	//Decimal at index i of number is number % 
-	composeGen(gens, word[1], buff_out);
-	for (int i = 0; i <  wordLength; i++){
+	composeGen(gens, word[0], buff_out);
+	for (int i = 1; i <  wordLength; i++){
 		composeGen(gens, (int)word[i] , buff_out);
 	}
    
@@ -256,25 +258,31 @@ void computeRepetendsv2(double complex* gens, double complex* fixRep, int numFP[
 	 * So 2 * the number of cyclic permutations
 	 * If wordLength = 0 then no specialWord is defined and we just use the abAB word
 	*/	
-
+	printf("wl: %d\n", wordLength);
+	int sizeArr = wordLength + 4;
+	
 	for (int i = 0; i < wordLength; i++){
 		for (int j = 0; j < wordLength; j++){
 			cyclicPerm[j] = specialWord[(j + i) % wordLength];
+			printf("%d", cyclicPerm[j]);
 		}
+		printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
-		
-		fixRep[(int)cyclicPerm[wordLength - 1] * wordLength + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
-		//printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
+		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
+		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 		for (int j = 0; j < wordLength; j++){//Get the inverse of the current cyclic perm
 			cyclicPerm[j] = (specialWord[(j + i) % wordLength] + 2) % 4;
+			printf("%d", cyclicPerm[j]);
 		}
+		printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
-		fixRep[(int)cyclicPerm[wordLength - 1] * wordLength + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
-		//printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
+		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
+		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 	}
-	
 
 	//Now do the same for the abAB special word	
 	char abABWord[4];
@@ -287,20 +295,36 @@ void computeRepetendsv2(double complex* gens, double complex* fixRep, int numFP[
 	for (int i = 0; i < wordLength; i++){
 		for (int j = 0; j < wordLength; j++){
 			cyclicPerm[j] = abABWord[(j + i) % wordLength];
+			printf("%d", cyclicPerm[j]);
 		}
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
+		printf("\n");
 		
-		fixRep[(int)cyclicPerm[wordLength - 1] * wordLength + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
-		//printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
+		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
+		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 		for (int j = 0; j < wordLength; j++){//Get the inverse of the current cyclic perm
 			cyclicPerm[j] = (abABWord[(j + i) % wordLength] + 2) % 4;
+			printf("%d", cyclicPerm[j]);
 		}
+		printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
-		fixRep[(int)cyclicPerm[wordLength - 1] * wordLength + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
-		//printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
+		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
+		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 	}
+
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < numFP[i]; j++){
+			printf("fp[%d][%d] : %lf + %lf\n", i, j, creal(fixRep[i * sizeArr + j]), cimag(fixRep[i * sizeArr + j])); 
+		}
+	}
+	printf("%d\n", numFP[0]);
+	printf("%d\n", numFP[1]);
+	printf("%d\n", numFP[2]);
+	printf("%d\n", numFP[3]);
 	/*
 	//bAba
 	matmul(buff_gen_b, buff_gen_A, buff_out0);

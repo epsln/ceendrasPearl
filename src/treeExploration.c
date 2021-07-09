@@ -125,12 +125,12 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 	double complex z3 = z2;
 	*/
 	
+	int sizeArr = wordLength + 4; //The width of the array is the number of cyclic perms of the special word and of abAB (so +4)
 
 	int x0, x1, y0, y1;
 	//int y0, y1, y2, y3;
 
 	//If we hit the maximum length of word (-1 because of 0 indexing, bailout !)
-	//Used only in case of point mode
 	if (lev == img->maxword - 1){
 		return 1;
 	}
@@ -139,7 +139,7 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 	//Check the distance between all points, if < epsi then draw a line from z0 to z1 to z2 to (maybe) z3	
 	//if ((img->line == 0 && lev == img->maxword - 1) || (cabs(z0 - z1) < img->epsi && cabs(z1 - z2) < img->epsi  && cabs(z2 - z3) < img->epsi) ){
 	//if ((img->line == 0 && lev == img->maxword - 1) && checkDist(fixRep, buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
-	if (checkDist(fixRep, wordLength, buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
+	if (checkDist(fixRep, sizeArr , buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
 		showMatrix(buffWord, img);
 		/*
 		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -151,21 +151,16 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
 		*/
-		for (int i = 0; i < numFP[tag[lev]] - 1; i++){
-			x0 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-			y0 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i])), -img->bounds, img->bounds , img->h, 0);
-			x1 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i + 1])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-			y1 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * wordLength + i + 1])), -img->bounds, img->bounds , img->h, 0);
-			//printf("fp %lf %lf\n",creal( fixRep[tag[lev] * 2 + i]), cimag( fixRep[tag[lev] * 2 + i]));
-			//printf("fp %lf %lf\n",creal( fixRep[tag[lev] * 2 + i + 1]), cimag( fixRep[tag[lev] * 2 + i + 1]));
-			//printf("%lf %lf\n",creal(z0), cimag(z0));
-			//printf("%lf %lf\n",creal(z1), cimag(z1));
-			//printf("(%d, %d, %d, %d)\n", x0, y0, x1, y1);
-			point(x0, y0, img);
-			point(x1, y1, img);
+		for (int i = 0; i < numFP[tag[lev]]; i++){
+			//printf("fixRep[%d][%d] = %+lf %+lf\n", tag[lev], i, creal(fixRep[tag[lev] * sizeArr + i]), cimag(fixRep[tag[lev] * sizeArr + i]));
+			x0 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+			y0 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -img->bounds, img->bounds , img->h, 0);
+			x1 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
+			y1 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -img->bounds, img->bounds , img->h, 0);
 			line(x0, y0, x1, y1, img);	
 		}
-
+		
+		return 1;
 		//TODO: Use different bounds depending on generator !
 		/*
 		//x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -192,7 +187,6 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 			point(x3, y3, img);
 		}
 		*/
-		return 1;
 	}
 	return 0;
 }
