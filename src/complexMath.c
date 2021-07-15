@@ -258,29 +258,28 @@ void computeRepetendsv2(double complex* gens, double complex* fixRep, int numFP[
 	 * So 2 * the number of cyclic permutations
 	 * If wordLength = 0 then no specialWord is defined and we just use the abAB word
 	*/	
-	printf("wl: %d\n", wordLength);
 	int sizeArr = wordLength + 4;
 	
 	for (int i = 0; i < wordLength; i++){
 		for (int j = 0; j < wordLength; j++){
 			cyclicPerm[j] = specialWord[(j + i) % wordLength];
-			printf("%d", cyclicPerm[j]);
+	//		printf("%d", cyclicPerm[j]);
 		}
-		printf("\n");
+	//	printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
 		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
 		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
-		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+	//	printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 		for (int j = 0; j < wordLength; j++){//Get the inverse of the current cyclic perm
 			cyclicPerm[j] = (specialWord[(j + i) % wordLength] + 2) % 4;
-			printf("%d", cyclicPerm[j]);
+//			printf("%d", cyclicPerm[j]);
 		}
-		printf("\n");
+	//	printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
 		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
 		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
-		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+//		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 	}
 
@@ -295,27 +294,28 @@ void computeRepetendsv2(double complex* gens, double complex* fixRep, int numFP[
 	for (int i = 0; i < wordLength; i++){
 		for (int j = 0; j < wordLength; j++){
 			cyclicPerm[j] = abABWord[(j + i) % wordLength];
-			printf("%d", cyclicPerm[j]);
+//			printf("%d", cyclicPerm[j]);
 		}
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
-		printf("\n");
+//		printf("\n");
 		
 		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
 		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
-		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+//		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 		for (int j = 0; j < wordLength; j++){//Get the inverse of the current cyclic perm
 			cyclicPerm[j] = (abABWord[(j + i) % wordLength] + 2) % 4;
-			printf("%d", cyclicPerm[j]);
+//			printf("%d", cyclicPerm[j]);
 		}
-		printf("\n");
+//		printf("\n");
 		makeWord(buffMat, gens, cyclicPerm, wordLength);
 		fixRep[(int)cyclicPerm[wordLength - 1] * sizeArr + numFP[(int)cyclicPerm[wordLength - 1]]] = fix(buffMat);
 		//printf("fix: %+lf %+lf\n", creal(fix(buffMat)), cimag(fix(buffMat)));
-		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
+//		printf("fp[%d][%d] = %lf + %lf\n",(int)cyclicPerm[wordLength - 1], numFP[(int)cyclicPerm[wordLength - 1]], creal(fix(buffMat)), cimag(fix(buffMat))); 
 		numFP[(int)cyclicPerm[wordLength - 1]]++;
 	}
 
+	/*
 	for (int i = 0; i < 4; i++){
 		for (int j = 0; j < numFP[i]; j++){
 			printf("fp[%d][%d] : %lf + %lf\n", i, j, creal(fixRep[i * sizeArr + j]), cimag(fixRep[i * sizeArr + j])); 
@@ -325,7 +325,7 @@ void computeRepetendsv2(double complex* gens, double complex* fixRep, int numFP[
 	printf("%d\n", numFP[1]);
 	printf("%d\n", numFP[2]);
 	printf("%d\n", numFP[3]);
-	/*
+	
 	//bAba
 	matmul(buff_gen_b, buff_gen_A, buff_out0);
 	matmul(buff_out0, buff_gen_b, buff_out1);
