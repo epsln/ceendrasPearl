@@ -78,7 +78,8 @@ void point(int x, int y, image_t* img){
 		img->bitArray[(int)fmax(0.0, (int)ceil(x/63.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
 	}
 	else{
-		img->pointArr[x*img->h + y] = 1;
+		img->pointArr[x*img->h + y] += 1;
+		//printf("[%d %d]: %d\n", x, y, img->pointArr[x * img->h + y]);
 	}
 
 }
@@ -134,7 +135,10 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	else{
 		for (int i = 0; i < h0; i++) {
 			for (int j = 0; j < w0; j++){
-				int res = minPixelValue * img->pointArr[j * img->h + i];
+				//int res = minPixelValue * img->pointArr[j * img->h + i];
+				int res = img->pointArr[j * img->h + i];
+				//printf("res: %d\n", res);
+
 				outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 0] += res; 	
 				outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 1] += res; 	
 				outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 2] += res; 	
@@ -162,6 +166,8 @@ void saveArrayAsBMP(image_t *img){
 	int w = img->w/img->antialiasingPow;
 	int h = img->h/img->antialiasingPow;
 
+	float maxVal = 0;
+
 	FILE *f;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 	//Allocate image array
@@ -175,29 +181,25 @@ void saveArrayAsBMP(image_t *img){
 		printf("Could not allocate memory for the image array !\nExiting...\n");
 		exit(1);
 	}
-
+	for (int i = 0; i < img->w; i++){
+		for (int j = 0; j < img->w; j++){
+			if (maxVal <img->pointArr[j * img->h + i]){
+				maxVal = img->pointArr[j * img->h + i];
+				//printf("%d %d : %f\n",i, j, maxVal);
+			}
+		}
+	}
+	
+	
+	for (int i = 0; i < img->w; i++){
+		for (int j = 0; j < img->w; j++){
+				img->pointArr[j * img->h + i] = img->pointArr[j * img->h + i] * pow( log((float)img->pointArr[j * img->h + i])/log(maxVal), 1/2);
+		}
+	}
+	
+	
 	antialiasing(img, imgOut);	
-
-	//memset(img->pointArr,0,img->w*img->h);
-
-	//int r,g,b,x,y;
-	//for(int i=0; i<w; i++)
-	//{
-	//	for(int j=0; j<h; j++)
-	//	{
-	//		x=i; y=(h-1)-j;
-	//		r = imgArr[(i + j * w) * 3 + 0]*255;
-	//		g = imgArr[(i + j * w) * 3 + 1]*255;
-	//		b = imgArr[(i + j * w) * 3 + 2]*255;
-	//		if (r > 255) r=255;
-	//		if (g > 255) g=255;
-	//		if (b > 255) b=255;
-	//		imgOut[(x+y*w)*3+2] = (unsigned char)(r);
-	//		imgOut[(x+y*w)*3+1] = (unsigned char)(g);
-	//		imgOut[(x+y*w)*3+0] = (unsigned char)(b);
-	//	}
-	//}
-
+	
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
 	unsigned char bmppad[3] = {0,0,0};
