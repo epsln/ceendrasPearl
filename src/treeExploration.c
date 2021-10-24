@@ -141,16 +141,6 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 	//if ((img->line == 0 && lev == img->maxword - 1) && checkDist(fixRep, buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
 	if (checkDist(fixRep, sizeArr , buffWord, tag[lev], numFP[tag[lev]], img->epsi) == 1 ){
 		showMatrix(buffWord, img);
-		/*
-		x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y0 = (int) map(cimag(z0), -img->bounds, img->bounds, img->h, 0);
-		x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y1 = (int) map(cimag(z1), -img->bounds, img->bounds, img->h, 0);
-		x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y2 = (int) map(cimag(z2), -img->bounds, img->bounds, img->h, 0);
-		x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		y3 = (int) map(cimag(z3), -img->bounds, img->bounds, img->h, 0);
-		*/
 		for (int i = 0; i < numFP[tag[lev]]; i++){
 			//printf("fixRep[%d][%d] = %+lf %+lf\n", tag[lev], i, creal(fixRep[tag[lev] * sizeArr + i]), cimag(fixRep[tag[lev] * sizeArr + i]));
 			x0 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
@@ -161,32 +151,6 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 		}
 		
 		return 1;
-		//TODO: Use different bounds depending on generator !
-		/*
-		//x0 = (int) map(creal(z0), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		//y0 = (int) map(cimag(z0), -2 * img->bounds, 0 , img->h, 0);
-		//x1 = (int) map(creal(z1), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		//y1 = (int) map(cimag(z1), -2 * img->bounds, 0, img->h, 0);
-		//x2 = (int) map(creal(z2), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		//y2 = (int) map(cimag(z2), -2 * img->bounds, 0, img->h, 0);
-		//x3 = (int) map(creal(z3), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
-		//y3 = (int) map(cimag(z3), 0, 2 * img->bounds, img->h, 0);
-		
-		//printf("%lf %lf\n",creal(z0), cimag(z0));
-		//printf("%lf %lf\n",creal(z1), cimag(z1));
-		//printf("%lf %lf\n",creal(z2), cimag(z2));
-		line(x0, y0, x1, y1, img);	
-		line(x1, y1, x2, y2, img);	
-		point(x0, y0, img);
-		point(x1, y1, img);
-		point(x2, y2, img);
-
-		//if the word ends with a or A, use a 4th fixed point 
-		if (tag[lev] % 2 == 0){
-			line(x2, y2, x3, y3, img);	
-			point(x3, y3, img);
-		}
-		*/
 	}
 	return 0;
 }
