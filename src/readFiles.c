@@ -57,7 +57,7 @@ float getNumFromLine(char* line){
 	return atoi(numArr);
 }
 
-void readConf(image_t *pImg, anim_t *pAnim){
+void readConf(image_t *pImg){
 	FILE* conf = NULL;
 
 	conf = fopen("./params.cfg", "r");
@@ -91,14 +91,5 @@ void readConf(image_t *pImg, anim_t *pAnim){
 				pImg -> maxword =atoi(strtok(NULL, " "));
 		else if (strcmp(strtok(line, " "), "BITWISE"))
 				pImg -> bitwise =atoi(strtok(NULL, " "));
-		else if (strcmp(strtok(line, " "), "POINTLIST"))
-				pAnim -> pointlist =atoi(strtok(NULL, " "));
-		else if (strcmp(strtok(line, " "), "FPS"))
-				pAnim -> fps =atoi(strtok(NULL, " ")) ;
-		else if (strcmp(strtok(line, " "), "DURATION"))
-				pAnim -> duration =atoi(strtok(NULL, " "));
-		else if (strcmp(strtok(line, " "), "ANIMLENGTH"))
-				pAnim -> duration =atoi(strtok(NULL, " "));
-
 	fclose(conf);	
 }
