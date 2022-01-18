@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "include/plot.h"
 
 void readPoints(double *pointsList[2]){
 	FILE* pointsX = NULL;
@@ -38,93 +39,66 @@ void readPoints(double *pointsList[2]){
 	fclose(pointsY);
 }
 
-void readConf(int *RESX, int *RESY, int *NPOINTS, int *JITTER, double *JITTER_B, int *GRAY, int *OPENCL_ITER, int *MAXITER,int *MAXITER_G, int *MAXITER_B, double *RED_C, double *GRE_C, double *BLU_C, char filename[256], int *RAND, char kernelFilename[256]){
+float getNumFromLine(char* line){
+	//Helper function to get a number from a line in a config file
+	//The number must be the last thing on a line
+	//STRTOK BITCH
+	int idx = 0;
+	char numArr[256]; 
+	for (int i = 0; i < 256; i++){
+		if (line[i] == " ")
+			idx = i;
+	}
+ 	while (line[idx] != '\n' || line[idx] != '\0'){
+		numArr[idx] = line[idx];
+		idx++;
+	}	
+	numArr[idx] = '\0';
+	return atoi(numArr);
+}
+
+void readConf(image_t *pImg, anim_t *pAnim){
 	FILE* conf = NULL;
 
-	conf = fopen("./config.cfg", "r");
+	conf = fopen("./params.cfg", "r");
 	char * line = NULL;
 	char buff[256] = "";
-	int count = 0;
+	int linecount = 0;
 
 	size_t len = 0;
 	ssize_t read;
 
 	if (conf == NULL){
-		printf("Could not open config file !\n");
-		exit(-1);
+		printf("Could not open parameter file ! Is params.cfg in same folder as the executable ?\n");
+		exit(-2);
 	}
 
 	while ((read = getline(&line, &len, conf)) != -1) {
-
-		switch(count){
-			case 1:
-				*RAND = atoi(line);
-				break;
-			case 3:
-				*NPOINTS = atoi(line);
-				break;
-			case 5:
-				*RESX = atoi(line);
-				break;
-			case 7:
-				*RESY = atoi(line);
-				break;	
-			case 9:
-				*JITTER = atoi(line);
-				break;	
-			case 11:
-				*JITTER_B = atof(line);
-				break;	
-			case 13:
-				*GRAY = atoi(line);
-				break;	
-			case 15:
-				*OPENCL_ITER = atoi(line);
-				break;	
-			case 17:
-				*MAXITER = atoi(line);
-				break;	
-			case 19:
-				*MAXITER_G = atoi(line);
-				break;	
-			case 21:
-				*MAXITER_B = atoi(line);
-				break;	
-			case 23:
-				*RED_C = atof(line);
-				break;	
-			case 25:
-				*GRE_C = atof(line);
-				break;	
-			case 27:
-				*BLU_C = atof(line);
-				break;	
-			case 29:
-				strcpy(buff, line);
-				//Remove the tab that is on first pos
-				for (int i = 0; i < 255; i++){
-					filename[i] = buff[i+1];
-
-				}
-				strtok(filename, "\n");//Remove newline
-				break;
-			case 31:
-				strcpy(buff, line);
-				//Remove the tab that is on first pos
-				for (int i = 0; i < 255; i++){
-					kernelFilename[i] = buff[i+1];
-
-				}
-				strtok(kernelFilename, "\n");//Remove newline
-				break;
-
-
-
-		}
-		count++;
-
-	}
-
+		if (line[0] = "#")
+			linecount++;
+			continue;
+		if(strcmp(strtok(line, " "), "ANTIALPOW"))
+				pImg -> antialiasingPow =atoi(strtok(NULL, " ")) ;
+		else if (strcmp(strtok(line, " "), "WIDTH"))
+				pImg -> w = atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "HEIGHT"))
+				pImg -> h = atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "BOUNDS"))
+				pImg -> bounds =atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "EPSI"))
+				pImg -> epsi =atoi(strtok(NULL, " ")); 
+		else if (strcmp(strtok(line, " "), "MAXLVL"))
+				pImg -> maxword =atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "BITWISE"))
+				pImg -> bitwise =atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "POINTLIST"))
+				pAnim -> pointlist =atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "FPS"))
+				pAnim -> fps =atoi(strtok(NULL, " ")) ;
+		else if (strcmp(strtok(line, " "), "DURATION"))
+				pAnim -> duration =atoi(strtok(NULL, " "));
+		else if (strcmp(strtok(line, " "), "ANIMLENGTH"))
+				pAnim -> duration =atoi(strtok(NULL, " "));
 
 	fclose(conf);	
 }
