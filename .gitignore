@@ -5,6 +5,8 @@
 *.bmp
 *.jpg
 *.mp4
+*.png
+*.py
 out/
 vids/
 mpc/
