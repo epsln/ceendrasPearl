@@ -1,4 +1,5 @@
 #include <complex.h>
+#include <math.h>
 #include "include/complexMath.h"
 
 //Easing functions 
@@ -30,4 +31,29 @@ double complex InOutQuadComplex(double t, double complex beg, double complex end
 
 double complex schlickComplex(double x, double s, double t, double complex beg, double complex end, double nsteps){
 	return schlickEase(x, s, t, creal(beg), creal(end), nsteps) + I * schlickEase(x, s, t, cimag(beg), cimag(end), nsteps);
+}
+
+double complex bezier(double complex p0, double complex p1, double complex p2, double complex p3, float t){
+	double px;
+	double py;
+
+	double controlPoints[2][4];
+	controlPoints[0][0] = creal(p0); controlPoints[1][0] = cimag(p0);  
+	controlPoints[0][1] = creal(p1); controlPoints[1][1] = cimag(p1);  
+	controlPoints[0][2] = creal(p2); controlPoints[1][2] = cimag(p2);  
+	controlPoints[0][3] = creal(p3); controlPoints[1][3] = cimag(p3);  
+
+	px = pow(1 - t, 3) * controlPoints[0][0];
+	py = pow(1 - t, 3) * controlPoints[1][0];
+
+	px += 3 * pow(1 - t, 2) * t * controlPoints[0][1];
+	py += 3 * pow(1 - t, 2) * t * controlPoints[1][1];
+	
+	px += 3 * (1 - t) * pow(t, 2) * controlPoints[0][1];
+	py += 3 * (1 - t) * pow(t, 2) * controlPoints[1][2];
+
+	px += pow(t, 3) * controlPoints[0][3];
+	py += pow(t, 3) * controlPoints[1][3];
+
+	return px + I * py;
 }
