@@ -23,7 +23,7 @@
 #define BOUNDS 1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define MAXWORD 14 
+#define MAXWORD 16 
 #define LINE 1 
 #define BITWISE 0
 #define DEBUG 0
@@ -71,6 +71,7 @@ int main(){
 	taEnd  = randomComplex(-2 - 1. * I, 2 + 1 * I);
 	tbEnd  = randomComplex(-2 - 1. * I, 2 + 1 * I);
 	tabEnd = randomComplex(-2 - 1. * I, 2 + 1 * I);
+	taEnd  = 1.6558312 * -I * 0.5; 
 	tbEnd  = 2; 
 
 	taInit = taBeg;
@@ -252,10 +253,6 @@ int main(){
 				tbEnd = tbInit;
 				tabEnd = tabInit;
 			}
-			printf("Switch ! \n");
-			printf("ta : %lf %lf \n", creal(taEnd), cimag(taEnd));
-			printf("tb : %lf %lf \n", creal(tbEnd), cimag(tbEnd));
-			printf("Switch ! \n");
 		}
 
 		if (numIm >= fps * lengthAnim){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
