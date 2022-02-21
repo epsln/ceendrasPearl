@@ -78,7 +78,7 @@ void point(int x, int y, image_t* img){
 		img->bitArray[(int)fmax(0.0, (int)ceil(x/63.0) - 1) * img->h + (int)y] |= 1ULL << (int)(63 - x % 64) ;
 	}
 	else{
-		img->pointArr[x*img->h + y] += 1;
+		img->pointArr[x*img->h + y] = 1;
 		//printf("[%d %d]: %d\n", x, y, img->pointArr[x * img->h + y]);
 	}
 
@@ -135,8 +135,8 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	else{
 		for (int i = 0; i < h0; i++) {
 			for (int j = 0; j < w0; j++){
-				//int res = minPixelValue * img->pointArr[j * img->h + i];
-				int res = img->pointArr[j * img->h + i];
+				int res = minPixelValue * img->pointArr[j * img->h + i];
+				//int res = img->pointArr[j * img->h + i];
 				//printf("res: %d\n", res);
 
 				outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 0] += res; 	
@@ -193,7 +193,8 @@ void saveArrayAsBMP(image_t *img){
 	
 	for (int i = 0; i < img->w; i++){
 		for (int j = 0; j < img->w; j++){
-				img->pointArr[j * img->h + i] = img->pointArr[j * img->h + i] * pow( log((float)img->pointArr[j * img->h + i])/log(maxVal), 1/2);
+				//img->pointArr[j * img->h + i] = img->pointArr[j * img->h + i] * pow( log((float)img->pointArr[j * img->h + i])/log(maxVal), 1/2);
+				//img->pointArr[j * img->h + i] = (float)img->pointArr[j * img->h + i]/(float) img->pointArr[j * img->h + i] * 255;
 		}
 	}
 	
