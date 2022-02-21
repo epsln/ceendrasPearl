@@ -38,10 +38,12 @@ double complex bezier(double complex p0, double complex p1, double complex p2, d
 	double py;
 
 	double controlPoints[2][4];
-	controlPoints[0][0] = creal(p0); controlPoints[1][0] = cimag(p0);  
+	//For some reason the curve starts at p3 and end at p0
+	//So switching the two to keep some sanity
+	controlPoints[0][0] = creal(p3); controlPoints[1][0] = cimag(p3);  
 	controlPoints[0][1] = creal(p1); controlPoints[1][1] = cimag(p1);  
 	controlPoints[0][2] = creal(p2); controlPoints[1][2] = cimag(p2);  
-	controlPoints[0][3] = creal(p3); controlPoints[1][3] = cimag(p3);  
+	controlPoints[0][3] = creal(p0); controlPoints[1][3] = cimag(p0);  
 
 	px = pow(1 - t, 3) * controlPoints[0][0];
 	py = pow(1 - t, 3) * controlPoints[1][0];
