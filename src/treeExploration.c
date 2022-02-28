@@ -237,5 +237,3 @@ void *computeDepthFirst(void *_args){
 	pthread_exit(NULL);
 	return 0;
 }
-
-
