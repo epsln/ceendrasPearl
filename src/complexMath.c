@@ -32,6 +32,19 @@ double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.
 	return (T[0][0] * z + T[1][0])/(T[0][1] * z + T[1][1]);
 }
 
+int fact(int n){
+	//Factorial function
+	int out = 1;
+	for (int i = 2; i <= n; i++)
+		out *= i;
+	return out;
+}
+
+int binomial(int n, int k){
+	//Small implementation of a binomial function
+	return fact(n)/(fact(k) * fact(n - k));
+}
+
 int modulo(int a, int b){
 	return ((a % b) + b ) % b;
 }

@@ -9,6 +9,8 @@ int modulo(int a, int b);
 double complex randomComplex(double complex min, double complex max);
 double complex randomComplexFixDist(double complex z0, double d);//Get a complex number at fixed modulus and rand arg from z0
 int checkDist(double complex* fixRep, int wordLength, double complex word[2][2], int genIndex, int numFP, double epsi);
+int fact(int n);
+int binomial(int n, int k);
 
 //Easing function stuff
 double easeInOutQuad(double t, double b, double c, double d);
