@@ -34,10 +34,11 @@ double complex schlickComplex(double x, double s, double t, double complex beg, 
 	return schlickEase(x, s, t, creal(beg), creal(end), nsteps) + I * schlickEase(x, s, t, cimag(beg), cimag(end), nsteps);
 }
 
-double complex bezier(double complex p0, double complex p1, double complex p2, double complex p3, float t){
-	double px;
-	double py;
-
+double complex bezier(float t, int n_steps, double complex controlPoints[n_steps]){
+	double px = 0;
+	double py = 0;
+	
+	/*
 	double controlPoints[2][4];
 	controlPoints[0][0] = creal(p0); controlPoints[1][0] = cimag(p0);  
 	controlPoints[0][1] = creal(p1); controlPoints[1][1] = cimag(p1);  
@@ -55,6 +56,15 @@ double complex bezier(double complex p0, double complex p1, double complex p2, d
 
 	px += pow(t, 3) * controlPoints[0][3];
 	py += pow(t, 3) * controlPoints[1][3];
-
+	*/
+	printf("%d\n", n_steps);
+	for (int i = 0; i < n_steps; i++){
+		px += binomial(n_steps, i) * pow(1 - t, n_steps - i) * pow(t, i) * creal(controlPoints[i]); 
+		py += binomial(n_steps, i) * pow(1 - t, n_steps - i) * pow(t, i) * cimag(controlPoints[i]); 
+		printf("t: %lf, %lf + %lf\n", t, px, py);
+		printf("(%d %d) = %d\n", n_steps, i, binomial(n_steps, i));
+		printf("P_%d  = %lf %lf\n", i, creal(controlPoints[i]), cimag(controlPoints[i]));
+	}
+	printf("%f + %f\n", px, py);
 	return px + I * py;
 }
