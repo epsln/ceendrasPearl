@@ -171,23 +171,8 @@ void saveArrayAsBMP(image_t *img){
 	float * imgArr = NULL;
 	unsigned char *imgOut = NULL;
 
-	imgArr = (float*)calloc(w * h * 3, sizeof(float));
 	imgOut = (unsigned char *)calloc(3*w*h, sizeof(unsigned char));
 
-	if (imgArr == NULL || imgOut == NULL){
-		printf("Could not allocate memory for the image array !\nExiting...\n");
-		exit(1);
-	}
-	for (int i = 0; i < img->w; i++){
-		for (int j = 0; j < img->w; j++){
-			if (maxVal <img->pointArr[j * img->h + i]){
-				maxVal = img->pointArr[j * img->h + i];
-				//printf("%d %d : %f\n",i, j, maxVal);
-			}
-		}
-	}
-	
-	
 	antialiasing(img, imgOut);	
 	
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
@@ -223,8 +208,6 @@ void saveArrayAsBMP(image_t *img){
 	}
 
 	//Free the memory 
-
-	//free(imgArr);
 
 	free(imgOut);
 	fclose(f);
