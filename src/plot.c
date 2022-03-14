@@ -229,7 +229,7 @@ void saveArrayAsSVG(image_t *img){
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
-				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", i, j);
+				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", j, i);
 			}
 		}
 		//zero bit array after reading
@@ -243,7 +243,7 @@ void saveArrayAsSVG(image_t *img){
 				int res = minPixelValue * img->pointArr[j * img->h + i];
 				if (res == 0)
 					continue;
-				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", i, j);
+				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", j, i);
 			}
 		}
 	}
