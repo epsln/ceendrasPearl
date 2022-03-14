@@ -23,9 +23,9 @@
 #define BOUNDS 1.1 
 #define RANDBOUNDS 0 + 1 * I 
 #define EPSI  0.001 
-#define MAXWORD 16 
+#define MAXWORD 100 
 #define LINE 1 
-#define BITWISE 0
+#define BITWISE 1
 #define DEBUG 0
 
 
@@ -148,7 +148,7 @@ int main(){
 		srand((unsigned) time(&pt));
 		sprintf(imageNum, "%d", numIm);
 		strcat(prefix, imageNum);
-		strcat(prefix, ".bmp\0");
+		strcat(prefix, ".svg\0");
 		strcpy(pImg->filename, prefix);
 		strcpy(prefix, "out/img_");
 
@@ -159,9 +159,9 @@ int main(){
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
-		ta = bezier(taBeg, pa1, pa2, taEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
-		tb = bezier(tbBeg, pb1, pb2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
-		tab = bezier(tabBeg, pab1, pab2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
+		//ta = bezier(taBeg, pa1, pa2, taEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
+		//tb = bezier(tbBeg, pb1, pb2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
+		//tab = bezier(tabBeg, pab1, pab2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		//tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
@@ -179,7 +179,7 @@ int main(){
 		//getTraceFromFract(pMu, fract);
 		//newtonSolver(pMu, fract); 
 		//grandmaRecipe(-I * mu, 2, gens);
-		grandmaRecipe(ta, tb, gens);
+		grandmaRecipe(2, 2, gens);
 
 		//Care with the calloc !
 		speWord = calloc(fract.p + fract.q, sizeof(char));
@@ -239,7 +239,7 @@ int main(){
 		for(int i = 0; i < 4 ; i++){
 			pthread_join(threadArray[i], NULL);
 		}
-		saveArrayAsBMP(pImg);
+		saveArrayAsSVG(pImg);
 
 		//Update progress bar
 		pBarAnim(numIm, fps * lengthAnim, timeArray); 
