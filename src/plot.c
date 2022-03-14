@@ -118,7 +118,7 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	if (img->bitwise == 1){
 		for (int i = 0; i < h0; i++){
 			for (int j = 0; j < w0; j++){
-				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ULL << (63 - j % 64))) >> (63 - j % 64));
+				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 0] += res;
@@ -126,11 +126,11 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 2] += res;
 			}
 		}
-		//Zero bit array after reading
-		//Bugged !
+		//zero bit array after reading
+		//bugged !
 		memset(img->bitArray, 0, (ceil(img->w/64.0) + 2)*img->h *(sizeof(long long int)));
 	}
-	//Classical method, just add up all the floats and then divide
+	//classical method, just add up all the floats and then divide
 	else{
 		for (int i = 0; i < h0; i++) {
 			for (int j = 0; j < w0; j++){
@@ -210,6 +210,44 @@ void saveArrayAsBMP(image_t *img){
 	//Free the memory 
 
 	free(imgOut);
+	fclose(f);
+}
+
+
+void saveArrayAsSVG(image_t *img){
+	int w = img->w;
+	int h = img->h;
+
+	FILE *f;
+	//Allocate image array
+	unsigned char *imgOut = NULL;
+
+	f = fopen(img->filename,"wb");
+	fprintf(f, "<svg height='%d' width='%d'>\n", h, w);
+
+	const int minPixelValue = 255/(img -> antialiasingPow * 2);
+	if (img->bitwise == 1){
+		for (int i = 0; i < h; i++){
+			for (int j = 0; j < w; j++){
+				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
+				if (res == 0)
+					continue;
+				fprintf(f, " <circle cx='%d' cy='%d' r='1'/>", i, j);
+			}
+		}
+		//zero bit array after reading
+		//bugged !
+		memset(img->bitArray, 0, (ceil(img->w/64.0) + 2)*img->h *(sizeof(long long int)));
+	}
+	//classical method, just add up all the floats and then divide
+	else{
+		for (int i = 0; i < h; i++) {
+			for (int j = 0; j < w; j++){
+				int res = minPixelValue * img->pointArr[j * img->h + i];
+				fprintf(f, " <circle cx='%d' cy='%d' r='1'/>", i, j);
+			}
+		}
+	}
 	fclose(f);
 }
 
