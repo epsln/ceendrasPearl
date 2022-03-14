@@ -168,7 +168,6 @@ void saveArrayAsBMP(image_t *img){
 	FILE *f;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 	//Allocate image array
-	float * imgArr = NULL;
 	unsigned char *imgOut = NULL;
 
 	imgOut = (unsigned char *)calloc(3*w*h, sizeof(unsigned char));
