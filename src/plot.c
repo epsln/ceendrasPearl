@@ -218,7 +218,10 @@ void saveArrayAsSVG(image_t *img){
 	FILE *f;
 	//Allocate image array
 	f = fopen(img->filename,"wb");
+	
+	fprintf(f, "<html>\n");
 	fprintf(f, "<svg height='%d' width='%d' style='background-color:black'>\n", h, w);
+	fprintf(f, "<rect width='100\%' height='100\%' fill='black'/>\n");
 
 	const int minPixelValue = 255/(img -> antialiasingPow * 2);
 	if (img->bitwise == 1){
@@ -246,6 +249,7 @@ void saveArrayAsSVG(image_t *img){
 		}
 	}
 	fprintf(f, "</svg>");
+	fprintf(f, "</html>\n");
 	fclose(f);
 }
 
