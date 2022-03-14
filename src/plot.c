@@ -163,8 +163,6 @@ void saveArrayAsBMP(image_t *img){
 	int w = img->w/img->antialiasingPow;
 	int h = img->h/img->antialiasingPow;
 
-	float maxVal = 0;
-
 	FILE *f;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
 	//Allocate image array
@@ -219,10 +217,8 @@ void saveArrayAsSVG(image_t *img){
 
 	FILE *f;
 	//Allocate image array
-	unsigned char *imgOut = NULL;
-
 	f = fopen(img->filename,"wb");
-	fprintf(f, "<svg height='%d' width='%d'>\n", h, w);
+	fprintf(f, "<svg height='%d' width='%d' style='background-color:black'>\n", h, w);
 
 	const int minPixelValue = 255/(img -> antialiasingPow * 2);
 	if (img->bitwise == 1){
@@ -231,7 +227,7 @@ void saveArrayAsSVG(image_t *img){
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
-				fprintf(f, " <circle cx='%d' cy='%d' r='1'/>", i, j);
+				fprintf(f, " <circle cx='%d' cy='%d' r='1', fill='white'/>\n", i, j);
 			}
 		}
 		//zero bit array after reading
@@ -243,10 +239,13 @@ void saveArrayAsSVG(image_t *img){
 		for (int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++){
 				int res = minPixelValue * img->pointArr[j * img->h + i];
-				fprintf(f, " <circle cx='%d' cy='%d' r='1'/>", i, j);
+				if (res == 0)
+					continue;
+				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", i, j);
 			}
 		}
 	}
+	fprintf(f, "</svg>");
 	fclose(f);
 }
 

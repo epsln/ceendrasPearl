@@ -39,5 +39,6 @@ void line(int x0,int y0, int x1,int y1,  image_t* img );
 void antialiasing(image_t* img, unsigned char* output);
 void makeFilename(int numImg, image_t *img);
 void saveArrayAsBMP(image_t* img);
+void saveArrayAsSVG(image_t* img);
 
 #endif
