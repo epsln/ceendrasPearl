@@ -219,8 +219,7 @@ void saveArrayAsSVG(image_t *img){
 	//Allocate image array
 	f = fopen(img->filename,"wb");
 	
-	fprintf(f, "<svg height='%d' width='%d' style='background-color:black'>\n", h, w);
-	fprintf(f, "<rect width='100%%' height='100%%' fill='black'/>\n");
+	fprintf(f, "<svg height='3508' width='4960' viewBox = '0 0 4960 3508'>\n");
 
 	const int minPixelValue = 255/(img -> antialiasingPow * 2);
 	if (img->bitwise == 1){
@@ -229,7 +228,7 @@ void saveArrayAsSVG(image_t *img){
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
-				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", j, i);
+				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", i, j);
 			}
 		}
 		//zero bit array after reading
@@ -237,18 +236,16 @@ void saveArrayAsSVG(image_t *img){
 		memset(img->bitArray, 0, (ceil(img->w/64.0) + 2)*img->h *(sizeof(long long int)));
 	}
 	//classical method, just add up all the floats and then divide
-	else{
-		for (int i = 0; i < h; i++) {
-			for (int j = 0; j < w; j++){
-				int res = minPixelValue * img->pointArr[j * img->h + i];
-				if (res == 0)
-					continue;
-				fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", j, i);
-			}
-		}
-	}
+	//.else{
+	//.	for (int i = 0; i < h; i++) {
+	//.		for (int j = 0; j < w; j++){
+	//.			int res = minPixelValue * img->pointArr[j * img->h + i];
+	//.			if (res == 0)
+	//.				continue;
+	//.			fprintf(f, " <circle cx='%d' cy='%d' r='1' fill='white'/>\n", i, j);
+	//.		}
+	//.	}
+	//.}
 	fprintf(f, "</svg>");
 	fclose(f);
 }
-
-
