@@ -38,33 +38,10 @@ double complex bezier(float t, int n_steps, double complex controlPoints[n_steps
 	double px = 0;
 	double py = 0;
 	
-	/*
-	double controlPoints[2][4];
-	controlPoints[0][0] = creal(p0); controlPoints[1][0] = cimag(p0);  
-	controlPoints[0][1] = creal(p1); controlPoints[1][1] = cimag(p1);  
-	controlPoints[0][2] = creal(p2); controlPoints[1][2] = cimag(p2);  
-	controlPoints[0][3] = creal(p3); controlPoints[1][3] = cimag(p3);  
-
-	px = pow(1 - t, 3) * controlPoints[0][0];
-	py = pow(1 - t, 3) * controlPoints[1][0];
-
-	px += 3 * pow(1 - t, 2) * t * controlPoints[0][1];
-	py += 3 * pow(1 - t, 2) * t * controlPoints[1][1];
-	
-	px += 3 * (1 - t) * pow(t, 2) * controlPoints[0][1];
-	py += 3 * (1 - t) * pow(t, 2) * controlPoints[1][2];
-
-	px += pow(t, 3) * controlPoints[0][3];
-	py += pow(t, 3) * controlPoints[1][3];
-	*/
-	printf("%d\n", n_steps);
+	int n = n_steps - 1;
 	for (int i = 0; i < n_steps; i++){
-		px += binomial(n_steps, i) * pow(1 - t, n_steps - i) * pow(t, i) * creal(controlPoints[i]); 
-		py += binomial(n_steps, i) * pow(1 - t, n_steps - i) * pow(t, i) * cimag(controlPoints[i]); 
-		printf("t: %lf, %lf + %lf\n", t, px, py);
-		printf("(%d %d) = %d\n", n_steps, i, binomial(n_steps, i));
-		printf("P_%d  = %lf %lf\n", i, creal(controlPoints[i]), cimag(controlPoints[i]));
+		px += binomial(n, i) * pow(1 - t, n - i) * pow(t, i) * creal(controlPoints[i]); 
+		py += binomial(n, i) * pow(1 - t, n - i) * pow(t, i) * cimag(controlPoints[i]); 
 	}
-	printf("%f + %f\n", px, py);
 	return px + I * py;
 }
