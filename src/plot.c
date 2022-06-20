@@ -233,16 +233,14 @@ void saveArrayAsSVG(image_t *img){
 	fprintf(f, "<rect width='100%%' height='100%%' fill='black'/>\n");
 
 	const int minPixelValue = 255/(img -> antialiasingPow * 2);
-	int id = 0;
 	if (img->bitwise == 1){
 		for (int i = 0; i < h; i++){
 			for (int j = 0; j < w; j++){
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
-				id++;
-				fprintf(f, " <circle cx='%.1f' cy='%.1f' r='0.1' fill='white' id = 'circle%d'/>\n", 
-						(float)j/img->w * 420., (float)i/img->h * 297., id);
+				fprintf(f, " <circle cx='%.1f' cy='%.1f' r='0.1' fill='white'/>\n", 
+						(float)j/img->w * 420., (float)i/img->h * 297.);
 			}
 		}
 		//zero bit array after reading
