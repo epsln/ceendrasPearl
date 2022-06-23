@@ -17,13 +17,13 @@
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 4
-#define WIDTH  1080 * ANTIALPOW 
+#define ANTIALPOW 8 
+#define WIDTH  1920 * ANTIALPOW 
 #define HEIGHT 1080 * ANTIALPOW
-#define BOUNDS 1.1 
+#define BOUNDS 1.05 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001 
-#define MAXWORD 100 
+#define EPSI  0.001
+#define MAXWORD 15 
 #define LINE 1 
 #define BITWISE 1
 #define DEBUG 0
@@ -40,8 +40,9 @@ int main(){
 	double complex tab = 0.;
 
 	int fps = 30;
-	int duration = 5;
-	int lengthAnim = 10;
+	int duration = 20;
+	int lengthAnim = 120;
+	int numBeziersPoints = 10;
 
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
@@ -69,9 +70,6 @@ int main(){
 	tbEnd  = randomComplex(-2 - 1. * I, 2 + 1 * I);
 	tabEnd = randomComplex(-2 - 1. * I, 2 + 1 * I);
 
-	taEnd  = 2;
-	tbEnd  = 2;
-
 	taInit = taBeg;
 	tbInit = tbBeg;
 	tabInit = tabBeg;
@@ -96,7 +94,7 @@ int main(){
 
 	pImg->pointArr = NULL;
 	pImg->bitArray = NULL;
-	pImg->pointArr = (int*)calloc(pImg->w*pImg->h, sizeof(int));
+	pImg->pointArr = (float*)calloc(pImg->w*pImg->h, sizeof(float));
 	unsigned int allocSize = (ceil(pImg->w/64.0))* pImg->h;
 	pImg->bitArray = (unsigned long long int*)calloc(allocSize, sizeof(unsigned long long int));
 
@@ -105,8 +103,6 @@ int main(){
 		exit(-1);
 	}
 
-	char prefix[100] = "out/img_";
-	char imageNum[6];  
 
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
@@ -133,24 +129,30 @@ int main(){
 	dfsArgs * args = malloc(sizeof(*args));
         pthread_t threadArray[4];
 	
+	/*	
 	double complex pa1  = randomComplexFixDist(taBeg, 0.10);
 	double complex pa2  = randomComplexFixDist(taBeg, 0.10);
 	double complex pb1  = randomComplexFixDist(tbBeg, 0.10);
 	double complex pb2  = randomComplexFixDist(tbBeg, 0.10);
 	double complex pab1 = randomComplexFixDist(tabBeg, 0.10);
 	double complex pab2 = randomComplexFixDist(tabBeg, 0.10);
-		
+	*/
+	double complex cPoints_ta[numBeziersPoints];
+	double complex cPoints_tb[numBeziersPoints];
+	cPoints_ta[0] = randomComplex(-2 - I, 2 + I);
+	cPoints_tb[0] = randomComplex(-2 - I, 2 + I);
+	for (int i = 1; i < numBeziersPoints; i++){
+		cPoints_ta[i] = randomComplexFixDist(cPoints_ta[i - 1], 0.5);
+		cPoints_tb[i] = randomComplexFixDist(cPoints_tb[i - 1], 0.5);
+	}
+	cPoints_ta[numBeziersPoints - 1] = cPoints_ta[0]; 
+	cPoints_tb[numBeziersPoints - 1] = cPoints_tb[0]; 
 
 	while(1){
 
 		//Create a filename for the image based on the number of image processed
 		//TODO: Move this to its own function :)
 		srand((unsigned) time(&pt));
-		sprintf(imageNum, "%d", numIm);
-		strcat(prefix, imageNum);
-		strcat(prefix, ".svg\0");
-		strcpy(pImg->filename, prefix);
-		strcpy(prefix, "out/img_");
 
 		//printf("Image: %s\n\n", pImg->filename);
 
@@ -159,7 +161,8 @@ int main(){
 		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
-		//ta = bezier(taBeg, pa1, pa2, taEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
+		ta = bezier((float)numIm /(fps * lengthAnim), numBeziersPoints, cPoints_ta); 
+		tb = bezier((float)numIm /(fps * lengthAnim), numBeziersPoints, cPoints_tb); 
 		//tb = bezier(tbBeg, pb1, pb2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tab = bezier(tabBeg, pab1, pab2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
@@ -173,13 +176,23 @@ int main(){
 		}
 
 		//Compute the associated mu value...
-		fract = (ratio){0, 1}; 
-		//fract = fareySeq[numIm + 1];
-		//wordLength = fract.p + fract.q;
-		//getTraceFromFract(pMu, fract);
-		//newtonSolver(pMu, fract); 
-		//grandmaRecipe(-I * mu, 2, gens);
-		grandmaRecipe(2, 2, gens);
+		/*
+		fract = fareySeq[numIm + 1];
+		//fract = (ratio){1, 100}; 
+		wordLength = fract.p + fract.q;
+		getTraceFromFract(pMu, fract);
+		newtonSolver(pMu, fract); 
+		grandmaRecipe(-I * (0.70567+ I * 1.61688) , 2, gens);
+		*/
+		
+		//ta = randomComplex(-2, 2);
+		//ta = randomComplex(-2 - 2. * I, 2 + 2 * I);
+		//tb = randomComplex(-2 - 1. * I, 2 + 1 * I);
+		tb = -ta;
+		double complex p = -ta * tb;
+		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
+		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
+		grandmaSpecialRecipe(ta, tb, tab, gens);
 
 		//Care with the calloc !
 		speWord = calloc(fract.p + fract.q, sizeof(char));
@@ -188,19 +201,7 @@ int main(){
 			numFP[i] = 0;
 
 			
-		//printf("mu: %lf + %lf\n", creal(mu), cimag(mu));
-		ta = randomComplex(-2 - 1. * I, 2 + 1 * I);
-		tb = randomComplex(-2 - 1. * I, 2 + 1 * I);
-		tb = ta * I;
 
-		//Compute some generators using a recipe...
-		double complex p = -ta * tb;
-		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
-		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
-		//printf("%lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
-
-		//grandmaSpecialRecipe(ta, tb, tab, gens);
-		//grandmaRecipe(ta,  -ta , gens);
 
 		getSpecialWordFromFract(fract, speWord);
 		computeRepetendsv2(gens, fixRep, numFP, speWord, wordLength);
@@ -239,11 +240,10 @@ int main(){
 		for(int i = 0; i < 4 ; i++){
 			pthread_join(threadArray[i], NULL);
 		}
-		saveArrayAsSVG(pImg);
-
+		//saveArrayAsSVG(pImg, numIm);
+		saveArrayAsBMP(pImg, numIm);
 		//Update progress bar
 		pBarAnim(numIm, fps * lengthAnim, timeArray); 
-
 		numIm ++;
 		if (numIm % (fps * duration) == 0 ){//Change target traces once we have arrived 
 			taBeg = taEnd;
@@ -260,7 +260,6 @@ int main(){
 				tabEnd = tabInit;
 			}
 		}
-
 		if (numIm > fps * lengthAnim){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
 		//if (fract.p == 0 && fract.q == 0){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
 		//Else, we go again !

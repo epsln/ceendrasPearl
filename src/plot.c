@@ -159,9 +159,18 @@ void makeFilename(int numImg, image_t *img){
 
 }
 
-void saveArrayAsBMP(image_t *img){
+void saveArrayAsBMP(image_t *img, int numIm){
 	int w = img->w/img->antialiasingPow;
 	int h = img->h/img->antialiasingPow;
+
+	char imageNum[6];  
+	char prefix[100] = "out/img_";
+	
+	sprintf(imageNum, "%d", numIm);
+	strcat(prefix, imageNum);
+	strcat(prefix, ".bmp\0");
+	strcpy(img->filename, prefix);
+	strcpy(prefix, "out/img_");
 
 	FILE *f;
 	int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
@@ -210,13 +219,20 @@ void saveArrayAsBMP(image_t *img){
 	fclose(f);
 }
 
-
-void saveArrayAsSVG(image_t *img){
+void saveArrayAsSVG(image_t *img, int numIm){
 	int w = img->w;
 	int h = img->h;
 
 	FILE *f;
-	//Allocate image array
+	char imageNum[6];  
+	char prefix[100] = "out/img_";
+	
+	sprintf(imageNum, "%d", numIm);
+	strcat(prefix, imageNum);
+	strcat(prefix, ".bmp\0");
+	strcpy(img->filename, prefix);
+	strcpy(prefix, "out/img_");
+
 	f = fopen(img->filename,"wb");
 	
 	fprintf(f, "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n");
