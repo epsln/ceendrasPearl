@@ -229,7 +229,7 @@ void saveArrayAsSVG(image_t *img, int numIm){
 	
 	sprintf(imageNum, "%d", numIm);
 	strcat(prefix, imageNum);
-	strcat(prefix, ".bmp\0");
+	strcat(prefix, ".svg\0");
 	strcpy(img->filename, prefix);
 	strcpy(prefix, "out/img_");
 
