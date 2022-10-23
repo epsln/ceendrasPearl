@@ -30,7 +30,6 @@ typedef struct image{
 
 }image_t;
 
-
 int checkBoundaries(int x, int y, image_t* img);
 void plotLineLow(int x0,int y0, int x1,int y1, image_t* img);
 void plotLineHigh(int x0,int y0, int x1,int y1, image_t* img );
@@ -38,7 +37,7 @@ void point(int x,int y, image_t* img);
 void line(int x0,int y0, int x1,int y1,  image_t* img );
 void antialiasing(image_t* img, unsigned char* output);
 void makeFilename(int numImg, image_t *img);
-void saveArrayAsBMP(image_t* img);
-void saveArrayAsSVG(image_t* img);
+void saveArrayAsBMP(image_t* img, int numIm);
+void saveArrayAsSVG(image_t* img, int numIm);
 
 #endif

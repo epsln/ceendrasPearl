@@ -118,6 +118,7 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 	if (img->bitwise == 1){
 		for (int i = 0; i < h0; i++){
 			for (int j = 0; j < w0; j++){
+
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
@@ -128,7 +129,7 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 		}
 		//zero bit array after reading
 		//bugged !
-		memset(img->bitArray, 0, (ceil(img->w/64.0) + 2)*img->h *(sizeof(long long int)));
+		memset(img->bitArray, 0, (ceil(img->w/64.0) + 100)*img->h *(sizeof(long long int)));
 	}
 	//classical method, just add up all the floats and then divide
 	else{
@@ -255,6 +256,8 @@ void saveArrayAsSVG(image_t *img, int numIm){
 				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
+				if ((float)j/img->w * 420. > 5 && (float)j/img->w * 420. < 415 && 
+				    (float)i/img->h * 297. > 5 && (float)i/img->h * 297. < 292) 
 				fprintf(f, " <circle cx='%.1f' cy='%.1f' r='0.1' fill='white'/>\n", 
 						(float)j/img->w * 420., (float)i/img->h * 297.);
 			}
