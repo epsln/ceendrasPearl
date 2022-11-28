@@ -75,7 +75,6 @@ void grandmaSpecialRecipe(double complex ta, double complex tb, double complex t
 //	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
 //	printf("tab: %lf + %lf\n", creal(tab), cimag(tab));
 	double complex tc = ta * ta + tb * tb + tab * tab - ta * tb * tab - 2;
-	tc = 0;
 	double complex Q  = csqrt(2 - tc);	
 	double complex R = 0;
 	
@@ -112,3 +111,30 @@ void grandmaSpecialRecipe(double complex ta, double complex tb, double complex t
 
 }
 
+void jorgensen(double complex ta, double complex tb, double complex* gens){
+	double complex z   = 0.5 * csqrt(ta * ta * tb * tb - 4 * ta * ta - 4 * tb * tb);
+	double complex tab = 0.5 * (ta * tb) - z;
+
+	gens[(0 * 2 + 0) * 2 + 0] = ta - tb / tab;
+	gens[(0 * 2 + 1) * 2 + 0] = ta / (tab * tab);
+	gens[(0 * 2 + 0) * 2 + 1] = ta;
+	gens[(0 * 2 + 1) * 2 + 1] = tb / (tab);
+                                
+	gens[(1 * 2 + 0) * 2 + 0] = tb - ta / tab;
+	gens[(1 * 2 + 1) * 2 + 0] = -tb / (tab * tab); 
+	gens[(1 * 2 + 0) * 2 + 1] = -tb; 
+	gens[(1 * 2 + 1) * 2 + 1] = ta / tab; 
+
+	gens[(2 * 2 + 0) * 2 + 0] =  gens[(0 * 2 + 1) * 2 + 1];
+	gens[(2 * 2 + 1) * 2 + 0] = -gens[(0 * 2 + 1) * 2 + 0];
+	gens[(2 * 2 + 0) * 2 + 1] = -gens[(0 * 2 + 0) * 2 + 1];
+	gens[(2 * 2 + 1) * 2 + 1] =  gens[(0 * 2 + 0) * 2 + 0];
+                                          
+	gens[(3 * 2 + 0) * 2 + 0] =  gens[(1 * 2 + 1) * 2 + 1];
+	gens[(3 * 2 + 1) * 2 + 0] = -gens[(1 * 2 + 1) * 2 + 0];
+	gens[(3 * 2 + 0) * 2 + 1] = -gens[(1 * 2 + 0) * 2 + 1];
+	gens[(3 * 2 + 1) * 2 + 1] =  gens[(1 * 2 + 0) * 2 + 0];
+
+
+
+}

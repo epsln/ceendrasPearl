@@ -103,12 +103,16 @@ void line(int x0,int y0, int x1, int y1, image_t* img){
 }
 
 
-void antialiasing(image_t* img, unsigned char* outputImg){
+void antialiasing(image_t* img, unsigned char* inputImg){
 	const int w0 = img->w;
 	const int h0 = img->h;
 
 	const int antPow = img->antialiasingPow;
 	const int minPixelValue = 255/(antPow * 2);
+
+	int res = 0;
+
+	unsigned char* outputImg = inputImg;
 	//What we do here:
 	//Copy each bit of the bitArray into a float at its corresponding index i,j
 	//We use some bit shuffling to select the correct bit, starting from the end (we are storing bits in a big endian manner) 
@@ -119,7 +123,7 @@ void antialiasing(image_t* img, unsigned char* outputImg){
 		for (int i = 0; i < h0; i++){
 			for (int j = 0; j < w0; j++){
 
-				int res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
+				res = minPixelValue * ((img->bitArray[(int)fmax(0, ceil(j/63.0) - 1) * img->h + i] & (1ull << (63 - j % 64))) >> (63 - j % 64));
 				if (res == 0)
 					continue;
 				outputImg[(i/antPow * w0/antPow + j/antPow) * 3 + 0] += res;

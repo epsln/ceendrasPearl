@@ -6,6 +6,6 @@ double schlickEase(double x, double s, double t, double beg, double end, double 
 double complex InOutQuadComplex(double t, double complex beg, double complex end, double nsteps);
 double complex schlickComplex(double x, double s, double t, double complex beg, double complex end, double nsteps);
 
-double complex bezier(float t, int n_steps, double complex controlPoints[n_steps]);
+double complex bezier(int numIm, int fps, int duration, double complex controlPoints[3]);
 
 #endif 

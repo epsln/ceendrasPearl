@@ -34,14 +34,16 @@ double complex schlickComplex(double x, double s, double t, double complex beg, 
 	return schlickEase(x, s, t, creal(beg), creal(end), nsteps) + I * schlickEase(x, s, t, cimag(beg), cimag(end), nsteps);
 }
 
-double complex bezier(float t, int n_steps, double complex controlPoints[n_steps]){
+double complex bezier(int numIm, int fps, int duration, double complex controlPoints[3]){
+	//using the n control points version of bezier is unstable
+	//Use a quadratic and shift the c points 
 	double px = 0;
 	double py = 0;
+	float x = fmod(numIm, fps * duration); 
+	float t = x / (fps * duration * 1.0);
 	
-	int n = n_steps - 1;
-	for (int i = 0; i < n_steps; i++){
-		px += binomial(n, i) * pow(1 - t, n - i) * pow(t, i) * creal(controlPoints[i]); 
-		py += binomial(n, i) * pow(1 - t, n - i) * pow(t, i) * cimag(controlPoints[i]); 
-	}
+
+	px = (1 - t) * ((1 - t) *  creal(controlPoints[0]) + t * creal(controlPoints[1])) + t * ((1 - t) * creal(controlPoints[1]) + t * creal(controlPoints[2]));
+	py = (1 - t) * ((1 - t) *  cimag(controlPoints[0]) + t * cimag(controlPoints[1])) + t * ((1 - t) * cimag(controlPoints[1]) + t * cimag(controlPoints[2]));
 	return px + I * py;
 }

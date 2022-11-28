@@ -17,15 +17,15 @@
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 8 
-#define WIDTH  1920 * ANTIALPOW 
-#define HEIGHT 1080 * ANTIALPOW
-#define BOUNDS 1.05 
+#define ANTIALPOW 4 
+#define WIDTH  3840 * ANTIALPOW 
+#define HEIGHT 2160 * ANTIALPOW
+#define BOUNDS 1.1 
 #define RANDBOUNDS 0 + 1 * I 
-#define EPSI  0.001
-#define MAXWORD 15 
+#define EPSI  0.0001
+#define MAXWORD 19 
 #define LINE 1 
-#define BITWISE 1
+#define BITWISE 0
 #define DEBUG 0
 
 
@@ -40,9 +40,13 @@ int main(){
 	double complex tab = 0.;
 
 	int fps = 30;
-	int duration = 20;
-	int lengthAnim = 120;
+	int duration = 5;
+	int lengthAnim = 10;
 	int numBeziersPoints = 10;
+	if (numBeziersPoints < 3){
+		printf("num bezier points too low (must be >= 3)\n");
+		exit(-2);
+	}
 
 	//Using number of clock ticks to estimate time
 	//Not using a time_t timestamp in case of subsecond compute time
@@ -129,46 +133,41 @@ int main(){
 	dfsArgs * args = malloc(sizeof(*args));
         pthread_t threadArray[4];
 	
-	/*	
-	double complex pa1  = randomComplexFixDist(taBeg, 0.10);
-	double complex pa2  = randomComplexFixDist(taBeg, 0.10);
-	double complex pb1  = randomComplexFixDist(tbBeg, 0.10);
-	double complex pb2  = randomComplexFixDist(tbBeg, 0.10);
-	double complex pab1 = randomComplexFixDist(tabBeg, 0.10);
-	double complex pab2 = randomComplexFixDist(tabBeg, 0.10);
-	*/
 	double complex cPoints_ta[numBeziersPoints];
 	double complex cPoints_tb[numBeziersPoints];
+	double complex cP_ta[3];
+	double complex cP_tb[3];
+
 	cPoints_ta[0] = randomComplex(-2 - I, 2 + I);
 	cPoints_tb[0] = randomComplex(-2 - I, 2 + I);
+
 	for (int i = 1; i < numBeziersPoints; i++){
 		cPoints_ta[i] = randomComplexFixDist(cPoints_ta[i - 1], 0.5);
 		cPoints_tb[i] = randomComplexFixDist(cPoints_tb[i - 1], 0.5);
 	}
+
 	cPoints_ta[numBeziersPoints - 1] = cPoints_ta[0]; 
 	cPoints_tb[numBeziersPoints - 1] = cPoints_tb[0]; 
 
+	cP_ta[0] = cPoints_ta[0];
+	cP_ta[1] = cPoints_ta[1];
+	cP_ta[2] = cPoints_ta[2];
+	cP_tb[0] = cPoints_tb[0];
+	cP_tb[1] = cPoints_tb[1];
+	cP_tb[2] = cPoints_tb[2];
+
 	while(1){
-
-		//Create a filename for the image based on the number of image processed
-		//TODO: Move this to its own function :)
 		srand((unsigned) time(&pt));
-
-		//printf("Image: %s\n\n", pImg->filename);
 
 		//Here, we interpolate between two traces using an easing function
 		//ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-		tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
-		ta = bezier((float)numIm /(fps * lengthAnim), numBeziersPoints, cPoints_ta); 
-		tb = bezier((float)numIm /(fps * lengthAnim), numBeziersPoints, cPoints_tb); 
+		ta = bezier(numIm, fps, duration, cP_ta); 
+		tb = bezier(numIm, fps, duration, cP_tb); 
 		//tb = bezier(tbBeg, pb1, pb2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tab = bezier(tabBeg, pab1, pab2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		//tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
-
-
 
 		if (DEBUG == 1){
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
@@ -176,23 +175,19 @@ int main(){
 		}
 
 		//Compute the associated mu value...
-		/*
-		fract = fareySeq[numIm + 1];
-		//fract = (ratio){1, 100}; 
-		wordLength = fract.p + fract.q;
-		getTraceFromFract(pMu, fract);
-		newtonSolver(pMu, fract); 
-		grandmaRecipe(-I * (0.70567+ I * 1.61688) , 2, gens);
-		*/
-		
-		//ta = randomComplex(-2, 2);
-		//ta = randomComplex(-2 - 2. * I, 2 + 2 * I);
-		//tb = randomComplex(-2 - 1. * I, 2 + 1 * I);
-		tb = -ta;
+		//fract = fareySeq[numIm + 1];
+		//wordLength = fract.p + fract.q;
+		//getTraceFromFract(pMu, fract);
+		//newtonSolver(pMu, fract); 
+		//grandmaRecipe(mu, 2, gens);
+		//maskitRecipe(2, gens);
+	
 		double complex p = -ta * tb;
 		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
 		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
-		grandmaSpecialRecipe(ta, tb, tab, gens);
+		jorgensen(ta, tb, gens);
+		grandmaRecipe(ta, tb, gens);
+		
 
 		//Care with the calloc !
 		speWord = calloc(fract.p + fract.q, sizeof(char));
@@ -200,14 +195,11 @@ int main(){
 		for (int i = 0; i < 4; i++)
 			numFP[i] = 0;
 
-			
-
-
 		getSpecialWordFromFract(fract, speWord);
 		computeRepetendsv2(gens, fixRep, numFP, speWord, wordLength);
 
 		dfsArgs *args;
-
+	
 		//Explore depth first combination of generators...
 		for (int i = 0; i < 4; i++){
 			//Put me in a separate function pls
@@ -240,6 +232,7 @@ int main(){
 		for(int i = 0; i < 4 ; i++){
 			pthread_join(threadArray[i], NULL);
 		}
+		
 		//saveArrayAsSVG(pImg, numIm);
 		saveArrayAsBMP(pImg, numIm);
 		//Update progress bar
@@ -253,6 +246,15 @@ int main(){
 			taEnd  = randomComplexFixDist(taBeg, 0.25);
 			tbEnd  = randomComplexFixDist(taBeg, 0.25);
 			tabEnd = randomComplexFixDist(taBeg, 0.25);
+			
+
+			cP_ta[0] = cP_ta[1];
+			cP_ta[1] = cP_ta[2];
+			cP_ta[2] = cPoints_ta[2 + (int)numIm / (fps * duration)];
+			cP_ta[0] = cP_ta[1];
+			cP_ta[1] = cP_ta[2];
+			cP_tb[2] = cPoints_tb[2 + (int)numIm / (fps * duration)];
+
 
 			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
 				taEnd = taInit;

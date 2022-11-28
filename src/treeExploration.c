@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <math.h>
 
 #include "include/arraysOps.h"
 #include "include/complexMath.h"
@@ -114,7 +115,8 @@ void turnForward(int *lev, int *tag, int* state, int FSA[19][4], double complex*
 
 int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLength, int numFP[4],  double complex* word, image_t* img){
 	//Branch termination check based on the repetends methods
-	float aspectRatio = img->w/(float)img->h;
+	float aspectRatio = fmax(img->w, img->h)/fmin(img->w, img->h);
+	//float aspectRatio = img->h/img->w;
 	double complex buffWord[2][2];
 	matrix3dto2D(word, buffWord, lev);
 	
