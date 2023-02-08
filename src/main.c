@@ -14,18 +14,19 @@
 #include "include/debugTools.h"
 #include "include/easing.h"
 #include "include/recipes.h"
+#include "include/readFiles.h"
 #include "include/accidents.h"
 #include "include/progressBar.h"
 
-#define ANTIALPOW 4 
-#define WIDTH  3840 * ANTIALPOW 
-#define HEIGHT 2160 * ANTIALPOW
+#define ANTIALPOW 1 
+#define WIDTH  4960 * ANTIALPOW 
+#define HEIGHT 3508 * ANTIALPOW
 #define BOUNDS 1.1 
-#define RANDBOUNDS 0 + 1 * I 
+#define RANDBOUNDS 2 + 1.6 * I 
 #define EPSI  0.0001
-#define MAXWORD 19 
-#define LINE 1 
-#define BITWISE 0
+#define MAXWORD 1500
+#define LINE 1
+#define BITWISE 1
 #define DEBUG 0
 
 
@@ -40,9 +41,9 @@ int main(){
 	double complex tab = 0.;
 
 	int fps = 30;
-	int duration = 5;
-	int lengthAnim = 10;
-	int numBeziersPoints = 10;
+	int duration = 10;
+	int lengthAnim = 30;
+	int numBeziersPoints = 6;
 	if (numBeziersPoints < 3){
 		printf("num bezier points too low (must be >= 3)\n");
 		exit(-2);
@@ -92,6 +93,7 @@ int main(){
 	pImg->line    = LINE;
 	pImg->maxword = MAXWORD;
 	pImg->antialiasingPow = ANTIALPOW;
+		ta = randomComplex(-RANDBOUNDS, RANDBOUNDS);
 	pImg->debug  = DEBUG;
 	pImg->bitwise= BITWISE;
 	pImg->filename = malloc(256* sizeof(char));
@@ -111,10 +113,12 @@ int main(){
 	double complex mu = 2*I;
 	double complex *pMu = &mu; 
 
-	int denum = 10;//The maximum denominator we should attain in the farray sequence
+	int denum = 100;//The maximum denominator we should attain in the farray sequence
 
 	//ratio *fareySeq = (ratio * ) malloc(denum*denum);//Allocating an array for the farray sequence using the limit of its length  
-	ratio fareySeq[denum * denum];//Allocating an array for the farray sequence using the limit of its length  
+	int sizeFarey =  3 * denum * denum/(3.141592653579397 * 3.141592653579397); 
+	printf("sizeFarey: %d\n", sizeFarey);
+	ratio fareySeq[sizeFarey];//Allocating an array for the farray sequence using the limit of its length  
 	ratio fract = (ratio) {0, 1};
 	int wordLength = fract.p + fract.q;
 
@@ -123,70 +127,81 @@ int main(){
 	double complex*  fixRep; //2D array containing the fix point of all cyclic perm and inverse of the speWord
 	int numFP[4] = {0}; //Number of fixed point per gens
 
-	makeFiboSeq(10, fareySeq);
+	//makeFiboSeq(10, fareySeq);
 	//makeFareySeq(denum, fareySeq);
 	//makePiSeq(denum * denum, fareySeq);
 	//for(int i = 1; i <= 100; i++){
 	//	fareySeq[i - 1] = (ratio){2, 2*i + 1};
 	//}
-	//makeContinuedFraction(30, 0.1415926, fareySeq);
+	//makeContinuedFraction(30, 1.41421356237, fareySeq);
+	//makeContinuedFraction(10, 2.50290787509589282228390287321821578, fareySeq);
 	dfsArgs * args = malloc(sizeof(*args));
         pthread_t threadArray[4];
 	
-	double complex cPoints_ta[numBeziersPoints];
-	double complex cPoints_tb[numBeziersPoints];
 	double complex cP_ta[3];
 	double complex cP_tb[3];
 
-	cPoints_ta[0] = randomComplex(-2 - I, 2 + I);
-	cPoints_tb[0] = randomComplex(-2 - I, 2 + I);
+	double complex pointsList[256][2];
+	readPoints(pointsList, pImg);
 
-	for (int i = 1; i < numBeziersPoints; i++){
-		cPoints_ta[i] = randomComplexFixDist(cPoints_ta[i - 1], 0.5);
-		cPoints_tb[i] = randomComplexFixDist(cPoints_tb[i - 1], 0.5);
-	}
-
-	cPoints_ta[numBeziersPoints - 1] = cPoints_ta[0]; 
-	cPoints_tb[numBeziersPoints - 1] = cPoints_tb[0]; 
-
-	cP_ta[0] = cPoints_ta[0];
-	cP_ta[1] = cPoints_ta[1];
-	cP_ta[2] = cPoints_ta[2];
-	cP_tb[0] = cPoints_tb[0];
-	cP_tb[1] = cPoints_tb[1];
-	cP_tb[2] = cPoints_tb[2];
+	/*
+	cP_ta[0] = pointsList[0][0];
+	cP_ta[1] = randomComplexFixDist(cP_tb[0], 0.2, RANDBOUNDS);
+	cP_ta[2] = pointsList[1][0];
+	cP_tb[0] = pointsList[0][1];
+	cP_tb[1] = randomComplexFixDist(cP_tb[0], 0.2, RANDBOUNDS);
+	cP_tb[2] = pointsList[1][1];
+	*/
+	cP_ta[0] = randomComplex(-2 - 2 * I, 2 + 2 * I);
+	cP_ta[0] = 2;
+	cP_ta[1] = randomComplexFixDist(cP_ta[0], 0.2, RANDBOUNDS);
+	cP_ta[2] = randomComplexFixDist(cP_ta[1], 0.2, RANDBOUNDS);
+	cP_tb[0] = randomComplex(-2 - 2 * I, 2 + 2 * I);
+	cP_tb[0] = 2;
+	cP_tb[1] = randomComplexFixDist(cP_tb[0], 0.2, RANDBOUNDS);
+	cP_tb[2] = randomComplexFixDist(cP_tb[1], 0.2, RANDBOUNDS);
 
 	while(1){
 		srand((unsigned) time(&pt));
 
 		//Here, we interpolate between two traces using an easing function
 		//ta = InOutQuadComplex((float)(numIm%(fps*duration)), taBeg, -copysign(creal(taBeg- taEnd), creal(taBeg- taEnd)) + I*-copysign(cimag(taBeg- taEnd), cimag(taBeg- taEnd)), (float)fps * duration); tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
-
-		ta = bezier(numIm, fps, duration, cP_ta); 
-		tb = bezier(numIm, fps, duration, cP_tb); 
+		
+		//ta = bezier(numIm, fps, duration, cP_ta); 
+		//tb = bezier(numIm, fps, duration, cP_tb); 
 		//tb = bezier(tbBeg, pb1, pb2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tab = bezier(tabBeg, pab1, pab2, tabEnd, (float)(numIm % (fps * duration + 1))/(fps * duration)); 
 		//tb = InOutQuadComplex((float)(numIm%(fps*duration)), tbBeg, -copysign(creal(tbBeg- tbEnd), creal(tbBeg- tbEnd)) + I*-copysign(cimag(tbBeg- tbEnd), cimag(tbBeg- tbEnd)), (float)fps * duration);
 		//tab = InOutQuadComplex((float)(numIm%(fps*duration)), tabBeg, -copysign(creal(tabBeg- tabEnd), creal(tabBeg- tabEnd)) + I*-copysign(cimag(tabBeg- tabEnd), cimag(tabBeg- tabEnd)), (float)fps * duration);
 
+		//makeContinuedFraction(10, (numIm + 1)/900., fareySeq);
 		if (DEBUG == 1){
 			printf("tab: %lf + I %lf\n", creal(tab), cimag(tab));
 			printf("p/q: %lld/%lld\n", fareySeq[numIm].p, fareySeq[numIm].q);
 		}
 
 		//Compute the associated mu value...
-		//fract = fareySeq[numIm + 1];
-		//wordLength = fract.p + fract.q;
-		//getTraceFromFract(pMu, fract);
-		//newtonSolver(pMu, fract); 
-		//grandmaRecipe(mu, 2, gens);
+		fract = (ratio) {(numIm + 1), 900};
+		fract = simplify_fract(fract);
+		printf("fract: %lld/%lld\n", fract.p, fract.q);
+		wordLength = fract.p + fract.q;
+		getTraceFromFract(pMu, fract);
+		newtonSolver(pMu, fract); 
+		//grandmaRecipe(1.686076 - I* 1.417817, 2, gens);
+		grandmaRecipe(-I * mu, 2, gens);
 		//maskitRecipe(2, gens);
 	
-		double complex p = -ta * tb;
-		double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
-		tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
-		jorgensen(ta, tb, gens);
-		grandmaRecipe(ta, tb, gens);
+		//ta = randomComplex(-2 - I, 2 + I);
+		//tb = randomComplex(-2 - I, 2 + I);
+		//tb = 2;
+		//double complex p = -ta * tb;
+		//double complex q = cpow(ta, 2) + cpow(tb, 2) - 2;
+		//tab = (-p+csqrt(cpow(p, 2) - 4 * q))/2; 
+		//jorgensen(ta, tb, gens);
+		//ta = -1.655227 + -I *0.341670;
+		//jorgensen(ta, -ta, gens);
+		//grandmaSpecialRecipe(ta, tb, tab, gens);
+		//grandmaRecipe(ta, 2, gens);
 		
 
 		//Care with the calloc !
@@ -234,7 +249,9 @@ int main(){
 		}
 		
 		//saveArrayAsSVG(pImg, numIm);
+		//printf("Saving img %d\n", numIm);
 		saveArrayAsBMP(pImg, numIm);
+		saveArrayAsSVG(pImg, numIm);
 		//Update progress bar
 		pBarAnim(numIm, fps * lengthAnim, timeArray); 
 		numIm ++;
@@ -243,27 +260,32 @@ int main(){
 			tbBeg = tbEnd;
 			tabBeg = tabEnd;
 
-			taEnd  = randomComplexFixDist(taBeg, 0.25);
-			tbEnd  = randomComplexFixDist(taBeg, 0.25);
-			tabEnd = randomComplexFixDist(taBeg, 0.25);
+			taEnd  = randomComplexFixDist(taBeg, 0.2, RANDBOUNDS);
+			tbEnd  = randomComplexFixDist(tbBeg, 0.2, RANDBOUNDS);
+			tabEnd = randomComplexFixDist(tabBeg, 0.2, RANDBOUNDS);
 			
 
-			cP_ta[0] = cP_ta[1];
-			cP_ta[1] = cP_ta[2];
-			cP_ta[2] = cPoints_ta[2 + (int)numIm / (fps * duration)];
-			cP_ta[0] = cP_ta[1];
-			cP_ta[1] = cP_ta[2];
-			cP_tb[2] = cPoints_tb[2 + (int)numIm / (fps * duration)];
-
+			//We chose another point that lines in the line formed the last two control points
+			//This is to assure differentiabilty (no weirds kinks)
+			cP_ta[0] = cP_ta[2];
+			cP_ta[1] = ((cP_ta[2] - cP_ta[1])/cabs(cP_ta[2] - cP_ta[1]) + cP_ta[1]);
+			cP_ta[2] = randomComplexFixDist(cP_ta[1], 0.25, RANDBOUNDS);
+			cP_tb[0] = cP_tb[2];
+			cP_tb[1] = ((cP_tb[2] - cP_tb[1])/cabs(cP_tb[2] - cP_tb[1]) + cP_tb[1]);
+			cP_tb[2] = randomComplexFixDist(cP_tb[1], 0.25, RANDBOUNDS);
 
 			if (numIm >= fps * lengthAnim - fps * duration ){//loop by ending up at the begining traces
 				taEnd = taInit;
 				tbEnd = tbInit;
 				tabEnd = tabInit;
+
+				cP_ta[2] = taInit;
+				cP_tb[2] = tbInit;
 			}
 		}
-		if (numIm > fps * lengthAnim){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
-		//if (fract.p == 0 && fract.q == 0){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
+		//if (numIm > fps * lengthAnim){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
+		if (numIm == 900){  return(1);}//Get out of here when we're done !
+		if (fract.p == 0 && fract.q == 0){ pthread_exit(NULL);  return(1);}//Get out of here when we're done !
 		//Else, we go again !
 	}
 	return 0;

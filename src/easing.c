@@ -37,13 +37,11 @@ double complex schlickComplex(double x, double s, double t, double complex beg, 
 double complex bezier(int numIm, int fps, int duration, double complex controlPoints[3]){
 	//using the n control points version of bezier is unstable
 	//Use a quadratic and shift the c points 
-	double px = 0;
-	double py = 0;
+	double complex bt = 0;
 	float x = fmod(numIm, fps * duration); 
 	float t = x / (fps * duration * 1.0);
-	
 
-	px = (1 - t) * ((1 - t) *  creal(controlPoints[0]) + t * creal(controlPoints[1])) + t * ((1 - t) * creal(controlPoints[1]) + t * creal(controlPoints[2]));
-	py = (1 - t) * ((1 - t) *  cimag(controlPoints[0]) + t * cimag(controlPoints[1])) + t * ((1 - t) * cimag(controlPoints[1]) + t * cimag(controlPoints[2]));
-	return px + I * py;
+	bt = (1 - t) * ((1 - t) *  controlPoints[0] + t * controlPoints[1]) + t * ((1 - t) * controlPoints[1] + t * controlPoints[2]);
+
+	return bt; 
 }

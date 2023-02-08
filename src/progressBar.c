@@ -31,7 +31,7 @@ void pBarAnim(int numImg, int totalImg, double timeArray[10]){
 
 	//Add at current time at the end
 	//Divide clock by clock per sec to get time in sec
-	timeArray[(int)fmin(9, numImg)] = (double)clock()/CLOCKS_PER_SEC; 
+	timeArray[(int)fmin(9, numImg)] = (double)clock()/CLOCKS_PER_SEC/4.; 
 
 	//Rolling average 
 	for (int i = 1; i < fmin(10, numImg); i++){

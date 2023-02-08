@@ -149,6 +149,11 @@ int branchTermRepetends(int lev, int* tag, double complex* fixRep, int wordLengt
 			y0 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -img->bounds, img->bounds , img->h, 0);
 			x1 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -aspectRatio * img->bounds, aspectRatio * img->bounds, 0, img->w);
 			y1 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -img->bounds, img->bounds , img->h, 0);
+			
+			//y0 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -img->bounds, img->bounds, 0, img->h);
+			//x0 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i])), -aspectRatio * img->bounds,  aspectRatio * img->bounds ,img->w, 0);
+			//y1 = (int) map(creal(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -img->bounds, img->bounds, 0, img->h);
+			//x1 = (int) map(cimag(mobiusOnPoint(buffWord, fixRep[tag[lev] * sizeArr + i + 1])), -aspectRatio * img->bounds, aspectRatio * img->bounds , img->w, 0);
 			line(x0, y0, x1, y1, img);	
 		}
 		

@@ -23,9 +23,14 @@ double complex randomComplex(double complex min, double complex max){
 	return realPart + I * imagPart;
 }
 
-double complex randomComplexFixDist(double complex z0, double d){//Get a complex number at fixed modulus and rand arg from z0
-	double theta = (double)rand()/(double) RAND_MAX;
-	return d * (cos(theta) + I * sin(theta)) + z0;
+double complex randomComplexFixDist(double complex z0, double d, double complex bounds){//Get a complex number at fixed modulus and rand arg from z0
+	double complex zOut;
+	double theta;
+	do{
+		theta = (double)rand()/(double) RAND_MAX * 2 * 3.1415926285358979323846;
+		zOut = d * (cos(theta) + I * sin(theta)) + z0;
+	}while((creal(zOut) < -creal(bounds) || creal(zOut) > creal(bounds) || cimag(zOut) < -cimag(bounds) || cimag(zOut) > cimag(bounds)));
+	return zOut;
 }
 
 double complex mobiusOnPoint(double complex T[2][2], double complex z){//See pp.75

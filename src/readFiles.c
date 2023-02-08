@@ -3,128 +3,74 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <complex.h>
 
+#include "include/complexMath.h"
+#include "include/readFiles.h"
+#include "include/plot.h"
 
-void readPoints(double *pointsList[2]){
-	FILE* pointsX = NULL;
-	FILE* pointsY = NULL;
+void readPoints(double complex pointsList[256][2], image_t *img){
+	FILE* fp = NULL;
 
-	pointsX = fopen("../jungPtsX.txt", "r");
-	pointsY = fopen("../jungPtsY.txt", "r");
+	fp = fopen("./pointList.cfg", "r");
 
-	char * line = NULL;
-	size_t len = 0;
-	ssize_t read;
+	char line[80];
 
-	double x;
+	double a, b, c, d;
 	int i = 0;
-	if(pointsX == NULL || pointsY == NULL){
-		printf("Couldn't open documents !\n");
+	if(fp == NULL){
+		printf("Couldn't open points file!\n");
 		exit(-1);
 	}
-
-	while ((read = getline(&line, &len, pointsX)) != -1) {
-		x = atof(line);
-		pointsList[i][0] = x;	
-		i+=1;
-	}
-	i = 0;
-	while ((read = getline(&line, &len, pointsY)) != -1) {
-		x = atof(line);
-		pointsList[i][1] = x;	
-		i+=1;
-	}
-	fclose(pointsX);
-	fclose(pointsY);
-}
-
-void readConf(int *RESX, int *RESY, int *NPOINTS, int *JITTER, double *JITTER_B, int *GRAY, int *OPENCL_ITER, int *MAXITER,int *MAXITER_G, int *MAXITER_B, double *RED_C, double *GRE_C, double *BLU_C, char filename[256], int *RAND, char kernelFilename[256]){
-	FILE* conf = NULL;
-
-	conf = fopen("./config.cfg", "r");
-	char * line = NULL;
-	char buff[256] = "";
-	int count = 0;
-
-	size_t len = 0;
-	ssize_t read;
-
-	if (conf == NULL){
-		printf("Could not open config file !\n");
-		exit(-1);
-	}
-
-	while ((read = getline(&line, &len, conf)) != -1) {
-
-		switch(count){
-			case 1:
-				*RAND = atoi(line);
-				break;
-			case 3:
-				*NPOINTS = atoi(line);
-				break;
-			case 5:
-				*RESX = atoi(line);
-				break;
-			case 7:
-				*RESY = atoi(line);
-				break;	
-			case 9:
-				*JITTER = atoi(line);
-				break;	
-			case 11:
-				*JITTER_B = atof(line);
-				break;	
-			case 13:
-				*GRAY = atoi(line);
-				break;	
-			case 15:
-				*OPENCL_ITER = atoi(line);
-				break;	
-			case 17:
-				*MAXITER = atoi(line);
-				break;	
-			case 19:
-				*MAXITER_G = atoi(line);
-				break;	
-			case 21:
-				*MAXITER_B = atoi(line);
-				break;	
-			case 23:
-				*RED_C = atof(line);
-				break;	
-			case 25:
-				*GRE_C = atof(line);
-				break;	
-			case 27:
-				*BLU_C = atof(line);
-				break;	
-			case 29:
-				strcpy(buff, line);
-				//Remove the tab that is on first pos
-				for (int i = 0; i < 255; i++){
-					filename[i] = buff[i+1];
-
-				}
-				strtok(filename, "\n");//Remove newline
-				break;
-			case 31:
-				strcpy(buff, line);
-				//Remove the tab that is on first pos
-				for (int i = 0; i < 255; i++){
-					kernelFilename[i] = buff[i+1];
-
-				}
-				strtok(kernelFilename, "\n");//Remove newline
-				break;
-
-
-
+	while (fgets(line, 80, fp) != NULL) {
+		if (sscanf(line, "%lf %lfi, %lf %lfi\n", &a, &b, &c, &d) == 4){
+			pointsList[i][0] = a + I * b;	
+			pointsList[i][1] = c + I * d;	
 		}
-		count++;
-
+		if (strcmp(line, "RANDOM") == 1){
+			pointsList[i][0] = randomComplex(-img -> bounds, img -> bounds);
+			pointsList[i][1] = randomComplex(-img -> bounds, img -> bounds);
+		}
+		if (strcmp(line, "RANDOM FIX DIST") == 0 && i == 0){
+			pointsList[i][0] = randomComplex(-img -> bounds, img -> bounds);
+			pointsList[i][1] = randomComplex(-img -> bounds, img -> bounds);
+		}
+		if (strcmp(line, "RANDOM FIX DIST") == 0 && i != 0){
+			pointsList[i][0] = randomComplexFixDist(pointsList[i-1][0], a, img -> bounds);
+			pointsList[i][1] = randomComplexFixDist(pointsList[i-1][1], a, img -> bounds);
+		}
+		//if (sscanf(line, "%d/%d", &a, &b) == 2)
+		//		getTraceFromFract(pointsList[i], (ratio) {a, b});	
+		i+=1;
 	}
-
-
-	fclose(conf);	
+	fclose(fp);
 }
+
+/*TODO: Finish up, and modify every important thing from config file
+  void readConf(char filename[256], image_t *img){
+  FILE* fp = NULL;
+
+  fp = fopen("./config.cfg", "r");
+  char* line = NULL;
+  char buff[256] = "";
+  double a, b;
+
+  if (fp == NULL){
+  printf("Could not open config file !\n");
+  exit(-1);
+  }
+
+  while (fgets(line, 80, fp) != NULL) {
+  if (sscanf(line, "%lf + %lfi", &a, &b) == 2)
+  pointsList[i] = a + I * b;	
+  if (strcmp(line, "RANDOM") == 0)
+  pointsList[i] = randomComplex(-img -> bounds, img -> bounds);
+  if (strcmp(line, "RANDOM FIX DIST") == 0 && i == 0)
+  pointsList[i] = randomComplex(-img -> bounds, img -> bounds);
+  if (strcmp(line, "RANDOM FIX DIST") == 0 && i != 0)
+  pointsList[i] = randomComplexFixDist(pointsList[i-1], a, img -> bounds);
+  i+=1;
+  }
+  fclose(fp);
+  }
+  */

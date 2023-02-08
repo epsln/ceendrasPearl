@@ -108,7 +108,7 @@ void antialiasing(image_t* img, unsigned char* inputImg){
 	const int h0 = img->h;
 
 	const int antPow = img->antialiasingPow;
-	const int minPixelValue = 255/(antPow * 2);
+	const int minPixelValue = 255/(antPow * antPow);
 
 	int res = 0;
 
@@ -133,7 +133,7 @@ void antialiasing(image_t* img, unsigned char* inputImg){
 		}
 		//zero bit array after reading
 		//bugged !
-		memset(img->bitArray, 0, (ceil(img->w/64.0) + 100)*img->h *(sizeof(long long int)));
+	//	memset(img->bitArray, 0, (ceil(img->w/64.0) + 100)*img->h *(sizeof(long long int)));
 	}
 	//classical method, just add up all the floats and then divide
 	else{
@@ -146,7 +146,7 @@ void antialiasing(image_t* img, unsigned char* inputImg){
 				outputImg[(j/antPow + i/antPow * w0/antPow ) * 3 + 2] += res; 	
 			}
 		}
-		memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
+	//	memset(img->pointArr, 0, (img->w*img->h) * (sizeof *img->pointArr));
 	}
 }
 

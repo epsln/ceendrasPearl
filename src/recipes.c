@@ -112,6 +112,8 @@ void grandmaSpecialRecipe(double complex ta, double complex tb, double complex t
 }
 
 void jorgensen(double complex ta, double complex tb, double complex* gens){
+	printf("ta:  %lf + %lf\n", creal(ta), cimag(ta));
+	printf("tb:  %lf + %lf\n", creal(tb), cimag(tb));
 	double complex z   = 0.5 * csqrt(ta * ta * tb * tb - 4 * ta * ta - 4 * tb * tb);
 	double complex tab = 0.5 * (ta * tb) - z;
 

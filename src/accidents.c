@@ -16,9 +16,9 @@ double complex tracePoly(ratio fraction, double complex ta, double complex tB, d
 		return tB;
 	}
 
-		
-	int p1, p2, p3;
-	int q1, q2, q3;
+
+	long int p1, p2, p3;
+	long int q1, q2, q3;
 
 	double complex tr_u, tr_v, tr_uv, temp;
 
@@ -71,8 +71,9 @@ void makeFareySeq(int denum, ratio* fareyArr){
 	int k = 0;
 	int i = 1;
 
-	for (int i = 0; i < denum*denum; i++){
-		fareyArr[i] = (ratio) {0, 0};	
+	int sizeArray =  3 * denum * denum /(3.141592653579397 * 3.141592653579397);
+	for (long int idx = 0; idx < sizeArray + 10; idx++){
+		fareyArr[idx] = (ratio) {0, 0};	
 	}
 
 	fareyArr[0] = (ratio) {0, 1};
@@ -85,6 +86,15 @@ void makeFareySeq(int denum, ratio* fareyArr){
 		f2 = (ratio) {f2.p * k - t.p, f2.q * k - t.q};
 		fareyArr[i] = f2;
 	}
+	//TODO: Rewrite me so that we don't write into an array (Just return the next element)
+}
+
+ratio getNextFareyElem(long int denum, ratio f1, ratio f2){
+	ratio t;
+	long int k = (denum + f1.q)/f2.q;
+	t = f1;
+	f1 = f2;
+	return (ratio) {f2.p * k - t.p, f2.q * k - t.q};
 }
 
 void makeFiboSeq(int lengthAnim, ratio* fiboFracts){
@@ -101,35 +111,75 @@ void makePiSeq(int lengthAnim, ratio* piFracts){
 	piFracts[0] = (ratio){4, 1};
 	for (int i = 1; i < lengthAnim ; i++){
 		piFracts[i] = (ratio){piFracts[i - 1].p * (2 * i + 1) + pow(-1, i) * piFracts[i - 1].q * 4,
-	       		              piFracts[i - 1].q * (2 * i + 1)};
+			piFracts[i - 1].q * (2 * i + 1)};
 	}
-	
+
 }
 
-void makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
+ratio add_fract(ratio a, ratio b){
+	return (ratio) {a.p * b.q + a.q * b.p, a.q * b.q};
+}
+
+long int gcd(long int a, long int b){
+	long int temp;
+	while (b != 0){
+		temp = a % b;
+
+		a = b;
+		b = temp;
+	}
+	return a;
+}
+
+ratio simplify_fract(ratio a){
+	long int divisor = gcd(a.p, a.q);	
+	return (ratio) {a.p/divisor, a.q/divisor};
+}
+
+int makeContinuedFraction(int lengthArr, double realNum, ratio* fractionArr){
 	//Creates an array filed with the continued fraction approximation of realNum
-	//TODO: Make this using arbitrary precision...
-	long double intPart;
-	long double reciprocal, num, denum, temp;
-	int fractTerms[lengthArr + 1];//Array to hold the values of the denominator of the continued fraction
-
-
+	double intPart;
+	double reciprocal, num, denum, temp;
+	long int fractTerms[lengthArr + 1];//Array to hold the values of the denominator of the continued fraction
+	printf("realNum: %lf\n", realNum);
+	if (realNum >= 1){
+		intPart = floor(realNum);
+		realNum = realNum - intPart;
+	}
 	intPart = floor(realNum);
 	reciprocal = 1.0/(realNum - intPart);
-	fractTerms[0] = intPart;		
+	printf("rec: %lf int %lf %lf\n", reciprocal, intPart, realNum - intPart);
+	fractTerms[0] = (long int) floor(reciprocal);
 	for (int i = 1; i < lengthArr; i++){
 		intPart = floor(reciprocal);
+		if (reciprocal - intPart < 0.1){
+			lengthArr = i;
+			break;
+		}
 		reciprocal = 1.0/(reciprocal - intPart);
-		fractTerms[i] = (int)intPart;
+		fractTerms[i] = (long int)intPart;
+		printf("fractTerms[%d] = %lld\n", i, fractTerms[i]);
 	}
 
-	num = 1;
-	denum = fractTerms[lengthArr - 1];
-	for(int i = lengthArr - 1; i > 0; i--){
-		temp = denum;
-		denum = fractTerms[i] * denum + num;
-		num = temp;
-		fractionArr[lengthArr - i - 1] = (ratio){num, denum};	
+	if (lengthArr == 1){
+		fractionArr[0] = (ratio){1, fractTerms[0]};
+		printf("fractionArr[0] = %lld/%lld\n", fractionArr[0].p, fractionArr[0].q);
+		return 1;
+	}
+
+	for (int i = 0; i < lengthArr; i++){
+		ratio a = (ratio) {1, fractTerms[i + 1]};	
+		ratio b = (ratio) {fractTerms[i], 1};	
+		ratio out = add_fract(a, b);
+		for (int j = i - 1; j >= 0; j--){
+			if (i == 0) break;
+			ratio a = (ratio) {fractTerms[j], 1};	
+			ratio b = (ratio) {out.q, out.p};	
+			out = add_fract(a, b);
+		}
+		out = (ratio) {out.q, out.p};
+		fractionArr[i] = simplify_fract(out);	
+		printf("fractionArr[%d] = %lld/%lld\n", i, fractionArr[i].p, fractionArr[i].q);
 	}
 }
 
@@ -158,10 +208,10 @@ void nextPQ(int* pP, int* pQ, int denom){
 		p1 = temp0;
 		q1 = temp1;
 		sign = -sign;
-	//	printf("s: %.1f r: %.1f p1/q1: %.1f/%.1f p2/q2: %.1f/%.1f sign: %d\n", s, r, p1, q1, p2, q2, sign);
+		//	printf("s: %.1f r: %.1f p1/q1: %.1f/%.1f p2/q2: %.1f/%.1f sign: %d\n", s, r, p1, q1, p2, q2, sign);
 	}
 	k = floor(((float)denom - sign*q1)/denom);
-//	printf("k: %d\n", k);
+	//	printf("k: %d\n", k);
 	*pP = k * (*pP) + sign * p1;
 	*pQ = k * (*pQ) + sign * q1; 
 
@@ -196,16 +246,32 @@ void getSpecialWordFromFract(ratio fraction, char* specialWord){
 	}
 }
 
+//void getTraceFromFract(double complex *pz0, ratio fraction){
+//	//Get the trace of a particular fraction following each farey neighbor
+//	int sizeArray =  3 * fraction.q * fraction.q/(3.141592653579397 * 3.141592653579397);
+//	printf("sizeArray: %d\n", sizeArray);
+//	ratio fractionArr[sizeArray];
+//	makeFareySeq(fraction.q, fractionArr);
+//	int i = -1;
+//	do{
+//		i++;
+//		newtonSolver(pz0, fractionArr[i]);
+//	}while(fraction.p != fractionArr[i].p || fraction.q != fractionArr[i].q);
+//}
+
 void getTraceFromFract(double complex *pz0, ratio fraction){
 	//Get the trace of a particular fraction following each farey neighbor
-	ratio fractionArr[fraction.q * fraction.q];
-	makeFareySeq(fraction.q, fractionArr);
-	int i = -1;
-	while(fraction.p != fractionArr[i].p || fraction.q != fractionArr[i].q){
-		i++;
-		newtonSolver(pz0, fractionArr[i]);
+	ratio f1 = (ratio) {0, 1};
+	ratio f2 = (ratio) {1, fraction.q};
+	ratio f2_prev = f2;
+	*pz0 = 2 * I;
+	newtonSolver(pz0, f1);
+	while(fraction.p != f2.p || fraction.q != f2.q){
+		newtonSolver(pz0, f2);
+		f2 = getNextFareyElem(fraction.q, f1, f2);
+		f1 = f2_prev;
+		f2_prev = f2;
 	}
-
 }
 
 double complex traceEqn(ratio fraction, double complex mu){
@@ -217,18 +283,18 @@ double complex traceEqn(ratio fraction, double complex mu){
 
 void newtonSolver(double complex *pz0, ratio fraction){
 	//TODO: Maybe implement the halley ? 
-	int maxiter = 100000;
+	int maxiter = 10000;
 	double complex z = *pz0;
-	double epsilon = 1E-10;
+	double epsilon = 1E-6;
 	double complex realVal, imagVal, deriv;
 	double complex traceEqVal;
-	
+
 	//Carefull, without a imaginary part, newton doesnt converge !
 	if (cimag(*pz0) == 0)
 		*pz0 += I;
 
 	if( isinf(cimag(traceEqn(fraction, z))) || isnan(cimag(traceEqn(fraction, z)))){
-		printf("Newton method failed !\nAbandoning all hopes and exiting...\n");
+		printf("Newton method failed! Getting infinity \nAbandoning all hopes and exiting...\n");
 		exit(-1);
 	}
 	for (int i = 0; i < maxiter; i++){
@@ -239,13 +305,14 @@ void newtonSolver(double complex *pz0, ratio fraction){
 		//Update the guess 	
 		traceEqVal = traceEqn(fraction, z);
 		z = z - traceEqVal/deriv;
-		if (cabs(traceEqVal) <= 1E-9 && cabs(z - *pz0) <= 1E-4){
+		if (cabs(traceEqVal) <= 1E-5 && cabs(z - *pz0) <= 1E-4){
 			return;
 		}
 		else{
 			*pz0 = z;
 		}
 	}
+	printf("z: %lf %+lf\n", creal(z), cimag(z));
 	printf("Newton method failed !\nAbandoning all hopes and exiting...\n");
 	exit(-1);
 }
